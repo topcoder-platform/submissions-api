@@ -13,9 +13,12 @@
   "license": "Unlicense",
   "private": true,
   "dependencies": {
+    "aws-sdk": "^2.260.1",
+    "config": "^1.30.0",
     "connect": "^3.2.0",
     "js-yaml": "^3.3.0",
-    "swagger-tools": "0.10.1"
+    "swagger-tools": "0.10.1",
+    "uuid": "^3.2.1"
   },
   "engines": {
     "node": "~8"

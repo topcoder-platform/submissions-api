@@ -1,5 +1,20 @@
 'use strict';
 
+var aws = require('aws-sdk')
+var config = require('config');
+var uuid = require('uuid');
+
+var s3 = new aws.S3();
+
+const uploadToS3 = function(file) {
+  return new Promise(function(resolve, reject) {
+    const params = { Bucket: config.s3.bucket, Key: uuid(), Body: file.buffer };
+    s3.upload(params, function(err, data) {
+      if (err) return reject(err);
+      else resolve(data);
+    });
+  });
+}
 
 /**
  * Create a submission.
@@ -8,18 +23,39 @@
  * body Submission 
  * returns Submission
  **/
-exports.createSubmission = function(body) {
+exports.createSubmission = function(files, body) {
   return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = "";
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
+    // check that only one of (url, file) is provided
+    if (files.submission && body.url) {
+      return reject(400);
+    }
+
+    if (!files.submission && !body.url) {
+      return reject(400);
+    }
+
+    const d = (new Date).toISOString();
+    const sampleResponse = Object.assign({}, body, {
+      createdAt: d,
+      updatedAt: d,
+      createdBy: 'admin',
+      updatedBy: 'admin',
+    });
+
+    if (files.submission) {
+      uploadToS3(files.submission[0])
+        .then(function(data) {
+
+          // Store submission info in DB here
+
+          resolve(Object.assign({}, sampleResponse, { url: data.Location }));
+        })
+        .catch(err => reject(err));
     } else {
-      resolve();
+      resolve(sampleResponse);
     }
   });
 }
-
 
 /**
  * Delete the submission.
@@ -181,4 +217,3 @@ exports.updateSubmission = function(submissionId,body) {
     }
   });
 }
-

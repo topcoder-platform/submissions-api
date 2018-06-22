@@ -290,12 +290,34 @@ paths:
       description: "Create a new submission.\n\n**Authorization:** Submission creation\
         \ is accessible by roles `topcoder user`, `admin` and `copilot`.\n"
       operationId: "createSubmission"
+      consumes:
+         - multipart/form-data
       parameters:
-      - in: "body"
-        name: "body"
+        - in: formData
+          name: submission
+          type: file
+          required: false
+          description: The submission file to upload.
+        - in: formData
+          name: url
+          type: string
+          required: false
+          description: Submission file url.
+        - in: formData
+          name: type
+          type: string
         required: true
-        schema:
-          $ref: "#/definitions/Submission"
+          description: Submission type.
+        - in: formData
+          name: memberId
+          type: string
+          required: true
+          description: Member Id.
+        - in: formData
+          name: challengeId
+          type: string
+          required: true
+          description: Challenge Id.
       responses:
         201:
           description: "Created - The request was successful and the resource is returned."
