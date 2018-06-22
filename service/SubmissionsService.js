@@ -8,7 +8,15 @@ var s3 = new aws.S3();
 
 const uploadToS3 = function(file) {
   return new Promise(function(resolve, reject) {
-    const params = { Bucket: config.s3.bucket, Key: uuid(), Body: file.buffer };
+    const params = {
+      Bucket: config.s3.bucket,
+      Key: uuid(),
+      Body: file.buffer,
+      ContentType: file.mimetype,
+      Metadata: {
+        originalname: file.originalname
+      }
+    };
     s3.upload(params, function(err, data) {
       if (err) return reject(err);
       else resolve(data);
@@ -18,9 +26,9 @@ const uploadToS3 = function(file) {
 
 /**
  * Create a submission.
- * Create a new submission.  **Authorization:** Submission creation is accessible by roles `topcoder user`, `admin` and `copilot`. 
+ * Create a new submission.  **Authorization:** Submission creation is accessible by roles `topcoder user`, `admin` and `copilot`.
  *
- * body Submission 
+ * body Submission
  * returns Submission
  **/
 exports.createSubmission = function(files, body) {
@@ -59,7 +67,7 @@ exports.createSubmission = function(files, body) {
 
 /**
  * Delete the submission.
- * Delete the submission.  **Authorization:** Submission deletion is accessible only by `admin` role. 
+ * Delete the submission.  **Authorization:** Submission deletion is accessible only by `admin` role.
  *
  * submissionId String submission id
  * no response value expected for this operation
@@ -73,7 +81,7 @@ exports.deleteSubmission = function(submissionId) {
 
 /**
  * Get the submission.
- * Get the submission by id.  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`. 
+ * Get the submission by id.  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
  *
  * submissionId String submission id
  * ifNoneMatch String Optional. If used in the request, the If-None-Match request header should utilize the ETag as previously supplied in the response.  (optional)
@@ -95,7 +103,7 @@ exports.getSubmission = function(submissionId,ifNoneMatch,ifModifiedSince) {
 
 /**
  * Get all submissions.
- * Get all submissions. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.  Resulted collection of submissions can be filtered using filter parameters `type`, `url`, `memberId`, `challengeId` (all filter parameters are optional and combined by the logical operation `AND`).  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`. 
+ * Get all submissions. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.  Resulted collection of submissions can be filtered using filter parameters `type`, `url`, `memberId`, `challengeId` (all filter parameters are optional and combined by the logical operation `AND`).  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
  *
  * page Integer The page number. (optional)
  * perPage Integer The number of items to list per page. (optional)
@@ -141,8 +149,8 @@ exports.getSubmissions = function(page,perPage,type,url,memberId,challengeId,ifN
 
 
 /**
- * Get only response status and headers information but no response body for the endpoint. 
- * Get response status and headers information for the endpoint. It does not contain response body.  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`. 
+ * Get only response status and headers information but no response body for the endpoint.
+ * Get response status and headers information for the endpoint. It does not contain response body.  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
  *
  * submissionId String submission id
  * ifNoneMatch String Optional. If used in the request, the If-None-Match request header should utilize the ETag as previously supplied in the response.  (optional)
@@ -157,8 +165,8 @@ exports.headSubmission = function(submissionId,ifNoneMatch,ifModifiedSince) {
 
 
 /**
- * Get only response status and headers information but no response body for the endpoint. 
- * Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.  Requested submissions can be filtered using filter parameters `type`, `url`, `memberId`, `challengeId` (all filter parameters are optional and combined by the logical operation `AND`).  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`. 
+ * Get only response status and headers information but no response body for the endpoint.
+ * Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.  Requested submissions can be filtered using filter parameters `type`, `url`, `memberId`, `challengeId` (all filter parameters are optional and combined by the logical operation `AND`).  **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
  *
  * page Integer The page number. (optional)
  * perPage Integer The number of items to list per page. (optional)
@@ -179,10 +187,10 @@ exports.headSubmissions = function(page,perPage,type,url,memberId,challengeId,if
 
 /**
  * Partially update the submission.
- * Allows to partially modify the submission with the provided request body properties.  **Authorization:** Partially modify of submission is accessible only by `admin` role. 
+ * Allows to partially modify the submission with the provided request body properties.  **Authorization:** Partially modify of submission is accessible only by `admin` role.
  *
  * submissionId String submission id
- * body PartiallySubmission 
+ * body PartiallySubmission
  * returns Submission
  **/
 exports.partiallyUpdateSubmission = function(submissionId,body) {
@@ -200,10 +208,10 @@ exports.partiallyUpdateSubmission = function(submissionId,body) {
 
 /**
  * Update the submission.
- * Update the submission by id.  **Authorization:** Submission update is accessible only by `admin` role. 
+ * Update the submission by id.  **Authorization:** Submission update is accessible only by `admin` role.
  *
  * submissionId String submission id
- * body UpdatableSubmission 
+ * body UpdatableSubmission
  * returns Submission
  **/
 exports.updateSubmission = function(submissionId,body) {

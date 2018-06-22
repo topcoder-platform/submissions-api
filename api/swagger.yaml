@@ -306,7 +306,7 @@ paths:
         - in: formData
           name: type
           type: string
-        required: true
+          required: true
           description: Submission type.
         - in: formData
           name: memberId
