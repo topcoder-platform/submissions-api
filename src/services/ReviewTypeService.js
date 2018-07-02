@@ -52,8 +52,7 @@ getReviewType.schema = {
  * @return {Promise}
  */
 function * createReviewType (entity) {
-
-  const item = _.extend({ "id": uuid() }, entity)
+  const item = _.extend({ 'id': uuid() }, entity)
   // Prepare record to be inserted
   const record = {
     TableName: table,
