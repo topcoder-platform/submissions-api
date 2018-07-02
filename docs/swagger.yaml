@@ -905,7 +905,7 @@ paths:
             example:
               - id: 'a75529df08beff833f4c6282'
                 score: 95.5
-                typeId: 'b0b2a8220fcd169f684093fb'
+                typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'fcadaf16dae64f5fb43bc7ee'
                 scoreCardId: '0bf26a9e69e564a6c2988d12'
                 submissionId: '255456'
@@ -915,7 +915,7 @@ paths:
                 updatedBy: 'admin'
               - id: 'e84031c74a9566fe5ab848eb'
                 score: 77.8
-                typeId: '8bc66db12b81f038a19ecd00'
+                typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: '973fd66d229a7cfdbe9d9981'
                 scoreCardId: 'ffd96446bda80799bb2d34ed'
                 submissionId: '255457'
@@ -1308,13 +1308,10 @@ paths:
             items:
               $ref: '#/definitions/ReviewType'
             example:
-              - id: '928a2ec51c69ef84f5dccc4f'
+              - id: 5
                 name: 'Iterative Review'
                 isActive: true
-              - id: 'c36f666674ed76b0071ee322'
-                name: 'Spec Review'
-                isActive: true
-              - id: '583581ae0c02bad6f274939b'
+              - id: 1
                 name: 'Screening'
                 isActive: true
 
@@ -2031,10 +2028,9 @@ definitions:
       - type: object
         properties:
           id:
-            type: string
-            readOnly: true
+            type: integer
             description: The review type id.
-            example: "928a2ec51c69ef84f5dccc4f"
+            example: 1
       - $ref: "#/definitions/PartiallyReviewType"
 
   PartiallyReviewType:

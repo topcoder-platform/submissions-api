@@ -1,0 +1,59 @@
+/**
+ * Submission Controller
+ */
+
+const SubmissionService = require('../services/SubmissionService')
+
+/**
+ * Get submission details
+ * @param req the http request
+ * @param res the http response
+ */
+function * getSubmission (req, res) {
+  res.json(yield SubmissionService.getSubmission(req.params.submissionId))
+}
+
+/**
+ * Upload and Create submission
+ * @param req the http request
+ * @param res the http response
+ */
+function * createSubmission (req, res) {
+  res.json(yield SubmissionService.createSubmission(req.authUser, req.files, req.body))
+}
+
+/**
+ * Update submission
+ * @param req the http request
+ * @param res the http response
+ */
+function * updateSubmission (req, res) {
+  res.json(yield SubmissionService.updateSubmission(req.authUser, req.params.submissionId, req.body))
+}
+
+/**
+ * Patch submission
+ * @param req the http request
+ * @param res the http response
+ */
+function * patchSubmission (req, res) {
+  res.json(yield SubmissionService.patchSubmission(req.authUser, req.params.submissionId, req.body))
+}
+
+/**
+ * Delete submission
+ * @param req the http request
+ * @param res the http response
+ */
+function * deleteSubmission (req, res) {
+  yield SubmissionService.deleteSubmission(req.params.submissionId)
+  res.status(204).send()
+}
+
+module.exports = {
+  getSubmission,
+  createSubmission,
+  updateSubmission,
+  patchSubmission,
+  deleteSubmission
+}
