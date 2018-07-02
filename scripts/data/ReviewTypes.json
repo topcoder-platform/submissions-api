@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "name": "Screening",
+    "isActive": true
+  },
+  {
+    "id": 2,
+    "name": "Checkpoint Review",
+    "isActive": true
+  },
+  {
+    "id": 3,
+    "name": "Review",
+    "isActive": true
+  },
+  {
+    "id": 4,
+    "name": "Appeals Response",
+    "isActive": true
+  },
+  {
+    "id": 5,
+    "name": "Iterative Review",
+    "isActive": true
+  }
+]

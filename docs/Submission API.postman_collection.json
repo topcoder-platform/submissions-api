@@ -1,0 +1,855 @@
+{
+	"info": {
+		"_postman_id": "6e694dad-12f1-4e9a-b1ce-d327216f5aba",
+		"name": "Submission API",
+		"description": "Topcoder Submission API Postman Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "ReviewType",
+			"description": "End points related to ReviewType",
+			"item": [
+				{
+					"name": "Create Review type without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "540a4d45-a491-48dd-be1d-420818ca7f1b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Review type with all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b2f11e27-b26c-4bf9-9135-1af5a3283217",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review type with invalid values",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/-1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"-1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review type with non existent review types",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/999",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review type with User Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/5",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET valid Review type with Admin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/5",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review type without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e90f2782-b6ab-4ad1-af02-735a1b261cbc",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing update\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review type without all attributes Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f13eec0d-52e8-4650-b1b0-2db09992067b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing update\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Review Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0650c1a1-4c4b-4a62-88b6-2e0ddf0ae236",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing patch\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "090f7890-3f04-48fc-9816-460f51a8b68d",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Submission",
+			"description": "End points related to Submission",
+			"item": [
+				{
+					"name": "Create Submission by Uploading file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
+								"type": "text/javascript",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"submissionID\", response.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "submission",
+									"description": "",
+									"type": "file"
+								},
+								{
+									"key": "type",
+									"value": "challengesubmission",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "memberId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "challengeId",
+									"value": "c56a4180-65aa-42ec-a945-3f521dec0587",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Submission with URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dc626f22-ee07-4a39-b0d5-a7e5fb88bc51",
+								"type": "text/javascript",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"submissionID\", response.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "challengesubmission",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "memberId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "challengeId",
+									"value": "c56a4180-65aa-42ec-a945-3f521dec0587",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission with invalid Submission ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/submissions/974969cb-33fb-4fc9-83f8-39e15d",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"974969cb-33fb-4fc9-83f8-39e15d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission with non-existent submission ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/submissions/974969cb-33fb-4fc9-83f8-39e15d3fffff",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"974969cb-33fb-4fc9-83f8-39e15d3fffff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Try update with User Token",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Try update without complete Details",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "testing",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://something.com",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Update by Admin",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "testing",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://something.com",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "memberId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "challengeId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec2543",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Patch by Admin",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "test patching",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://patching.com",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Submission",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "36ae69eb-1c73-452b-8311-7da740456368",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "36485be4-86c2-46a9-aa9d-3e6a662ab673",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}
