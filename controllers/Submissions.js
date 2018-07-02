@@ -4,13 +4,20 @@ var utils = require('../utils/writer.js');
 var Submissions = require('../service/SubmissionsService');
 
 module.exports.createSubmission = function createSubmission (req, res, next) {
-  var body = req.swagger.params['body'].value;
-  Submissions.createSubmission(body)
+  Submissions.createSubmission(req.files, req.body)
     .then(function (response) {
       utils.writeJson(res, response);
     })
     .catch(function (response) {
-      utils.writeJson(res, response);
+      let payload;
+
+      if (response && Number.isInteger(response)) {
+        payload = utils.respondWithCode(response);
+        utils.writeJson(res, payload);
+      } else {
+        payload = utils.respondWithCode(500); // server error
+        utils.writeJson(res, payload);
+      }
     });
 };
 

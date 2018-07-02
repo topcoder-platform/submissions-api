@@ -1,0 +1,63 @@
+{
+	"variables": [],
+	"info": {
+		"name": "Topcoder Submissions API",
+		"_postman_id": "7a79b44d-4d92-6819-3069-07eccdb9c1f0",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "submissions",
+			"description": "",
+			"item": [
+				{
+					"name": "Create Submission",
+					"request": {
+						"url": "{{URL}}/submissions",
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "submission",
+									"description": "",
+									"type": "file",
+									"src": "attachment.png",
+									"disabled": true
+								},
+								{
+									"key": "type",
+									"value": "osdinfosin",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "memberId",
+									"value": "sodinfoin",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "challengeId",
+									"value": "soidnfoin",
+									"description": "",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://content.topcoder.com/xyz",
+									"description": "",
+									"type": "text"
+								}
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
