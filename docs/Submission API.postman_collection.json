@@ -38,7 +38,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\"\n}"
+							"raw": "{\n\t\"name\": \"testing\"\n}"
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes",
@@ -58,10 +58,13 @@
 						{
 							"listen": "test",
 							"script": {
-								"id": "b2f11e27-b26c-4bf9-9135-1af5a3283217",
+								"id": "78c8501d-f571-4e64-9d17-9e457f938674",
 								"type": "text/javascript",
 								"exec": [
-									""
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"reviewTypeID\", response.id);",
+									"}"
 								]
 							}
 						}
@@ -80,7 +83,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": "{\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes",
@@ -125,13 +128,13 @@
 							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
 						},
 						"url": {
-							"raw": "{{URL}}/reviewTypes/-1",
+							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21dec05",
 							"host": [
 								"{{URL}}"
 							],
 							"path": [
 								"reviewTypes",
-								"-1"
+								"c56a4180-65aa-42ec-a945-5fd21dec05"
 							]
 						}
 					},
@@ -168,13 +171,13 @@
 							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
 						},
 						"url": {
-							"raw": "{{URL}}/reviewTypes/999",
+							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21decff87",
 							"host": [
 								"{{URL}}"
 							],
 							"path": [
 								"reviewTypes",
-								"999"
+								"c56a4180-65aa-42ec-a945-5fd21decff87"
 							]
 						}
 					},
@@ -211,13 +214,13 @@
 							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
 						},
 						"url": {
-							"raw": "{{URL}}/reviewTypes/5",
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
 							"host": [
 								"{{URL}}"
 							],
 							"path": [
 								"reviewTypes",
-								"5"
+								"{{reviewTypeID}}"
 							]
 						}
 					},
@@ -254,13 +257,13 @@
 							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
 						},
 						"url": {
-							"raw": "{{URL}}/reviewTypes/5",
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
 							"host": [
 								"{{URL}}"
 							],
 							"path": [
 								"reviewTypes",
-								"5"
+								"{{reviewTypeID}}"
 							]
 						}
 					},

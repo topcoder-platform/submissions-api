@@ -4,6 +4,7 @@
 
 const errors = require('common-errors')
 const _ = require('lodash')
+const uuid = require('uuid/v4')
 const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
 
@@ -20,7 +21,7 @@ function * _getReviewType (reviewTypeId) {
   const filter = {
     TableName: table,
     Key: {
-      'id': Number(reviewTypeId)
+      'id': reviewTypeId
     }
   }
   const result = yield dbhelper.getRecord(filter)
@@ -42,7 +43,7 @@ function * getReviewType (reviewTypeId) {
 }
 
 getReviewType.schema = {
-  reviewTypeId: joi.id().required()
+  reviewTypeId: joi.string().uuid().required()
 }
 
 /**
@@ -51,25 +52,22 @@ getReviewType.schema = {
  * @return {Promise}
  */
 function * createReviewType (entity) {
-  const exist = yield _getReviewType(entity.id)
-  if (exist) {
-    throw new errors.HttpStatusError(409, `Review type with ID = ${entity.id} already exists.`)
-  }
+
+  const item = _.extend({ "id": uuid() }, entity)
   // Prepare record to be inserted
   const record = {
     TableName: table,
-    Item: entity
+    Item: item
   }
 
   yield dbhelper.insertRecord(record)
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
-  return entity
+  return item
 }
 
 createReviewType.schema = {
   entity: joi.object().keys({
-    id: joi.id().required(),
     name: joi.string().required(),
     isActive: joi.boolean().required()
   }).required()
@@ -91,7 +89,7 @@ function * _updateReviewType (reviewTypeId, entity) {
   const record = {
     TableName: table,
     Key: {
-      'id': Number(reviewTypeId)
+      'id': reviewTypeId
     },
     UpdateExpression: 'set #name = :n, isActive = :a',
     ExpressionAttributeValues: {
@@ -119,7 +117,7 @@ function * updateReviewType (reviewTypeId, entity) {
 }
 
 updateReviewType.schema = {
-  reviewTypeId: joi.id().required(),
+  reviewTypeId: joi.string().uuid().required(),
   entity: joi.object().keys({
     name: joi.string().required(),
     isActive: joi.boolean().required()
@@ -137,7 +135,7 @@ function * patchReviewType (reviewTypeId, entity) {
 }
 
 patchReviewType.schema = {
-  reviewTypeId: joi.id().required(),
+  reviewTypeId: joi.string().uuid().required(),
   entity: joi.object().keys({
     name: joi.string(),
     isActive: joi.boolean()
@@ -159,7 +157,7 @@ function * deleteReviewType (reviewTypeId) {
   const filter = {
     TableName: table,
     Key: {
-      'id': Number(reviewTypeId)
+      'id': reviewTypeId
     }
   }
 
@@ -167,7 +165,7 @@ function * deleteReviewType (reviewTypeId) {
 }
 
 deleteReviewType.schema = {
-  reviewTypeId: joi.id().required()
+  reviewTypeId: joi.string().uuid().required()
 }
 
 module.exports = {

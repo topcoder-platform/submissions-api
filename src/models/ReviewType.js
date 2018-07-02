@@ -10,7 +10,7 @@ const ReviewType = {
     { AttributeName: 'id', KeyType: 'HASH' } // Partition key
   ],
   AttributeDefinitions: [
-    { AttributeName: 'id', AttributeType: 'N' } // N -> Number
+    { AttributeName: 'id', AttributeType: 'S' } // S -> String
   ],
   ProvisionedThroughput: {
     ReadCapacityUnits: config.AWS_READ_UNITS,

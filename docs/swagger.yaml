@@ -905,7 +905,7 @@ paths:
             example:
               - id: 'a75529df08beff833f4c6282'
                 score: 95.5
-                typeId: 1
+                typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'fcadaf16dae64f5fb43bc7ee'
                 scoreCardId: '0bf26a9e69e564a6c2988d12'
                 submissionId: '255456'
@@ -915,7 +915,7 @@ paths:
                 updatedBy: 'admin'
               - id: 'e84031c74a9566fe5ab848eb'
                 score: 77.8
-                typeId: 1
+                typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: '973fd66d229a7cfdbe9d9981'
                 scoreCardId: 'ffd96446bda80799bb2d34ed'
                 submissionId: '255457'
@@ -1756,7 +1756,7 @@ parameters:
     name: typeId
     description: The type id filter for reviews.
     required: false
-    type: integer
+    type: string
 
   filterReviewReviewerId:
     in: query
@@ -1819,7 +1819,7 @@ parameters:
     in: path
     description: review type id
     required: true
-    type: integer
+    type: string
 
   submissionIdParam:
     name: submissionId
