@@ -92,6 +92,7 @@ createReview.schema = {
 /*
  * Function to update review in the database
  * This function will be used internally by both PUT and PATCH
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be updated
  * @param {Object} entity Data to be updated
  * @return {Promise}
@@ -134,6 +135,7 @@ function * _updateReview (authUser, reviewId, entity) {
 
 /**
  * Function to update review in database
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be updated
  * @param {Object} entity Data to be updated
  * @return {Promise}
@@ -156,6 +158,7 @@ updateReview.schema = {
 
 /**
  * Function to patch review in database
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be patched
  * @param {Object} entity Data to be patched
  * @return {Promise}

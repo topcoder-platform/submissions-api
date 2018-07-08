@@ -50,6 +50,7 @@ getReviewSummation.schema = {
 
 /**
  * Function to create Review summation in database
+ * @param {Object} authUser Authenticated User
  * @param {Object} entity Data to be inserted
  * @return {Promise}
  */
@@ -90,6 +91,7 @@ createReviewSummation.schema = {
 /*
  * Function to update Review summation in the database
  * This function will be used internally by both PUT and PATCH
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewSummationId reviewSummationId which need to be updated
  * @param {Object} entity Data to be updated
  * @return {Promise}
@@ -103,6 +105,14 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
   // Check the validness of references using Helper function
   yield HelperService._checkRef(entity)
 
+  let isPassing // Attribute to store boolean value
+
+  if (entity.isPassing === undefined) {
+    isPassing = exist.isPassing
+  } else {
+    isPassing = entity.isPassing
+  }
+
   const currDate = (new Date()).toISOString()
 
   // Record used for updating in Database
@@ -112,11 +122,12 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       'id': reviewSummationId
     },
     UpdateExpression: `set aggregateScore = :s, scoreCardId = :sc, submissionId = :su, 
-                        updated = :ua, updatedBy = :ub`,
+                        isPassing = :ip, updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
       ':s': entity.aggregateScore || exist.aggregateScore,
       ':sc': entity.scoreCardId || exist.scoreCardId,
       ':su': entity.submissionId || exist.submissionId,
+      ':ip': isPassing,
       ':ua': currDate,
       ':ub': authUser.handle
     }
@@ -129,6 +140,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
 
 /**
  * Function to update Review summation in database
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewSummationId reviewSummationId which need to be updated
  * @param {Object} entity Data to be updated
  * @return {Promise}
@@ -150,6 +162,7 @@ updateReviewSummation.schema = {
 
 /**
  * Function to patch Review summation in database
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewSummationId reviewSummationId which need to be patched
  * @param {Object} entity Data to be patched
  * @return {Promise}
