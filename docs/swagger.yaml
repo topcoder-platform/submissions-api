@@ -76,20 +76,20 @@ paths:
             items:
               $ref: '#/definitions/Submission'
             example:
-              - id: f11668564ca74c265de7009b
+              - id: 'a12a4180-65aa-42ec-a945-5fd21dec0503'
                 type: ContestSubmission
                 url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456'
-                memberId: d40796a325341bdb8c973656
-                challengeId: 8b1a70e7e492adc4551a0d68
+                memberId: 'a12a4180-65aa-42ec-a945-5fd21dec0501'
+                challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'topcoder user'
                 updatedBy: 'topcoder user'
-              - id: c160c47299589a2d90bd2247
+              - id: 'a12a4180-65aa-42ec-a945-5fd21dec0513'
                 type: ContestSubmission
                 url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457'
-                memberId: d40796a325341bdb8c973656
-                challengeId: 8b1a70e7e492adc4551a0d68
+                memberId: 'a12a4180-65aa-42ec-a945-5fd21dec0552'
+                challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 created: '2018-05-20T08:00:30.000Z'
                 updated: '2018-06-01T09:23:00.178Z'
                 createdBy: 'topcoder user'
@@ -499,19 +499,19 @@ paths:
             items:
               $ref: '#/definitions/ReviewSummation'
             example:
-              - id: 38c31a722f4be8d96c2bf02d
-                submissionId: 9ff95a9cb59a973c3fd68833
+              - id: 'a12a4180-65aa-42ec-a945-5fd21dec1503'
+                submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec1567'
                 aggregateScore: 17.8
-                scoreCardId: a6999566638fb16dbdf668fd
+                scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587'
                 isPassing: false
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: copilot
                 updatedBy: copilot
-              - id: 6c238bd70a8df6d57f8cbdb4
-                submissionId: 0e1c182598114350758eaca7
+              - id: 'a12a4180-65aa-42ec-a945-5fd21dec1504'
+                submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec1568'
                 aggregateScore: 97.8
-                scoreCardId: b3916bd336590c55577d3056
+                scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587'
                 isPassing: true
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
@@ -903,22 +903,22 @@ paths:
             items:
               $ref: '#/definitions/Review'
             example:
-              - id: 'a75529df08beff833f4c6282'
+              - id: 'a12a4180-65aa-42ec-a945-5fd21dec0503'
                 score: 95.5
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
-                reviewerId: 'fcadaf16dae64f5fb43bc7ee'
-                scoreCardId: '0bf26a9e69e564a6c2988d12'
-                submissionId: '255456'
+                reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
+                scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503'
+                submissionId: 'd67a4180-65aa-42ec-a945-5fd21dec0503'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'admin'
                 updatedBy: 'admin'
-              - id: 'e84031c74a9566fe5ab848eb'
-                score: 77.8
+              - id: 'a23c4180-65aa-42ec-a945-5fd21dec0503'
+                score: 73.2
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
-                reviewerId: '973fd66d229a7cfdbe9d9981'
-                scoreCardId: 'ffd96446bda80799bb2d34ed'
-                submissionId: '255457'
+                reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
+                scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503'
+                submissionId: 'd23a4180-65aa-42ec-a945-5fd21dec0503'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'admin'
@@ -1308,10 +1308,10 @@ paths:
             items:
               $ref: '#/definitions/ReviewType'
             example:
-              - id: 5
+              - id: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
                 name: 'Iterative Review'
                 isActive: true
-              - id: 1
+              - id: 'a12bc180-65ab-42ec-a945-5fd2dec1568'
                 name: 'Screening'
                 isActive: true
 
@@ -1869,7 +1869,7 @@ definitions:
             type: string
             readOnly: true
             description:  The submission id.
-            example: 'f11668564ca74c265de7009b'
+            example: a12a4180-65aa-42ec-a945-5fd21def1567'
       - $ref: "#/definitions/PartiallySubmission"
       - $ref: "#/definitions/Auditable"
 
@@ -1888,11 +1888,11 @@ definitions:
       memberId:
         type: string
         description:  The submission member id.
-        example: 'd40796a325341bdb8c973656'
+        example: 'a84a4180-65aa-42ec-a945-5fd21dec1567'
       challengeId:
         type: string
         description:  The submission challenge id.
-        example: '8b1a70e7e492adc4551a0d68'
+        example: 'a12bc180-65aa-42ec-a945-5fd21dec1567'
 
   UpdatableSubmission:
     description: The submission entity fields that updates whole entity.
@@ -1921,7 +1921,7 @@ definitions:
             type: string
             readOnly: true
             description: The review summation id.
-            example: '38c31a722f4be8d96c2bf02d'
+            example: 'a12bc180-65aa-42ec-a945-7ad21dec1567'
       - $ref: "#/definitions/PartiallyReviewSummation"
       - $ref: "#/definitions/Auditable"
 
@@ -1932,7 +1932,7 @@ definitions:
       submissionId:
         type: string
         description: The review summation submission id.
-        example: '9ff95a9cb59a973c3fd68833'
+        example: 'a12bc180-43aa-42ec-a945-5fd21dec1567'
       aggregateScore:
         type: number
         format: double
@@ -1941,7 +1941,7 @@ definitions:
       scoreCardId:
         type: string
         description: The review summation score card id.
-        example: 'a6999566638fb16dbdf668fd'
+        example: 'a12bc180-65aa-42aa-a945-5fd21dec1567'
       isPassing:
         type: boolean
         description: The review summation passing boolean flag.
@@ -1975,7 +1975,7 @@ definitions:
             type: string
             readOnly: true
             description: The review id.
-            example: 'a75529df08beff833f4c6282'
+            example: 'a12bd180-65aa-42ec-a945-5fd21dec1567'
       - $ref: "#/definitions/PartiallyReview"
       - $ref: "#/definitions/Auditable"
 
@@ -1991,19 +1991,19 @@ definitions:
       typeId:
         type: string
         description: The review type id.
-        example: 'b0b2a8220fcd169f684093fb'
+        example: 'a12bc180-65ab-42ec-a945-5fd21dec1567'
       reviewerId:
         type: string
-        example: 'fcadaf16dae64f5fb43bc7ee'
+        example: 'a12bc280-65ab-42ec-a945-5fd21dec1567'
         description: The review reviewer id.
       scoreCardId:
         type: string
         description: The review score card id.
-        example: '0bf26a9e69e564a6c2988d12'
+        example: 'a12bd180-65ab-42ec-a945-5fd21dec1567'
       submissionId:
         type: string
         description: The submission id.
-        example: '255456'
+        example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
 
   UpdatableReview:
     description: The review entity fields that updates whole entity.
@@ -2028,9 +2028,9 @@ definitions:
       - type: object
         properties:
           id:
-            type: integer
+            type: string
             description: The review type id.
-            example: 1
+            example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
       - $ref: "#/definitions/PartiallyReviewType"
 
   PartiallyReviewType:
