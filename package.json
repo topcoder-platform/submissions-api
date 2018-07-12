@@ -26,8 +26,9 @@
     "http-status": "^1.2.0",
     "joi": "^13.4.0",
     "lodash": "^4.17.10",
+    "superagent": "^3.8.3",
     "swagger-ui-express": "^3.0.10",
-    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.3",
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#feature/m2mtoken",
     "uuid": "^3.3.0",
     "winston": "^2.4.3",
     "yamljs": "^0.3.0"

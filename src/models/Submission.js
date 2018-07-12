@@ -13,8 +13,8 @@ const Submission = {
     { AttributeName: 'id', AttributeType: 'S' } // S -> String
   ],
   ProvisionedThroughput: {
-    ReadCapacityUnits: config.AWS_READ_UNITS,
-    WriteCapacityUnits: config.AWS_WRITE_UNITS
+    ReadCapacityUnits: config.aws.AWS_READ_UNITS,
+    WriteCapacityUnits: config.aws.AWS_WRITE_UNITS
   }
 }
 

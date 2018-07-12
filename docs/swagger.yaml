@@ -17,10 +17,9 @@ info:
     url: 'http://www.topcoder.com/support'
     email: support@topcoder.com
 
-host: api.topcoder.com
-basePath: /v5
 schemes:
   - https
+  - http
 produces:
   - application/json
 consumes:
