@@ -255,6 +255,14 @@ paths:
           type: string
           required: true
           description: Challenge Id.
+        - in: formData
+          name: legacySubmissionId
+          type: string
+          description: Legacy Submission Id
+        - in: formData
+          name: submissionPhaseId
+          type: string
+          description: Submission Phase Id
       responses:
         201:
           description: Created - The request was successful and the resource is returned.
