@@ -38,6 +38,8 @@ npm i
 
 6. Refer to config/default.js and Set up the environment variables as necessary
 
+e.g.
+
 ```
 export AWS_REGION="<AWS Region>"
 export S3_BUCKET="<S3 Bucket Name>"

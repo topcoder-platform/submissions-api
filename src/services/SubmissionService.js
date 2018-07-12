@@ -8,10 +8,15 @@ const errors = require('common-errors')
 const joi = require('joi')
 const _ = require('lodash')
 const uuid = require('uuid/v4')
+const request = require('superagent')
 const dbhelper = require('../common/dbhelper')
+const helper = require('../common/helper')
+const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
 const s3 = new AWS.S3()
 
 const table = 'Submission'
+
+Promise.promisifyAll(request)
 
 /*
  * Function to upload file to S3
@@ -21,7 +26,7 @@ const table = 'Submission'
 function * _uploadToS3 (file) {
   return new Promise((resolve, reject) => {
     const params = {
-      Bucket: config.S3_BUCKET,
+      Bucket: config.aws.S3_BUCKET,
       Key: uuid(),
       Body: file.data,
       ContentType: file.mimetype,
@@ -93,7 +98,6 @@ function * createSubmission (authUser, files, entity) {
 
   if (files && files.submission) {
     const file = yield _uploadToS3(files.submission)
-    console.log(file)
     url = file.Location
   }
 
@@ -111,6 +115,14 @@ function * createSubmission (authUser, files, entity) {
     'updatedBy': authUser.handle
   }
 
+  if (entity.legacySubmissionId) {
+    item['legacySubmissionId'] = entity.legacySubmissionId
+  }
+
+  if (entity.submissionPhaseId) {
+    item['submissionPhaseId'] = entity.submissionPhaseId
+  }
+
   // Prepare record to be inserted
   const record = {
     TableName: table,
@@ -118,6 +130,45 @@ function * createSubmission (authUser, files, entity) {
   }
 
   yield dbhelper.insertRecord(record)
+
+  // Push Submission created event to Bus API
+  // M2M token necessary for pushing to Bus API
+  const token = yield helper.getM2Mtoken()
+
+  // Request body for Posting to Bus API
+  const reqBody = {
+    'topic': events.submission.create,
+    'originator': originator,
+    'timestamp': currDate, // time when submission was created
+    'mime-type': mimeType,
+    'payload': {
+      'submissionId': item.id,
+      'challengeId': entity.challengeId,
+      'userId': authUser.userId
+    }
+  }
+
+  // If the file is uploaded, set properties accordingly
+  if (files && files.submission) {
+    reqBody['payload']['isFileSubmission'] = true
+    reqBody['payload']['fileType'] = fileType
+    reqBody['payload']['filename'] = files.submission.name
+  } else { // If the file URL is provided, handle accordingly
+    reqBody['payload']['isFileSubmission'] = false
+    reqBody['payload']['fileURL'] = url
+  }
+
+  if (entity.submissionPhaseId) {
+    reqBody['payload']['submissionPhaseId'] = entity.submissionPhaseId
+  }
+
+  // Post submission creation event to Bus API
+  yield request
+    .post(config.BUSAPI_EVENTS_URL)
+    .set('Authorization', `Bearer ${token}`)
+    .set('Content-Type', 'application/json')
+    .send(reqBody)
+
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
   return item
@@ -130,7 +181,9 @@ createSubmission.schema = {
     type: joi.string().required(),
     url: joi.string().uri().trim(),
     memberId: joi.string().uuid().required(),
-    challengeId: joi.string().uuid().required()
+    challengeId: joi.string().uuid().required(),
+    legacySubmissionId: joi.string().uuid(),
+    submissionPhaseId: joi.string().uuid()
   }).required()
 }
 
@@ -156,7 +209,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
       'id': submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c, 
-                        updatedAt = :ua, updatedBy = :ub`,
+                        updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
@@ -170,6 +223,19 @@ function * _updateSubmission (authUser, submissionId, entity) {
       '#url': 'url'
     }
   }
+
+  // If legacy submission ID exists, add it to the update expression
+  if (entity.legacySubmissionId || exist.legacySubmissionId) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, legacySubmissionId = :ls`
+    record['ExpressionAttributeValues'][':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
+  }
+
+  // If submissionPhaseId exists, add it to the update expression
+  if (entity.submissionPhaseId || exist.submissionPhaseId) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, submissionPhaseId = :sp`
+    record['ExpressionAttributeValues'][':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
+  }
+
   yield dbhelper.updateRecord(record)
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -194,7 +260,9 @@ updateSubmission.schema = {
     type: joi.string().required(),
     url: joi.string().uri().trim().required(),
     memberId: joi.string().uuid().required(),
-    challengeId: joi.string().uuid().required()
+    challengeId: joi.string().uuid().required(),
+    legacySubmissionId: joi.string().uuid(),
+    submissionPhaseId: joi.string().uuid()
   }).required()
 }
 
@@ -216,7 +284,9 @@ patchSubmission.schema = {
     type: joi.string(),
     url: joi.string().uri().trim(),
     memberId: joi.string().uuid(),
-    challengeId: joi.string().uuid()
+    challengeId: joi.string().uuid(),
+    legacySubmissionId: joi.string().uuid(),
+    submissionPhaseId: joi.string().uuid()
   })
 }
 

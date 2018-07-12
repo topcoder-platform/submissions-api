@@ -53,7 +53,7 @@ _.each(routes, (verbs, url) => {
     // add Authenticator check if route has auth
     if (def.auth) {
       actions.push((req, res, next) => {
-        authenticator(def.auth)(req, res, next)
+        authenticator(_.pick(config, ['AUTH_SECRET', 'VALID_ISSUERS']))(req, res, next)
       })
 
       actions.push((req, res, next) => {
@@ -71,15 +71,17 @@ _.each(routes, (verbs, url) => {
     }
 
     actions.push(method)
-    winston.info(`API : ${verb.toLocaleUpperCase()} /${config.API_VERSION}${url}`)
-    apiRouter[verb](`/${config.API_VERSION}${url}`, helper.autoWrapExpress(actions))
+    winston.info(`API : ${verb.toLocaleUpperCase()} ${config.API_VERSION}${url}`)
+    apiRouter[verb](`${config.API_VERSION}${url}`, helper.autoWrapExpress(actions))
   })
 })
 /* eslint-enable no-param-reassign */
 
 app.use('/', apiRouter)
 app.use(errorMiddleware())
-// Serve Swagger Docs
+// Serve Swagger Docs after setting host and base path
+swaggerDocument.host = config.HOST
+swaggerDocument.basePath = config.API_VERSION
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // Check if the route is not found or HTTP method is not supported

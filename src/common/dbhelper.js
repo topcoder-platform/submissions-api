@@ -11,7 +11,7 @@ const dbs = { }
 const dbClients = { }
 
 AWS.config.update({
-  region: config.AWS_REGION
+  region: config.aws.AWS_REGION
 })
 
 /**
