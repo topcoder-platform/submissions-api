@@ -86,13 +86,17 @@ Swagger UI will be served at `http://localhost:3000/docs`
 
 2. Import Postman environment and Collection from `docs` directory
 
-3. Postman API requests are categorized into two parts 
-   - ReviewType
+3. Postman API requests are categorized into four parts 
+   - Review Type
    - Submission
+   - Review
+   - Review Summation
 
 4. Postman collection contains both positive and few negative test cases
 
 5. After creating a submission, submissionId will be automatically set in Postman environment to serve future requests
+
+6. Please ensure to create a submission using Postman before testing Review and ReviewSummation end points, since the body of few Review and ReviewSummation requests references `submissionId` from Environment which is set by triggering POST /submissions request in Postman.
 
 ## General Notes
 

@@ -248,6 +248,7 @@ deleteSubmission.schema = {
 
 module.exports = {
   getSubmission,
+  _getSubmission,
   createSubmission,
   updateSubmission,
   patchSubmission,

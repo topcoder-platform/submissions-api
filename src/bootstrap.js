@@ -9,6 +9,7 @@ const path = require('path')
 const logger = require('./common/logger')
 
 joi.id = () => joi.number().integer().min(1)
+joi.score = () => joi.number().min(0).max(100)
 
 function buildServices (dir) {
   const files = fs.readdirSync(dir)

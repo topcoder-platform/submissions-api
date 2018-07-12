@@ -169,6 +169,7 @@ deleteReviewType.schema = {
 
 module.exports = {
   getReviewType,
+  _getReviewType,
   createReviewType,
   updateReviewType,
   patchReviewType,

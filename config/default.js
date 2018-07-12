@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-  DISABLE_LOGGING: process.env.DISABLE_LOGGING || true, // If true, logging will be disabled
+  DISABLE_LOGGING: process.env.DISABLE_LOGGING || false, // If true, logging will be disabled
   LOG_LEVEL: process.env.LOG_LEVEL || 'debug',
   WEB_SERVER_PORT: process.env.PORT || 3000,
   AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
