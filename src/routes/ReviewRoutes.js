@@ -8,7 +8,8 @@ module.exports = {
       controller: 'ReviewController',
       method: 'createReview',
       auth: 'jwt',
-      access: ['Administrator', 'Copilot']
+      access: ['Administrator', 'Copilot'],
+      scopes: ['write:review', 'all:review']
     }
   },
   '/reviews/:reviewId': {
@@ -16,25 +17,29 @@ module.exports = {
       controller: 'ReviewController',
       method: 'getReview',
       auth: 'jwt',
-      access: ['Administrator', 'Copilot']
+      access: ['Administrator', 'Copilot'],
+      scopes: ['read:review', 'all:review']
     },
     put: {
       controller: 'ReviewController',
       method: 'updateReview',
       auth: 'jwt',
-      access: ['Administrator']
+      access: ['Administrator'],
+      scopes: ['write:review', 'all:review']
     },
     patch: {
       controller: 'ReviewController',
       method: 'patchReview',
       auth: 'jwt',
-      access: ['Administrator']
+      access: ['Administrator'],
+      scopes: ['write:review', 'all:review']
     },
     delete: {
       controller: 'ReviewController',
       method: 'deleteReview',
       auth: 'jwt',
-      access: ['Administrator']
+      access: ['Administrator'],
+      scopes: ['write:review', 'all:review']
     }
   }
 }

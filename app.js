@@ -60,10 +60,24 @@ _.each(routes, (verbs, url) => {
         if (!req.authUser) {
           next(new errors.HttpStatusError(401, 'Authentication required!'))
         }
-        // Access check
-        if (Array.isArray(def.access) &&
-          (!req.authUser.roles || !_.intersection(req.authUser.roles, def.access).length)) {
-          next(new errors.HttpStatusError(403, 'You are not allowed to perform this action!'))
+
+        if (req.authUser.roles) {
+          if (Array.isArray(def.access) &&
+            !_.intersection(req.authUser.roles, def.access).length) {
+            next(new errors.HttpStatusError(403, 'You are not allowed to perform this action!'))
+          } else {
+            next()
+          }
+        } else if (req.authUser.scopes) {
+          if (Array.isArray(def.scopes) &&
+            !def.scopes.some(s => req.authUser.scopes.indexOf(s) !== -1)) {
+            next(new errors.HttpStatusError(403, 'You are not allowed to perform this action!'))
+          } else {
+            next()
+          }
+        } else if ((Array.isArray(def.access) && def.access.length > 0) ||
+          (Array.isArray(def.scopes) && def.scopes.length > 0)) {
+          next(new errors.HttpStatusError(401, 'You are not authorized to perform this action'))
         } else {
           next()
         }
