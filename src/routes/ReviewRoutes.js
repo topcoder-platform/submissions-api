@@ -9,7 +9,7 @@ module.exports = {
       method: 'createReview',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['write:review', 'all:review']
+      scopes: ['create:review', 'all:review']
     }
   },
   '/reviews/:reviewId': {
@@ -25,21 +25,21 @@ module.exports = {
       method: 'updateReview',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review', 'all:review']
+      scopes: ['update:review', 'all:review']
     },
     patch: {
       controller: 'ReviewController',
       method: 'patchReview',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review', 'all:review']
+      scopes: ['update:review', 'all:review']
     },
     delete: {
       controller: 'ReviewController',
       method: 'deleteReview',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review', 'all:review']
+      scopes: ['delete:review', 'all:review']
     }
   }
 }

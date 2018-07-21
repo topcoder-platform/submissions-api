@@ -9,7 +9,7 @@ module.exports = {
       method: 'createReviewType',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['write:review_type', 'all:review_type']
+      scopes: ['create:review_type', 'all:review_type']
     }
   },
   '/reviewTypes/:reviewTypeId': {
@@ -25,21 +25,21 @@ module.exports = {
       method: 'updateReviewType',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review_type', 'all:review_type']
+      scopes: ['update:review_type', 'all:review_type']
     },
     patch: {
       controller: 'ReviewTypeController',
       method: 'patchReviewType',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review_type', 'all:review_type']
+      scopes: ['update:review_type', 'all:review_type']
     },
     delete: {
       controller: 'ReviewTypeController',
       method: 'deleteReviewType',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review_type', 'all:review_type']
+      scopes: ['delete:review_type', 'all:review_type']
     }
   }
 }

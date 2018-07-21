@@ -9,7 +9,7 @@ module.exports = {
       method: 'createReviewSummation',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['write:review_summation', 'all:review_summation']
+      scopes: ['create:review_summation', 'all:review_summation']
     }
   },
   '/reviewSummations/:reviewSummationId': {
@@ -25,21 +25,21 @@ module.exports = {
       method: 'updateReviewSummation',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review_summation', 'all:review_summation']
+      scopes: ['update:review_summation', 'all:review_summation']
     },
     patch: {
       controller: 'ReviewSummationController',
       method: 'patchReviewSummation',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review_summation', 'all:review_summation']
+      scopes: ['update:review_summation', 'all:review_summation']
     },
     delete: {
       controller: 'ReviewSummationController',
       method: 'deleteReviewSummation',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['write:review_summation', 'all:review_summation']
+      scopes: ['delete:review_summation', 'all:review_summation']
     }
   }
 }
