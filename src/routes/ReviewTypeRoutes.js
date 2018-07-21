@@ -8,7 +8,8 @@ module.exports = {
       controller: 'ReviewTypeController',
       method: 'createReviewType',
       auth: 'jwt',
-      access: ['Administrator', 'Copilot']
+      access: ['Administrator', 'Copilot'],
+      scopes: ['create:review_type', 'all:review_type']
     }
   },
   '/reviewTypes/:reviewTypeId': {
@@ -16,25 +17,29 @@ module.exports = {
       controller: 'ReviewTypeController',
       method: 'getReviewType',
       auth: 'jwt',
-      access: ['Administrator', 'Copilot']
+      access: ['Administrator', 'Copilot'],
+      scopes: ['read:review_type', 'all:review_type']
     },
     put: {
       controller: 'ReviewTypeController',
       method: 'updateReviewType',
       auth: 'jwt',
-      access: ['Administrator']
+      access: ['Administrator'],
+      scopes: ['update:review_type', 'all:review_type']
     },
     patch: {
       controller: 'ReviewTypeController',
       method: 'patchReviewType',
       auth: 'jwt',
-      access: ['Administrator']
+      access: ['Administrator'],
+      scopes: ['update:review_type', 'all:review_type']
     },
     delete: {
       controller: 'ReviewTypeController',
       method: 'deleteReviewType',
       auth: 'jwt',
-      access: ['Administrator']
+      access: ['Administrator'],
+      scopes: ['delete:review_type', 'all:review_type']
     }
   }
 }
