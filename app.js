@@ -32,6 +32,37 @@ app.use(fileUpload())
 
 const apiRouter = express.Router()
 
+/**
+ *
+ * @param {Array} source the array in which to search for the term
+ * @param {Array | String} term the term to search
+ */
+function checkIfExists (source, term) {
+  let terms
+
+  if (!_.isArray(source)) {
+    throw new Error('Source argument should be an array');
+  }
+
+  source = source.map(s => s.toLowerCase())
+
+  if (_.isString(term)) {
+    terms = term.split(' ')
+  } else if (_.isArray(term)) {
+    terms = term.map(t => t.toLowerCase())
+  } else {
+    throw new Error('Term argument should be either a string or an array')
+  }
+
+  for (let i = 0; i < terms.length; i++) {
+    if (source.includes(terms[i])) {
+      return true
+    }
+  }
+
+  return false
+}
+
 /* eslint-disable no-param-reassign */
 _.each(routes, (verbs, url) => {
   _.each(verbs, (def, verb) => {
@@ -60,10 +91,22 @@ _.each(routes, (verbs, url) => {
         if (!req.authUser) {
           next(new errors.HttpStatusError(401, 'Authentication required!'))
         }
-        // Access check
-        if (Array.isArray(def.access) &&
-          (!req.authUser.roles || !_.intersection(req.authUser.roles, def.access).length)) {
-          next(new errors.HttpStatusError(403, 'You are not allowed to perform this action!'))
+
+        if (req.authUser.roles) {
+          if (!checkIfExists(def.access, req.authUser.roles)) {
+            next(new errors.HttpStatusError(403, 'You are not allowed to perform this action!'))
+          } else {
+            next()
+          }
+        } else if (req.authUser.scopes) {
+          if (!checkIfExists(def.scopes, req.authUser.scopes)) {
+            next(new errors.HttpStatusError(403, 'You are not allowed to perform this action!'))
+          } else {
+            next()
+          }
+        } else if ((_.isArray(def.access) && def.access.length > 0) ||
+          (_.isArray(def.scopes) && def.scopes.length > 0)) {
+          next(new errors.HttpStatusError(401, 'You are not authorized to perform this action'))
         } else {
           next()
         }
