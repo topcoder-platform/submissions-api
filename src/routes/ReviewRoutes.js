@@ -9,6 +9,12 @@ module.exports = {
       method: 'createReview',
       auth: 'jwt',
       access: ['Administrator', 'Copilot']
+    },
+    get: {
+      controller: 'ReviewController',
+      method: 'listReviews',
+      auth: 'jwt',
+      access: ['Administrator', 'Copilot']
     }
   },
   '/reviews/:reviewId': {

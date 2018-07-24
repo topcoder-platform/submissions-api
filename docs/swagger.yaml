@@ -64,9 +64,6 @@ paths:
         - $ref: '#/parameters/filterSubmissionUrl'
         - $ref: '#/parameters/filterSubmissionMemberId'
         - $ref: '#/parameters/filterSubmissionChallengeId'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - the request was successful, the submissions resource are returned.
@@ -112,22 +109,6 @@ paths:
             X-Total-Pages:
               type: integer
               description: The total number of pages
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
             Link:
               type: string
               description: Pagination link header.
@@ -137,8 +118,6 @@ paths:
           $ref: '#/definitions/Unauthorized'
         403:
           $ref: '#/definitions/Forbidden'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -162,9 +141,6 @@ paths:
         - $ref: '#/parameters/filterSubmissionUrl'
         - $ref: '#/parameters/filterSubmissionMemberId'
         - $ref: '#/parameters/filterSubmissionChallengeId'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
@@ -187,23 +163,6 @@ paths:
             X-Total-Pages:
               type: integer
               description: The total number of pages
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
             Link:
               type: string
               description: Pagination link header.
@@ -213,8 +172,6 @@ paths:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -295,33 +252,11 @@ paths:
       operationId: getSubmission
       parameters:
         - $ref: '#/parameters/submissionIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - the request was successful and the submission is returned.
           schema:
             $ref: '#/definitions/Submission'
-          headers:
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequest'
         401:
@@ -330,8 +265,6 @@ paths:
           $ref: '#/definitions/Forbidden'
         404:
           $ref: '#/definitions/NotFound'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -347,39 +280,15 @@ paths:
       operationId: headSubmission
       parameters:
         - $ref: '#/parameters/submissionIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
-          headers:
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequestWithoutBody'
         401:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -494,9 +403,6 @@ paths:
         - $ref: '#/parameters/filterReviewSummationAaggregateScore'
         - $ref: '#/parameters/filterReviewSummationScoreCardId'
         - $ref: '#/parameters/filterReviewSummationIsPassing'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - the request was successful, the resource are returned.
@@ -543,23 +449,6 @@ paths:
             X-Total-Pages:
               type: integer
               description: The total number of pages
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
             Link:
               type: string
               description: Pagination link header.
@@ -569,8 +458,6 @@ paths:
           $ref: '#/definitions/Unauthorized'
         403:
           $ref: '#/definitions/Forbidden'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -594,9 +481,6 @@ paths:
         - $ref: '#/parameters/filterReviewSummationAaggregateScore'
         - $ref: '#/parameters/filterReviewSummationScoreCardId'
         - $ref: '#/parameters/filterReviewSummationIsPassing'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
@@ -619,23 +503,6 @@ paths:
             X-Total-Pages:
               type: integer
               description: The total number of pages
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
             Link:
               type: string
               description: Pagination link header.
@@ -645,8 +512,6 @@ paths:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -699,34 +564,11 @@ paths:
       operationId: getReviewSummation
       parameters:
         - $ref: '#/parameters/reviewSummationIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - the request was successful and the review summation is returned.
-
           schema:
             $ref: '#/definitions/ReviewSummation'
-          headers:
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequest'
         401:
@@ -735,8 +577,6 @@ paths:
           $ref: '#/definitions/Forbidden'
         404:
           $ref: '#/definitions/NotFound'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -752,39 +592,15 @@ paths:
       operationId: headReviewSummation
       parameters:
         - $ref: '#/parameters/reviewSummationIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
-          headers:
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequestWithoutBody'
         401:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -898,9 +714,7 @@ paths:
         - $ref: '#/parameters/filterReviewTypeId'
         - $ref: '#/parameters/filterReviewReviewerId'
         - $ref: '#/parameters/filterReviewScoreCardId'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
+        - $ref: '#/parameters/filterReviewSubmissionId'
       responses:
         200:
           description: OK - the request was successful, the resource are returned.
@@ -949,23 +763,6 @@ paths:
             X-Total-Pages:
               type: integer
               description: The total number of pages
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
             Link:
               type: string
               description: Pagination link header.
@@ -975,8 +772,6 @@ paths:
           $ref: '#/definitions/Unauthorized'
         403:
           $ref: '#/definitions/Forbidden'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -1000,9 +795,6 @@ paths:
         - $ref: '#/parameters/filterReviewTypeId'
         - $ref: '#/parameters/filterReviewReviewerId'
         - $ref: '#/parameters/filterReviewScoreCardId'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
@@ -1025,23 +817,6 @@ paths:
             X-Total-Pages:
               type: integer
               description: The total number of pages
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
             Link:
               type: string
               description: Pagination link header.
@@ -1051,8 +826,6 @@ paths:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -1104,34 +877,11 @@ paths:
       operationId: getReview
       parameters:
         - $ref: '#/parameters/reviewIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - the request was successful and the review is returned.
-
           schema:
             $ref: '#/definitions/Review'
-          headers:
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequest'
         401:
@@ -1140,8 +890,6 @@ paths:
           $ref: '#/definitions/Forbidden'
         404:
           $ref: '#/definitions/NotFound'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -1157,40 +905,15 @@ paths:
       operationId: headReview
       parameters:
         - $ref: '#/parameters/reviewIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
-          headers:
-
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequestWithoutBody'
         401:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -1303,9 +1026,6 @@ paths:
         # filter parameters
         - $ref: '#/parameters/filterReviewTypeName'
         - $ref: '#/parameters/filterReviewTypeIsActive'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - the request was successful, the resource are returned.
@@ -1341,23 +1061,6 @@ paths:
             X-Total-Pages:
               type: integer
               description: The total number of pages
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
             Link:
               type: string
               description: Pagination link header.
@@ -1367,8 +1070,6 @@ paths:
           $ref: '#/definitions/Unauthorized'
         403:
           $ref: '#/definitions/Forbidden'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -1390,9 +1091,6 @@ paths:
         # filter parameters
         - $ref: '#/parameters/filterReviewTypeName'
         - $ref: '#/parameters/filterReviewTypeIsActive'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
@@ -1418,31 +1116,12 @@ paths:
             Link:
               type: string
               description: Pagination link header.
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequestWithoutBody'
         401:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -1501,28 +1180,8 @@ paths:
       responses:
         200:
           description: OK - the request was successful and the review is returned.
-
           schema:
             $ref: '#/definitions/ReviewType'
-          headers:
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequest'
         401:
@@ -1531,8 +1190,6 @@ paths:
           $ref: '#/definitions/Forbidden'
         404:
           $ref: '#/definitions/NotFound'
-        304:
-          $ref: '#/definitions/NotModified'
         500:
           $ref: '#/definitions/ServerError'
 
@@ -1554,34 +1211,12 @@ paths:
       responses:
         200:
           description: OK - The request was successful.
-          headers:
-
-            ETag:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                Common methods of ETag generation include using a collision-resistant hash function of the resource's content, a hash of the last modification timestamp, or even just a revision number.
-
-                In the next request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-
-            Last-Modified:
-              type: string
-              description: |
-                Optional and can be used according to HTTP specification.
-                The Last-Modified response HTTP header contains the date and time at which the origin server believes the resource was last modified. It is used as a validator to determine if a resource received or stored is the same. Less accurate than an ETag header, it is a fallback mechanism.
-
-                Normally a database or otherwise maintained `Last-Modified date` is maintained for the resource, which is supplied in the Last-Modified response header.
-
-                In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-
         400:
           $ref: '#/definitions/BadRequestWithoutBody'
         401:
           $ref: '#/definitions/UnauthorizedWithoutBody'
         403:
           $ref: '#/definitions/ForbiddenWithoutBody'
-        304:
-          $ref: '#/definitions/NotModifiedWithoutBody'
         500:
           $ref: '#/definitions/ServerErrorWithoutBody'
 
@@ -1779,6 +1414,13 @@ parameters:
     required: false
     type: string
 
+  filterReviewSubmissionId:
+    in: query
+    name: submissionId
+    description: The submission id filter for reviews.
+    required: false
+    type: string
+  
   filterReviewTypeName:
     in: query
     name: name
@@ -1792,20 +1434,6 @@ parameters:
     description: The active boolean flag filter for review types.
     required: false
     type: boolean
-
-  IfNoneMatchParamHeader:
-    description: |
-      Optional. If used in the request, the If-None-Match request header should utilize the ETag as previously supplied in the response.
-    name: If-None-Match
-    in: header
-    type: string
-
-  IfModifiedSinceParamHeader:
-    description: |
-      Optional. In the subsequent request, the If-Modified-Since request header can be populated with the previously retrieved `Last-Modified`.
-    name: If-Modified-Since
-    in: header
-    type: string
 
   reviewIdParam:
     name: reviewId
@@ -1851,10 +1479,6 @@ definitions:
   ForbiddenWithoutBody:
     description: |
       Forbidden - The request is not allowed.
-
-  NotModifiedWithoutBody:
-    description: |
-      Not Modified - Indicates that the resource has not been modified since the last request.
 
   ServerErrorWithoutBody:
     description: |
@@ -2108,15 +1732,6 @@ definitions:
         type: string
         description: The not found error message.
         example: A resource with the name could not be found.
-
-  NotModified:
-    type: object
-    description: The not modified entity.
-    properties:
-      message:
-        type: string
-        description: The not modified error message.
-        example: There is no need to transfer a representation of the target resource because the request indicates that the client, which made the request conditional, already has a valid representation.
 
   ServerError:
     type: object

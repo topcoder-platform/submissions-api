@@ -9,6 +9,12 @@ module.exports = {
       method: 'createReviewSummation',
       auth: 'jwt',
       access: ['Administrator', 'Copilot']
+    },
+    get: {
+      controller: 'ReviewSummationController',
+      method: 'listReviewSummations',
+      auth: 'jwt',
+      access: ['Administrator', 'Copilot']
     }
   },
   '/reviewSummations/:reviewSummationId': {

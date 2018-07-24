@@ -7,6 +7,8 @@ const _ = require('lodash')
 const uuid = require('uuid/v4')
 const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
+const helper = require('../common/helper')
+const { originator, mimeType, events } = require('../../constants').busApiMeta
 
 const table = 'ReviewType'
 
@@ -47,6 +49,24 @@ getReviewType.schema = {
 }
 
 /**
+ * Function to list review types from Elastic Search
+ * @param {Object} query Query filters passed in HTTP request
+ * @return {Object} Data fetched from ES
+ */
+function * listReviewTypes (query) {
+  return yield helper.fetchFromES(query, helper.camelize(table))
+}
+
+listReviewTypes.schema = {
+  query: joi.object().keys({
+    name: joi.string(),
+    isActive: joi.boolean(),
+    page: joi.id(),
+    perPage: joi.pageSize()
+  })
+}
+
+/**
  * Function to create review type in database
  * @param {Object} entity Data to be inserted
  * @return {Promise}
@@ -60,6 +80,20 @@ function * createReviewType (entity) {
   }
 
   yield dbhelper.insertRecord(record)
+
+  // Push Review Type created event to Bus API
+  // Request body for Posting to Bus API
+  const reqBody = {
+    'topic': events.submission.create,
+    'originator': originator,
+    'timestamp': (new Date()).toISOString(), // time when submission was created
+    'mime-type': mimeType,
+    'payload': _.extend({ 'resource': helper.camelize(table) }, item)
+  }
+
+  // Post to Bus API using Helper function
+  yield helper.postToBusAPI(reqBody)
+
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
   return item
@@ -100,6 +134,21 @@ function * _updateReviewType (reviewTypeId, entity) {
     }
   }
   yield dbhelper.updateRecord(record)
+
+  // Push Review Type updated event to Bus API
+  // Request body for Posting to Bus API
+  const reqBody = {
+    'topic': events.submission.update,
+    'originator': originator,
+    'timestamp': (new Date()).toISOString(), // time when submission was updated
+    'mime-type': mimeType,
+    'payload': _.extend({ 'resource': helper.camelize(table),
+      'id': reviewTypeId }, entity)
+  }
+
+  // Post to Bus API using Helper function
+  yield helper.postToBusAPI(reqBody)
+
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
   return _.extend(exist, entity)
@@ -161,6 +210,24 @@ function * deleteReviewType (reviewTypeId) {
   }
 
   yield dbhelper.deleteRecord(filter)
+
+  // Push Review Type deleted event to Bus API
+  // Request body for Posting to Bus API
+  const reqBody = {
+    'topic': events.submission.delete,
+    'originator': originator,
+    'timestamp': (new Date()).toISOString(), // time when submission was deleted
+    'mime-type': mimeType,
+    'payload': {
+      'resource': helper.camelize(table),
+      'id': reviewTypeId
+    }
+  }
+
+  console.log(reqBody)
+
+  // Post to Bus API using Helper function
+  yield helper.postToBusAPI(reqBody)
 }
 
 deleteReviewType.schema = {
@@ -170,6 +237,7 @@ deleteReviewType.schema = {
 module.exports = {
   getReviewType,
   _getReviewType,
+  listReviewTypes,
   createReviewType,
   updateReviewType,
   patchReviewType,

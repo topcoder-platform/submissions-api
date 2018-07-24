@@ -9,6 +9,12 @@ module.exports = {
       method: 'createSubmission',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot']
+    },
+    get: {
+      controller: 'SubmissionController',
+      method: 'listSubmissions',
+      auth: 'jwt',
+      access: ['Topcoder User', 'Administrator', 'Copilot']
     }
   },
   '/submissions/:submissionId': {
