@@ -41,7 +41,7 @@ function checkIfExists (source, term) {
   let terms
 
   if (!_.isArray(source)) {
-    throw new Error('Source argument should be an array');
+    throw new Error('Source argument should be an array')
   }
 
   source = source.map(s => s.toLowerCase())
