@@ -1,0 +1,46 @@
+[
+  {
+    "id": "e45e4180-65aa-42ec-a945-5fd21dec1501",
+    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+    "aggregateScore": 17.8,
+    "scoreCardId": "a12a4180-65aa-42ec-a945-5fd21dec0587",
+    "isPassing": false,
+    "created": "2018-05-20T07:00:30.123Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  },
+  {
+    "id": "e45e4180-65aa-42ec-a945-5fd21dec1502",
+    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0502",
+    "aggregateScore": 84.5,
+    "scoreCardId": "a12a4180-65aa-42ec-a945-5fd21dec0587",
+    "isPassing": true,
+    "created": "2018-05-20T07:00:30.123Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  },
+  {
+    "id": "e45e4180-65aa-42ec-a945-5fd21dec1503",
+    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0503",
+    "aggregateScore": 46.3,
+    "scoreCardId": "a12a4180-65aa-42ec-a945-5fd21dec0587",
+    "isPassing": false,
+    "created": "2018-05-20T07:00:30.123Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  },
+  {
+    "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
+    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0504",
+    "aggregateScore": 99.0,
+    "scoreCardId": "a12a4180-65aa-42ec-a945-5fd21dec0587",
+    "isPassing": true,
+    "created": "2018-05-20T07:00:30.123Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  }
+]
