@@ -99,6 +99,33 @@ npm run lint or npm run lint:fix -- To fix lint errors which could be fixed
 npm run dev
 ```
 
+#### Running unit tests and coverage
+
+To run unit tests alone
+
+```
+npm run test
+```
+
+To run unit tests with coverage report
+
+```
+npm run cov
+```
+
+#### Running integration tests and coverage
+
+To run integration tests alone
+
+```
+npm run e2e
+```
+
+To run integration tests with coverage report
+
+```
+npm run e2e-cov
+```
 
 #### Swagger UI
 

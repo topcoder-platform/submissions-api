@@ -18,13 +18,14 @@ const table = 'Submission'
 /*
  * Function to upload file to S3
  * @param {Object} file File to be uploaded
+ * @param {String} name File name
  * @return {Promise}
  **/
-function * _uploadToS3 (file) {
+function * _uploadToS3 (file, name) {
   return new Promise((resolve, reject) => {
     const params = {
       Bucket: config.aws.S3_BUCKET,
-      Key: uuid(),
+      Key: name,
       Body: file.data,
       ContentType: file.mimetype,
       Metadata: {
@@ -112,16 +113,18 @@ function * createSubmission (authUser, files, entity) {
   }
 
   let url = entity.url
+  // Submission ID will be used for file name in S3 bucket as well
+  const submissionId = uuid()
 
   if (files && files.submission) {
-    const file = yield _uploadToS3(files.submission)
+    const file = yield _uploadToS3(files.submission, submissionId)
     url = file.Location
   }
 
   const currDate = (new Date()).toISOString()
 
   const item = {
-    'id': uuid(),
+    'id': submissionId,
     'type': entity.type,
     'url': url,
     'memberId': entity.memberId,
@@ -314,9 +317,9 @@ patchSubmission.schema = {
  * @return {Promise}
  */
 function * deleteSubmission (submissionId) {
-  const exist = yield getSubmission(submissionId)
+  const exist = yield _getSubmission(submissionId)
   if (!exist) {
-    throw new errors.HttpStatusError(404, `Review type with ID = ${submissionId} is not found`)
+    throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
   // Filter used to delete the record

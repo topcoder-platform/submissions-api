@@ -54,6 +54,26 @@ function * createTable (model) {
 }
 
 /**
+ * Deletes table in DynamoDB
+ * @param     {String} tableName Name of the table to be deleted
+ * @return    {promise}
+ */
+function * deleteTable (tableName) {
+  const db = getDb()
+  const item = {
+    TableName: tableName
+  }
+  return new Promise((resolve, reject) => {
+    db.deleteTable(item, (err, data) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(data)
+    })
+  })
+}
+
+/**
  * Insert record in DynamoDB
  * @param     {object} record Data to be inserted
  * @return    {promise}
@@ -126,6 +146,7 @@ module.exports = {
   getDb,
   getDbClient,
   createTable,
+  deleteTable,
   insertRecord,
   getRecord,
   updateRecord,
