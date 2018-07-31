@@ -180,10 +180,10 @@ createSubmission.schema = {
   entity: joi.object().keys({
     type: joi.string().required(),
     url: joi.string().uri().trim(),
-    memberId: joi.string().uuid().required(),
-    challengeId: joi.string().uuid().required(),
-    legacySubmissionId: joi.string().uuid(),
-    submissionPhaseId: joi.string().uuid()
+    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
 
@@ -208,7 +208,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
     Key: {
       'id': submissionId
     },
-    UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c, 
+    UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
                         updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
@@ -259,10 +259,10 @@ updateSubmission.schema = {
   entity: joi.object().keys({
     type: joi.string().required(),
     url: joi.string().uri().trim().required(),
-    memberId: joi.string().uuid().required(),
-    challengeId: joi.string().uuid().required(),
-    legacySubmissionId: joi.string().uuid(),
-    submissionPhaseId: joi.string().uuid()
+    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
 
@@ -283,10 +283,10 @@ patchSubmission.schema = {
   entity: joi.object().keys({
     type: joi.string(),
     url: joi.string().uri().trim(),
-    memberId: joi.string().uuid(),
-    challengeId: joi.string().uuid(),
-    legacySubmissionId: joi.string().uuid(),
-    submissionPhaseId: joi.string().uuid()
+    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   })
 }
 
