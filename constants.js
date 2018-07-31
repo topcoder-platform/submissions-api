@@ -8,7 +8,9 @@ const busApiMeta = {
   fileType: 'zip',
   events: {
     submission: {
-      create: 'submission.notification.create'
+      create: 'submission.notification.create',
+      update: 'submission.notification.update',
+      delete: 'submission.notification.delete'
     }
   }
 }

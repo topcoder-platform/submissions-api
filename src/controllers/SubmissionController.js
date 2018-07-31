@@ -3,6 +3,7 @@
  */
 
 const SubmissionService = require('../services/SubmissionService')
+const helper = require('../common/helper')
 
 /**
  * Get submission details
@@ -11,6 +12,16 @@ const SubmissionService = require('../services/SubmissionService')
  */
 function * getSubmission (req, res) {
   res.json(yield SubmissionService.getSubmission(req.params.submissionId))
+}
+
+/**
+ * List submissions from ES
+ * @param req the http request
+ * @param res the http response
+ */
+function * listSubmissions (req, res) {
+  const data = yield SubmissionService.listSubmissions(req.query)
+  helper.setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -52,6 +63,7 @@ function * deleteSubmission (req, res) {
 
 module.exports = {
   getSubmission,
+  listSubmissions,
   createSubmission,
   updateSubmission,
   patchSubmission,

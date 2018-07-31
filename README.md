@@ -30,36 +30,58 @@ aws_secret_access_key = SOME_SECRET_ACCESS_KEY
 
 4. Create a S3 bucket from AWS Console and note down the bucket name
 
-5. From the root of the project, install NPM dependencies
+5. Create AWS ES Domain from AWS Console and note down the end point details. **Note: This application supports ES from other providers also like Bonsai, etc...**
+
+6. From the root of the project, install NPM dependencies
 
 ```
 npm i
 ```
 
-6. Refer to config/default.js and Set up the environment variables as necessary
+7. Refer to config/default.js and Set up the environment variables as necessary
 
 e.g.
 
 ```
 export AWS_REGION="<AWS Region>"
 export S3_BUCKET="<S3 Bucket Name>"
+export ES_HOST="<ES Endpoint>"
+export AUTH0_URL="<Auth0 URL>"
+export AUTH0_CLIENT_ID="<Auth0 Client ID>"
+export AUTH0_CLIENT_SECRET="<Auth0 Client Secret>"
 ```
 
-7. Modify the other configuration variables if necessary in `config/default.js`
+**Note: Make sure to set Auth0, AWS and ES related environment variables**
 
-8. Create the tables in DynamoDB by runing the script
+8. Modify the other configuration variables if necessary in `config/default.js`
+
+9. Create the tables in DynamoDB by runing the script
 
 ```
 npm run create-tables
 ```
 
-9. Import the review types in database by running the script
+10. Import the review types in database by running the script
 
 ```
 npm run init-db
 ```
 
-10. Run the application
+11. Index can be created in ES by running the script
+
+```
+npm run create-index
+```
+
+12. Since Submission processor is still under development, To load dummy data in to ES, run the following script
+
+```
+npm run init-es
+```
+
+This script will load the data from `scripts/data` directory into ES
+
+13. Run the application
 
 ```
 npm run start

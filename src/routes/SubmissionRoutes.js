@@ -10,6 +10,13 @@ module.exports = {
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
       scopes: ['create:submission', 'all:submission']
+    },
+    get: {
+      controller: 'SubmissionController',
+      method: 'listSubmissions',
+      auth: 'jwt',
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      scopes: ['create:submission', 'all:submission']
     }
   },
   '/submissions/:submissionId': {

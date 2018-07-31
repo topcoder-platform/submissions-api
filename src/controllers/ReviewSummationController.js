@@ -3,6 +3,7 @@
  */
 
 const ReviewSummationService = require('../services/ReviewSummationService')
+const helper = require('../common/helper')
 
 /**
  * Get review summation
@@ -11,6 +12,16 @@ const ReviewSummationService = require('../services/ReviewSummationService')
  */
 function * getReviewSummation (req, res) {
   res.json(yield ReviewSummationService.getReviewSummation(req.params.reviewSummationId))
+}
+
+/**
+ * List Review Summations from ES
+ * @param req the http request
+ * @param res the http response
+ */
+function * listReviewSummations (req, res) {
+  const data = yield ReviewSummationService.listReviewSummations(req.query)
+  helper.setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -52,6 +63,7 @@ function * deleteReviewSummation (req, res) {
 
 module.exports = {
   getReviewSummation,
+  listReviewSummations,
   createReviewSummation,
   updateReviewSummation,
   patchReviewSummation,

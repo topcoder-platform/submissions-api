@@ -8,15 +8,12 @@ const errors = require('common-errors')
 const joi = require('joi')
 const _ = require('lodash')
 const uuid = require('uuid/v4')
-const request = require('superagent')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
 const s3 = new AWS.S3()
 
 const table = 'Submission'
-
-Promise.promisifyAll(request)
 
 /*
  * Function to upload file to S3
@@ -79,6 +76,26 @@ getSubmission.schema = {
 }
 
 /**
+ * Function to list submissions from Elastic Search
+ * @param {Object} query Query filters passed in HTTP request
+ * @return {Object} Data fetched from ES
+ */
+function * listSubmissions (query) {
+  return yield helper.fetchFromES(query, helper.camelize(table))
+}
+
+listSubmissions.schema = {
+  query: joi.object().keys({
+    type: joi.string(),
+    url: joi.string().uri().trim(),
+    memberId: joi.string().uuid(),
+    challengeId: joi.string().uuid(),
+    page: joi.id(),
+    perPage: joi.pageSize()
+  })
+}
+
+/**
  * Function to upload and create submission
  * @param {Object} authUser Authenticated User
  * @param {Object} files Submission uploaded by the User
@@ -132,20 +149,13 @@ function * createSubmission (authUser, files, entity) {
   yield dbhelper.insertRecord(record)
 
   // Push Submission created event to Bus API
-  // M2M token necessary for pushing to Bus API
-  const token = yield helper.getM2Mtoken()
-
   // Request body for Posting to Bus API
   const reqBody = {
     'topic': events.submission.create,
     'originator': originator,
     'timestamp': currDate, // time when submission was created
     'mime-type': mimeType,
-    'payload': {
-      'submissionId': item.id,
-      'challengeId': entity.challengeId,
-      'userId': authUser.userId
-    }
+    'payload': _.extend({ 'resource': helper.camelize(table) }, item)
   }
 
   // If the file is uploaded, set properties accordingly
@@ -155,19 +165,10 @@ function * createSubmission (authUser, files, entity) {
     reqBody['payload']['filename'] = files.submission.name
   } else { // If the file URL is provided, handle accordingly
     reqBody['payload']['isFileSubmission'] = false
-    reqBody['payload']['fileURL'] = url
   }
 
-  if (entity.submissionPhaseId) {
-    reqBody['payload']['submissionPhaseId'] = entity.submissionPhaseId
-  }
-
-  // Post submission creation event to Bus API
-  yield request
-    .post(config.BUSAPI_EVENTS_URL)
-    .set('Authorization', `Bearer ${token}`)
-    .set('Content-Type', 'application/json')
-    .send(reqBody)
+  // Post to Bus API using Helper function
+  yield helper.postToBusAPI(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
@@ -237,6 +238,23 @@ function * _updateSubmission (authUser, submissionId, entity) {
   }
 
   yield dbhelper.updateRecord(record)
+
+  // Push Submission updated event to Bus API
+  // Request body for Posting to Bus API
+  const reqBody = {
+    'topic': events.submission.update,
+    'originator': originator,
+    'timestamp': currDate, // time when submission was updated
+    'mime-type': mimeType,
+    'payload': _.extend({ 'resource': helper.camelize(table),
+      'id': submissionId,
+      'updated': currDate,
+      'updatedBy': authUser.handle }, entity)
+  }
+
+  // Post to Bus API using Helper function
+  yield helper.postToBusAPI(reqBody)
+
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
   return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle })
@@ -310,6 +328,22 @@ function * deleteSubmission (submissionId) {
   }
 
   yield dbhelper.deleteRecord(filter)
+
+  // Push Submission deleted event to Bus API
+  // Request body for Posting to Bus API
+  const reqBody = {
+    'topic': events.submission.delete,
+    'originator': originator,
+    'timestamp': (new Date()).toISOString(), // time when submission was deleted
+    'mime-type': mimeType,
+    'payload': {
+      'resource': helper.camelize(table),
+      'id': submissionId
+    }
+  }
+
+  // Post to Bus API using Helper function
+  yield helper.postToBusAPI(reqBody)
 }
 
 deleteSubmission.schema = {
@@ -319,6 +353,7 @@ deleteSubmission.schema = {
 module.exports = {
   getSubmission,
   _getSubmission,
+  listSubmissions,
   createSubmission,
   updateSubmission,
   patchSubmission,

@@ -3,6 +3,7 @@
  */
 
 const ReviewTypeService = require('../services/ReviewTypeService')
+const helper = require('../common/helper')
 
 /**
  * Get review type
@@ -11,6 +12,16 @@ const ReviewTypeService = require('../services/ReviewTypeService')
  */
 function * getReviewType (req, res) {
   res.json(yield ReviewTypeService.getReviewType(req.params.reviewTypeId))
+}
+
+/**
+ * List review types from ES
+ * @param req the http request
+ * @param res the http response
+ */
+function * listReviewTypes (req, res) {
+  const data = yield ReviewTypeService.listReviewTypes(req.query)
+  helper.setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -52,6 +63,7 @@ function * deleteReviewType (req, res) {
 
 module.exports = {
   getReviewType,
+  listReviewTypes,
   createReviewType,
   updateReviewType,
   patchReviewType,

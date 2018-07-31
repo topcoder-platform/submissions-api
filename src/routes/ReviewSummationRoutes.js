@@ -10,6 +10,13 @@ module.exports = {
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
       scopes: ['create:review_summation', 'all:review_summation']
+    },
+    get: {
+      controller: 'ReviewSummationController',
+      method: 'listReviewSummations',
+      auth: 'jwt',
+      access: ['Administrator', 'Copilot'],
+      scopes: ['create:review_summation', 'all:review_summation']
     }
   },
   '/reviewSummations/:reviewSummationId': {

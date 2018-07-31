@@ -3,6 +3,7 @@
  */
 
 const ReviewService = require('../services/ReviewService')
+const helper = require('../common/helper')
 
 /**
  * Get review
@@ -11,6 +12,16 @@ const ReviewService = require('../services/ReviewService')
  */
 function * getReview (req, res) {
   res.json(yield ReviewService.getReview(req.params.reviewId))
+}
+
+/**
+ * List reviews from ES
+ * @param req the http request
+ * @param res the http response
+ */
+function * listReviews (req, res) {
+  const data = yield ReviewService.listReviews(req.query)
+  helper.setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -52,6 +63,7 @@ function * deleteReview (req, res) {
 
 module.exports = {
   getReview,
+  listReviews,
   createReview,
   updateReview,
   patchReview,
