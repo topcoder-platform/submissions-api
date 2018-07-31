@@ -247,21 +247,29 @@ paths:
           description: Submission type.
         - in: formData
           name: memberId
-          type: string
+          oneOf:
+            - type: string
+            - type: integer
           required: true
           description: Member Id.
         - in: formData
           name: challengeId
-          type: string
+          oneOf:
+            - type: string
+            - type: integer
           required: true
           description: Challenge Id.
         - in: formData
           name: legacySubmissionId
-          type: string
+          oneOf:
+            - type: string
+            - type: integer
           description: Legacy Submission Id
         - in: formData
           name: submissionPhaseId
-          type: string
+          oneOf:
+            - type: string
+            - type: integer
           description: Submission Phase Id
       responses:
         201:
@@ -1712,14 +1720,18 @@ parameters:
     name: memberId
     description: The member id filter for submissions.
     required: false
-    type: string
+    oneOf:
+      - type: string
+      - type: integer
 
   filterSubmissionChallengeId:
     in: query
     name: challengeId
     description: The challenge id filter for submissions.
     required: false
-    type: string
+    oneOf:
+      - type: string
+      - type: integer
 
   filterReviewSummationSubmissionId:
     in: query
@@ -1893,11 +1905,15 @@ definitions:
         description:  The submission url.
         example: 'http://content.topcoder.com/some/path'
       memberId:
-        type: string
+        oneOf:
+          - type: string
+          - type: integer
         description:  The submission member id.
         example: 'a84a4180-65aa-42ec-a945-5fd21dec1567'
       challengeId:
-        type: string
+        oneOf:
+          - type: string
+          - type: integer
         description:  The submission challenge id.
         example: 'a12bc180-65aa-42ec-a945-5fd21dec1567'
 
