@@ -118,6 +118,15 @@ function * _updateReviewType (reviewTypeId, entity) {
   if (!exist) {
     throw new errors.HttpStatusError(404, `Review type with ID = ${reviewTypeId} is not found`)
   }
+
+  let isActive // Attribute to store boolean value
+
+  if (entity.isActive === undefined) {
+    isActive = exist.isActive
+  } else {
+    isActive = entity.isActive
+  }
+
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -127,7 +136,7 @@ function * _updateReviewType (reviewTypeId, entity) {
     UpdateExpression: 'set #name = :n, isActive = :a',
     ExpressionAttributeValues: {
       ':n': entity.name || exist.name,
-      ':a': entity.isActive || exist.isActive
+      ':a': isActive
     },
     ExpressionAttributeNames: {
       '#name': 'name'
@@ -223,8 +232,6 @@ function * deleteReviewType (reviewTypeId) {
       'id': reviewTypeId
     }
   }
-
-  console.log(reqBody)
 
   // Post to Bus API using Helper function
   yield helper.postToBusAPI(reqBody)

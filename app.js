@@ -129,12 +129,12 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // Check if the route is not found or HTTP method is not supported
 app.use('*', (req, res) => {
-  const pathKey = req.baseUrl.substring(config.API_VERSION.length + 1)
+  const pathKey = req.baseUrl.substring(config.API_VERSION.length)
   const route = routes[pathKey]
   if (route) {
     res.status(httpStatus.METHOD_NOT_ALLOWED).json({ message: 'The requested HTTP method is not supported.' })
   } else {
-    res.status(httpStatus.NOT_FOUND).json({ message: 'The requested resouce cannot found.' })
+    res.status(httpStatus.NOT_FOUND).json({ message: 'The requested resouce cannot be found.' })
   }
 })
 

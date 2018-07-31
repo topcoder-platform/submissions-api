@@ -32,6 +32,10 @@ aws_secret_access_key = SOME_SECRET_ACCESS_KEY
 
 5. Create AWS ES Domain from AWS Console and note down the end point details. **Note: This application supports ES from other providers also like Bonsai, etc...**
 
+If you are creating ES Domain in AWS, It will take some time for ES Domain to get created and for End point details to pop up.
+
+End point will look something like `https://search-submission-xxxxxx.us-east-1.es.amazonaws.com/`
+
 6. From the root of the project, install NPM dependencies
 
 ```
@@ -99,6 +103,45 @@ npm run lint or npm run lint:fix -- To fix lint errors which could be fixed
 npm run dev
 ```
 
+
+## Unit tests and Integration tests
+
+Integration tests use different index `submission-test` which is not same as the usual index `submission`.
+
+Please ensure to create the index `submission-test` or the index specified in the environment variable `ES_INDEX_TEST` before running the Integration tests. You could re-use the existing scripts to create index but you would need to set the below environment variable
+
+```
+export ES_INDEX=submission-test
+```
+
+
+#### Running unit tests and coverage
+
+To run unit tests alone
+
+```
+npm run test
+```
+
+To run unit tests with coverage report
+
+```
+npm run cov
+```
+
+#### Running integration tests and coverage
+
+To run integration tests alone
+
+```
+npm run e2e
+```
+
+To run integration tests with coverage report
+
+```
+npm run cov-e2e
+```
 
 #### Swagger UI
 
