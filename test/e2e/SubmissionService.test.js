@@ -27,6 +27,7 @@ let submissionId // Used to store submissionId after creating submission
 describe('Submission Service tests', () => {
   // Before hook to load ES
   before(function * () {
+    this.timeout(25000)
     yield loadSubmissions()
   })
 

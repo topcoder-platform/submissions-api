@@ -28,7 +28,7 @@ let reviewSummationId // Used to store reviewSummationId after creating review s
 describe('Review Summation Service tests', () => {
   // Before hook to load ES
   before(function * () {
-    this.timeout(20000)
+    this.timeout(25000)
     yield loadReviewSummations()
     const submission = yield chai.request(app)
       .post(`${config.API_VERSION}/submissions`)
