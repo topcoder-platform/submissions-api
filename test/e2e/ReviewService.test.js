@@ -165,7 +165,7 @@ describe('Review Service tests', () => {
           res.body.message.should.be.eql(`Review with ID = ${nonExReviewId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
@@ -192,17 +192,17 @@ describe('Review Service tests', () => {
 
     it('Getting existing review with Admin token should return the record', (done) => {
       chai.request(app)
-        .get(`${config.API_VERSION}/reviews/${reviewId}`)
+        .get(`${config.API_VERSION}/reviews/${testReview.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReview.Item))
-          res.body.id.should.be.eql(reviewId)
+          res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
-          res.body.submissionId.should.be.eql(submissionId)
+          res.body.submissionId.should.be.eql(testReview.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
-          res.body.typeId.should.be.eql(reviewTypeId)
+          res.body.typeId.should.be.eql(testReview.Item.typeId)
           done()
         })
     }).timeout(20000)
@@ -283,7 +283,7 @@ describe('Review Service tests', () => {
           res.body.message.should.be.eql(`Review with ID = ${nonExReviewId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Updating review with Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -355,7 +355,7 @@ describe('Review Service tests', () => {
           res.body.message.should.be.eql(`Review with ID = ${nonExReviewId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Patching review with one set of fields using Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -434,7 +434,7 @@ describe('Review Service tests', () => {
           res.body.message.should.be.eql(`Review with ID = ${nonExReviewId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Deleting review with Admin token should get succeeded', (done) => {
       chai.request(app)

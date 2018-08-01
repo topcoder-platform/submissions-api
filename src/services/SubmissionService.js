@@ -41,7 +41,7 @@ function * _uploadToS3 (file, name) {
 }
 
 /**
- * Function to get submission based on ID
+ * Function to get submission based on ID from DynamoDB
  * This function will be used all by other functions to check existence of a submission
  * @param {String} submissionId submissionId which need to be retrieved
  * @return {Object} Data retrieved from database
@@ -59,17 +59,17 @@ function * _getSubmission (submissionId) {
 }
 
 /**
- * Function to get submission based on ID
+ * Function to get submission based on ID from ES
  * @param {String} submissionId submissionId which need to be retrieved
  * @return {Object} Data retrieved from database
  */
 function * getSubmission (submissionId) {
-  const exist = yield _getSubmission(submissionId)
-  if (!exist) {
+  const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
+  if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
   // Return the retrieved submission
-  return exist
+  return response.rows[0]
 }
 
 getSubmission.schema = {

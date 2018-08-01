@@ -1,7 +1,7 @@
 [
   {
     "id": "e45e4180-65aa-42ec-a945-5fd21dec1501",
-    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0504",
     "aggregateScore": 17.8,
     "scoreCardId": "a12a4180-65aa-42ec-a945-5fd21dec0587",
     "isPassing": false,
@@ -34,7 +34,7 @@
   },
   {
     "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
-    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0504",
+    "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
     "aggregateScore": 99.0,
     "scoreCardId": "a12a4180-65aa-42ec-a945-5fd21dec0587",
     "isPassing": true,

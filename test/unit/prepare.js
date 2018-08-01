@@ -75,6 +75,13 @@ prepare(function (done) {
     .filteringRequestBody((body) => {
       const parsedBody = JSON.parse(body)
       if (parsedBody.query) {
+        if (parsedBody.query.bool.filter[1]) {
+          const reqId = parsedBody.query.bool.filter[1].match_phrase.id
+          if (nonExistentIds.indexOf(reqId) !== -1) {
+            return 'nonExistent'
+          }
+          return reqId
+        }
         return parsedBody.query.bool.filter[0].match_phrase.resource
       }
       return body
@@ -95,9 +102,25 @@ prepare(function (done) {
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'reviewSummation')
     .query(true)
     .reply(200, testData.testReviewSummationsES)
+    .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'nonExistent')
+    .query(true)
+    .reply(200, {hits: {total: 0, hits: []}})
+    .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'c56a4180-65aa-42ec-a945-5fd21dec0501')
+    .query(true)
+    .reply(200, testData.testReviewTypeES)
+    .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'a12a4180-65aa-42ec-a945-5fd21dec0501')
+    .query(true)
+    .reply(200, testData.testSubmissionES)
+    .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'd24d4180-65aa-42ec-a945-5fd21dec0502')
+    .query(true)
+    .reply(200, testData.testReviewES)
+    .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'e45e4180-65aa-42ec-a945-5fd21dec1504')
+    .query(true)
+    .reply(200, testData.testReviewSummationES)
+
   done()
 }, function (done) {
-  // called after all test completes (regardless of errors)
+// called after all test completes (regardless of errors)
   AWS.restore('DynamoDB')
   AWS.restore('DynamoDB.DocumentClient')
   AWS.restore('S3')

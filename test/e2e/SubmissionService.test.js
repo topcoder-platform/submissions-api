@@ -162,7 +162,7 @@ describe('Submission Service tests', () => {
           res.body.message.should.be.eql(`Submission with ID = ${nonExSubmissionId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
@@ -178,12 +178,12 @@ describe('Submission Service tests', () => {
 
     it('Getting existing submission with user token should return the submission', (done) => {
       chai.request(app)
-        .get(`${config.API_VERSION}/submissions/${submissionId}`)
+        .get(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.keys(Object.keys(testSubmission.Item))
-          res.body.id.should.be.eql(submissionId)
+          res.body.should.have.keys(Object.keys(testSubmissionWoLegacy.Item))
+          res.body.id.should.be.eql(testSubmission.Item.id)
           res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
           res.body.type.should.be.eql(testSubmission.Item.type)
           res.body.url.should.be.eql(testSubmission.Item.url)
@@ -193,12 +193,12 @@ describe('Submission Service tests', () => {
 
     it('Getting existing submission with Admin token should return the submission', (done) => {
       chai.request(app)
-        .get(`${config.API_VERSION}/submissions/${submissionId}`)
+        .get(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testSubmission.Item))
-          res.body.id.should.be.eql(submissionId)
+          res.body.should.have.all.keys(Object.keys(testSubmissionWoLegacy.Item))
+          res.body.id.should.be.eql(testSubmission.Item.id)
           res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
           res.body.type.should.be.eql(testSubmission.Item.type)
           res.body.url.should.be.eql(testSubmission.Item.url)
@@ -282,7 +282,7 @@ describe('Submission Service tests', () => {
           res.body.message.should.be.eql(`Submission with ID = ${nonExSubmissionId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Updating submission with Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -368,7 +368,7 @@ describe('Submission Service tests', () => {
           res.body.message.should.be.eql(`Submission with ID = ${nonExSubmissionId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
     // Patching 2 fields
     it('Patching submission(one set of fields) with Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -448,7 +448,7 @@ describe('Submission Service tests', () => {
           res.body.message.should.be.eql(`Submission with ID = ${nonExSubmissionId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Deleting submission with Admin token should get succeeded', (done) => {
       chai.request(app)
