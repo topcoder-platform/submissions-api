@@ -125,7 +125,7 @@ describe('ReviewType Service tests', () => {
           res.body.message.should.be.eql(`Review type with ID = ${nonExReviewTypeId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
@@ -152,12 +152,12 @@ describe('ReviewType Service tests', () => {
 
     it('Getting existing review type with Admin token should return the record', (done) => {
       chai.request(app)
-        .get(`${config.API_VERSION}/reviewTypes/${reviewTypeId}`)
+        .get(`${config.API_VERSION}/reviewTypes/${testReviewType.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewType.Item))
-          res.body.id.should.be.eql(reviewTypeId)
+          res.body.id.should.be.eql(testReviewType.Item.id)
           res.body.name.should.be.eql(testReviewType.Item.name)
           res.body.isActive.should.be.eql(testReviewType.Item.isActive)
           done()
@@ -240,7 +240,7 @@ describe('ReviewType Service tests', () => {
           res.body.message.should.be.eql(`Review type with ID = ${nonExReviewTypeId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Updating review type with Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -309,7 +309,7 @@ describe('ReviewType Service tests', () => {
           res.body.message.should.be.eql(`Review type with ID = ${nonExReviewTypeId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     // Text field Patching
     it('Patching review type (Text field) with Admin token should get succeeded', (done) => {
@@ -389,7 +389,7 @@ describe('ReviewType Service tests', () => {
           res.body.message.should.be.eql(`Review type with ID = ${nonExReviewTypeId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Deleting review type with Admin token should get succeeded', (done) => {
       chai.request(app)

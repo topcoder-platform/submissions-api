@@ -6,18 +6,35 @@ const nonExReviewTypeId = 'b56a4180-65aa-42ec-a945-5fd21dec0501'
 
 const testReviewType = {
   Item: {
-    'id': 'a56a4180-65aa-42ec-a945-5fd21dec0501',
-    'name': 'test',
-    'isActive': true
+    id: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+    name: 'Screening',
+    isActive: true
   }
 }
 
 const testReviewTypePatch = {
   Item: {
-    'id': 'a56a4180-65aa-42ec-a945-5fd21dec0501',
-    'name': 'testPatching',
-    'isActive': true
+    id: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+    name: 'testPatching',
+    isActive: true
   }
+}
+
+const testReviewTypeES = {
+  hits:
+   { total: 1,
+     max_score: 0,
+     hits: [ { _index: 'submission',
+       _type: '_doc',
+       _id: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+       _score: 0,
+       _source: {
+         id: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         name: 'Screening',
+         isActive: true
+       }
+     }]
+   }
 }
 
 const testReviewTypesES = {
@@ -87,11 +104,11 @@ const testSubmission = {
 
 const testSubmissionWoLegacy = {
   Item: {
-    challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0503',
+    challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
     type: 'ContestSubmission',
-    url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
-    memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+    url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457',
+    memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0502',
     created: '2018-05-20T07:00:30.123Z',
     createdBy: 'topcoder user',
     updated: '2018-06-01T07:36:28.178Z',
@@ -113,6 +130,31 @@ const testSubmissionPatch = {
     updated: '2018-06-01T07:36:28.178Z',
     updatedBy: 'topcoder user'
   }
+}
+
+const testSubmissionES = {
+  hits:
+   { total: 1,
+     max_score: 0,
+     hits: [ { _index: 'submission',
+       _type: '_doc',
+       _id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+       _score: 0,
+       _source: {
+         challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+         id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         type: 'ContestSubmission',
+         url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
+         memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+         legacySubmissionId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+         submissionPhaseId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         createdBy: 'topcoder user',
+         updated: '2018-06-01T07:36:28.178Z',
+         updatedBy: 'topcoder user'
+       }
+     }]
+   }
 }
 
 const testSubmissionsES = {
@@ -202,7 +244,7 @@ const testReview = {
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
-    typeId: 'a56a4180-65aa-42ec-a945-5fd21dec0501',
+    typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
     createdBy: 'admin',
@@ -217,12 +259,36 @@ const testReviewPatch = {
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
-    typeId: 'a56a4180-65aa-42ec-a945-5fd21dec0501',
+    typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
     createdBy: 'admin',
     updatedBy: 'admin'
   }
+}
+
+const testReviewES = {
+  hits:
+   { total: 1,
+     max_score: 0,
+     hits: [ { _index: 'submission',
+       _type: '_doc',
+       _id: 'd24d4180-65aa-42ec-a945-5fd21dec0501',
+       _score: 0,
+       _source: {
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       }
+     }]
+   }
 }
 
 const testReviewsES = {
@@ -322,6 +388,29 @@ const testReviewSummationPatch = {
   }
 }
 
+const testReviewSummationES = {
+  hits:
+   { total: 1,
+     max_score: 0,
+     hits: [ { _index: 'submission',
+       _type: '_doc',
+       _id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
+       _score: 0,
+       _source: {
+         id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
+         aggregateScore: 99,
+         isPassing: true,
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'copilot',
+         updatedBy: 'copilot'
+       }
+     }]
+   }
+}
+
 const testReviewSummationsES = {
   hits:
    { total: 4,
@@ -390,18 +479,22 @@ module.exports = {
   nonExReviewTypeId,
   testReviewType,
   testReviewTypePatch,
+  testReviewTypeES,
   testReviewTypesES,
   nonExSubmissionId,
   testSubmission,
   testSubmissionWoLegacy,
   testSubmissionPatch,
+  testSubmissionES,
   testSubmissionsES,
   nonExReviewId,
   testReview,
   testReviewPatch,
+  testReviewES,
   testReviewsES,
   nonExReviewSummationId,
   testReviewSummation,
   testReviewSummationPatch,
+  testReviewSummationES,
   testReviewSummationsES
 }

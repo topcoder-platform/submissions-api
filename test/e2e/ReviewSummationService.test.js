@@ -105,7 +105,7 @@ describe('Review Summation Service tests', () => {
           res.body.scoreCardId.should.be.eql(testReviewSummation.Item.scoreCardId)
           done()
         })
-    }).timeout(10000)
+    }).timeout(20000)
   })
 
   /*
@@ -132,7 +132,7 @@ describe('Review Summation Service tests', () => {
           res.body.message.should.be.eql(`Review summation with ID = ${nonExReviewSummationId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
@@ -159,18 +159,18 @@ describe('Review Summation Service tests', () => {
 
     it('Getting existing ReviewSummation with Admin token should return the record', (done) => {
       chai.request(app)
-        .get(`${config.API_VERSION}/reviewSummations/${reviewSummationId}`)
+        .get(`${config.API_VERSION}/reviewSummations/${testReviewSummation.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
-          res.body.id.should.be.eql(reviewSummationId)
+          res.body.id.should.be.eql(testReviewSummation.Item.id)
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
-          res.body.submissionId.should.be.eql(submissionId)
+          res.body.submissionId.should.be.eql(testReviewSummation.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReviewSummation.Item.scoreCardId)
           done()
         })
-    }).timeout(10000)
+    }).timeout(20000)
   })
 
   /*
@@ -248,7 +248,7 @@ describe('Review Summation Service tests', () => {
           res.body.message.should.be.eql(`Review summation with ID = ${nonExReviewSummationId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Updating ReviewSummation with Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -264,7 +264,7 @@ describe('Review Summation Service tests', () => {
           res.body.scoreCardId.should.be.eql(testReviewSummation.Item.scoreCardId)
           done()
         })
-    }).timeout(10000)
+    }).timeout(20000)
   })
 
   /*
@@ -318,7 +318,7 @@ describe('Review Summation Service tests', () => {
           res.body.message.should.be.eql(`Review summation with ID = ${nonExReviewSummationId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Patching ReviewSummation with one set of fields Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -332,7 +332,7 @@ describe('Review Summation Service tests', () => {
           res.body.aggregateScore.should.be.eql(testReviewSummationPatch.Item.aggregateScore)
           done()
         })
-    }).timeout(10000)
+    }).timeout(20000)
 
     it('Patching ReviewSummation with another set of fields Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -347,7 +347,7 @@ describe('Review Summation Service tests', () => {
           res.body.isPassing.should.be.eql(testReviewSummationPatch.Item.isPassing)
           done()
         })
-    }).timeout(10000)
+    }).timeout(20000)
   })
 
   /*
@@ -397,7 +397,7 @@ describe('Review Summation Service tests', () => {
           res.body.message.should.be.eql(`Review summation with ID = ${nonExReviewSummationId} is not found`)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Deleting ReviewSummation with Admin token should get succeeded', (done) => {
       chai.request(app)
@@ -407,7 +407,7 @@ describe('Review Summation Service tests', () => {
           res.should.have.status(204)
           done()
         })
-    }).timeout(10000)
+    }).timeout(20000)
   })
 
   /*
@@ -457,6 +457,6 @@ describe('Review Summation Service tests', () => {
           res.body.length.should.be.eql(4)
           done()
         })
-    }).timeout(10000)
+    }).timeout(20000)
   })
 })

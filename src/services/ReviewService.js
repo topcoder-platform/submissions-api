@@ -15,7 +15,7 @@ const HelperService = require('./HelperService')
 const table = 'Review'
 
 /**
- * Function to get review based on ID
+ * Function to get review based on ID from DynamoDB
  * This function will be used all by other functions to check existence of review
  * @param {Number} reviewId reviewId which need to be retrieved
  * @return {Object} Data retrieved from database
@@ -33,17 +33,17 @@ function * _getReview (reviewId) {
 }
 
 /**
- * Function to get review based on ID
+ * Function to get review based on ID from ES
  * @param {Number} reviewId reviewId which need to be found
  * @return {Object} Data found from database
  */
 function * getReview (reviewId) {
-  const exist = yield _getReview(reviewId)
-  if (!exist) {
+  const response = yield helper.fetchFromES({id: reviewId}, helper.camelize(table))
+  if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
   }
   // Return the retrieved review
-  return exist
+  return response.rows[0]
 }
 
 getReview.schema = {

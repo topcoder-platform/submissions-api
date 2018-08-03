@@ -13,7 +13,7 @@ const { originator, mimeType, events } = require('../../constants').busApiMeta
 const table = 'ReviewType'
 
 /**
- * Function to get review type based on ID
+ * Function to get review type based on ID from DyanmoDB
  * This function will be used all by other functions to check existence of review type
  * @param {Number} reviewTypeId ReviewTypeId which need to be retrieved
  * @return {Object} Data retrieved from database
@@ -31,17 +31,17 @@ function * _getReviewType (reviewTypeId) {
 }
 
 /**
- * Function to get review type based on ID
+ * Function to get review type based on ID from ES
  * @param {Number} reviewTypeId ReviewTypeId which need to be found
  * @return {Object} Data found from database
  */
 function * getReviewType (reviewTypeId) {
-  const exist = yield _getReviewType(reviewTypeId)
-  if (!exist) {
+  const response = yield helper.fetchFromES({id: reviewTypeId}, helper.camelize(table))
+  if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Review type with ID = ${reviewTypeId} is not found`)
   }
   // Return the retrieved review type
-  return exist
+  return response.rows[0]
 }
 
 getReviewType.schema = {
