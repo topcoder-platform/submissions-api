@@ -38,7 +38,7 @@ describe('Helper tests', () => {
       .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
       .end((err, res) => {
         res.should.have.status(404)
-        res.body.message.should.be.eql('The requested resouce cannot be found.')
+        res.body.message.should.be.eql('The requested resource cannot be found.')
         done()
       })
   })

@@ -134,7 +134,7 @@ app.use('*', (req, res) => {
   if (route) {
     res.status(httpStatus.METHOD_NOT_ALLOWED).json({ message: 'The requested HTTP method is not supported.' })
   } else {
-    res.status(httpStatus.NOT_FOUND).json({ message: 'The requested resouce cannot be found.' })
+    res.status(httpStatus.NOT_FOUND).json({ message: 'The requested resource cannot be found.' })
   }
 })
 
