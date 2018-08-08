@@ -198,6 +198,11 @@ paths:
           required: false
           description: Submission file url.
         - in: formData
+          name: fileType
+          type: string
+          required: true
+          description: File type of uploaded file or URL provided
+        - in: formData
           name: type
           type: string
           required: true
