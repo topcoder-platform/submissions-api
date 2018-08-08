@@ -168,6 +168,8 @@ function * createSubmission (authUser, files, entity) {
     reqBody['payload']['filename'] = files.submission.name
   } else { // If the file URL is provided, handle accordingly
     reqBody['payload']['isFileSubmission'] = false
+    // Temporary code, until ticket #28 is resolved
+    reqBody['payload']['fileType'] = fileType
   }
 
   // Post to Bus API using Helper function
