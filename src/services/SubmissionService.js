@@ -143,6 +143,12 @@ function * createSubmission (authUser, files, entity) {
     item['submissionPhaseId'] = entity.submissionPhaseId
   }
 
+  if (entity.fileType) {
+    item['fileType'] = entity.fileType
+  } else {
+    item['fileType'] = fileType
+  }
+
   // Prepare record to be inserted
   const record = {
     TableName: table,
@@ -164,7 +170,6 @@ function * createSubmission (authUser, files, entity) {
   // If the file is uploaded, set properties accordingly
   if (files && files.submission) {
     reqBody['payload']['isFileSubmission'] = true
-    reqBody['payload']['fileType'] = fileType
     reqBody['payload']['filename'] = files.submission.name
   } else { // If the file URL is provided, handle accordingly
     reqBody['payload']['isFileSubmission'] = false
@@ -183,6 +188,7 @@ createSubmission.schema = {
   files: joi.any(),
   entity: joi.object().keys({
     type: joi.string().required(),
+    fileType: joi.string(),
     url: joi.string().uri().trim(),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
