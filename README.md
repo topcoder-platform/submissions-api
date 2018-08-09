@@ -6,6 +6,7 @@
 2. Node.js 8.11.x
 3. Npm 5.6.x
 4. Postman for Verification
+5. Docker and Docker-Compose (Optional for Local Deployment)
 
 ## Setup
 
@@ -103,6 +104,24 @@ npm run lint or npm run lint:fix -- To fix lint errors which could be fixed
 npm run dev
 ```
 
+
+## Local Deployment with Docker
+
+To run the Submissions API using docker, follow the below steps
+
+1. Navigate to the directory `docker`
+
+2. Rename the file `sample.api.env` to `api.env`
+
+3. Set the required AWS and Auth0 credentials in the file `api.env`
+
+4. Once that is done, run the following command
+
+```
+docker-compose up
+```
+
+5. When you are running the application for the first time, It will take some time initially to download the image and install the dependencies
 
 ## Unit tests and Integration tests
 
