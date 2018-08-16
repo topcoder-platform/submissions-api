@@ -9,3 +9,5 @@ AWS_REPOSITORY=$(eval "echo \$${ENV}_AWS_REPOSITORY")
 TAG=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_BUILD_NUM
 sed -i='' "s|submissions-api:latest|$TAG|" docker/docker-compose.yml
 docker-compose -f docker/docker-compose.yml build submissions-api
+docker images
+
