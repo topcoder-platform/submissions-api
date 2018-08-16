@@ -1,6 +1,7 @@
 version: '3'
 services:
   submissions-api:
+    image: submissions-api:latest
     build:
       context: ../
       dockerfile: docker/Dockerfile
