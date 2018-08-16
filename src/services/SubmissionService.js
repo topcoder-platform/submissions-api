@@ -5,6 +5,7 @@
 const AWS = require('aws-sdk')
 const config = require('config')
 const errors = require('common-errors')
+const fileTypeFinder = require('file-type')
 const joi = require('joi')
 const _ = require('lodash')
 const uuid = require('uuid/v4')
@@ -117,6 +118,11 @@ function * createSubmission (authUser, files, entity) {
   const submissionId = uuid()
 
   if (files && files.submission) {
+    const pFileType = entity.fileType || 'zip' // File type parameter
+    const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
+    if (pFileType !== uFileType){
+      throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
+    }
     const file = yield _uploadToS3(files.submission, submissionId)
     url = file.Location
   }
