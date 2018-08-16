@@ -10,3 +10,5 @@ TAG=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_BU
 sed -i='' "s|submissions-api:latest|$TAG|" docker/docker-compose.yml
 echo "" > docker/api.env
 docker-compose -f docker/docker-compose.yml build submissions-api
+docker images
+
