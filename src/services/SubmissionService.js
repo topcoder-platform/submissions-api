@@ -118,7 +118,7 @@ function * createSubmission (authUser, files, entity) {
   const submissionId = uuid()
 
   if (files && files.submission) {
-    const pFileType = entity.fileType || 'zip' // File type parameter
+    const pFileType = entity.fileType || fileType // File type parameter
     const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
     if (pFileType !== uFileType){
       throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
