@@ -120,7 +120,7 @@ function * createSubmission (authUser, files, entity) {
   if (files && files.submission) {
     const pFileType = entity.fileType || fileType // File type parameter
     const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
-    if (pFileType !== uFileType){
+    if (pFileType !== uFileType) {
       throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
     }
     const file = yield _uploadToS3(files.submission, submissionId)
