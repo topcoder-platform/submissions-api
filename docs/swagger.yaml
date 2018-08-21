@@ -200,12 +200,14 @@ paths:
         - in: formData
           name: fileType
           type: string
-          description: File type of uploaded file or URL provided
+          description: File type of uploaded file or URL provided, Defaults to zip if not provided
         - in: formData
           name: type
           type: string
           required: true
           description: Submission type.
+          enum:
+            - ContestSubmission
         - in: formData
           name: memberId
           oneOf:
