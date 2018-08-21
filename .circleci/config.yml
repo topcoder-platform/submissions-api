@@ -22,8 +22,11 @@ jobs:
       - run:
           name: Installation of build dependencies.
           command: ./build.sh DEV
-      #- deploy:
-      #    command: ./deploy.sh DEV av-scanner-service
+      - deploy:
+          command: |
+            git clone --branch master https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+            cp ./../buildscript/master_deply_v4.2.sh .
+      #      ./master_deply_v4.2.sh -d ECS -e DEV -t $CIRCLE_SHA1 -s legacyapp
 
 workflows:
   version: 2
