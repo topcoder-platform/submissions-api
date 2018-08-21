@@ -26,7 +26,7 @@ jobs:
           command: |
             git clone --branch master https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
             cp ./../buildscript/master_deply_v4.2.sh .
-            ./master_deply_v4.2.sh -d ECS -e DEV -t $CIRCLE_SHA1 -s submission-processor-api
+            ./master_deply_v4.2.sh -d ECS -e DEV -t $CIRCLE_BUILD_NUM -s submission-processor-api
 
 workflows:
   version: 2
