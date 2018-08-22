@@ -121,7 +121,7 @@ createReview.schema = {
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
     reviewerId: joi.string().uuid().required(),
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required()
   }).required()
 }
@@ -151,7 +151,7 @@ function * _updateReview (authUser, reviewId, entity) {
     Key: {
       'id': reviewId
     },
-    UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su, 
+    UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
                         typeId = :t, reviewerId = :r,
                         updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
