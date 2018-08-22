@@ -125,13 +125,51 @@ function prepESFilter (query, actResource) {
   const filters = _.omit(query, ['perPage', 'page'])
   // Add match phrase filters for all query filters except page and perPage
   const boolQuery = []
+  const reviewFilters = []
+  const reviewSummationFilters = []
   // Adding resource filter
   boolQuery.push({ match_phrase: { resource: actResource } })
   _.map(filters, (value, key) => {
     let pair = {}
     pair[key] = value
-    boolQuery.push({ match_phrase: pair })
+    if (key.indexOf('.') > -1) {
+      const resKey = key.split('.')[0]
+      if (resKey === 'review') {
+        reviewFilters.push({ match_phrase: pair })
+      } else if (resKey === 'reviewSummation') {
+        reviewSummationFilters.push({ match_phrase: pair })
+      }
+    } else {
+      boolQuery.push({ match_phrase: pair })
+    }
   })
+
+  if (reviewFilters.length !== 0) {
+    boolQuery.push({
+      nested: {
+        path: 'review',
+        query: {
+          bool: {
+            filter: reviewFilters
+          }
+        }
+      }
+    })
+  }
+
+  if (reviewSummationFilters.length !== 0) {
+    boolQuery.push({
+      nested: {
+        path: 'reviewSummation',
+        query: {
+          bool: {
+            filter: reviewSummationFilters
+          }
+        }
+      }
+    })
+  }
+
   const searchCriteria = {
     index: config.get('esConfig.ES_INDEX'),
     type: config.get('esConfig.ES_TYPE'),
@@ -149,7 +187,7 @@ function prepESFilter (query, actResource) {
     }
   }
   return searchCriteria
-};
+}
 
 /*
  * Fetch data from ES and return to the caller
