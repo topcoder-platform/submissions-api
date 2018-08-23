@@ -147,6 +147,8 @@ function * createSubmission (authUser, files, entity) {
 
   if (entity.submissionPhaseId) {
     item['submissionPhaseId'] = entity.submissionPhaseId
+  } else {
+    item['submissionPhaseId'] = yield helper.getSubmissionPhaseId(entity.challengeId)
   }
 
   if (entity.fileType) {

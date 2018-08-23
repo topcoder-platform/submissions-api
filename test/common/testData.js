@@ -80,6 +80,14 @@ const testReviewTypesES = {
        _source:
        { name: 'Checkpoint Review',
          id: 'a56a4180-65aa-42ec-a945-5fd21dec0502',
+         isActive: true } },
+     { _index: 'submission',
+       _type: '_doc',
+       _id: 'f28b2725-ef90-4495-af59-ceb2bd98fc10',
+       _score: 0,
+       _source:
+       { name: 'AV Scan',
+         id: 'f28b2725-ef90-4495-af59-ceb2bd98fc10',
          isActive: true } } ]
    }
 }
@@ -104,7 +112,7 @@ const testSubmission = {
 
 const testSubmissionWoLegacy = {
   Item: {
-    challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+    challengeId: 30049360,
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
     type: 'ContestSubmission',
     url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457',
@@ -475,6 +483,101 @@ const testReviewSummationsES = {
    }
 }
 
+const testChallengeAPIResponse = {
+  'id': '24a97f2f:1655fef5034:-7568',
+  'result': {
+    'success': true,
+    'status': 200,
+    'metadata': {
+      'fields': null,
+      'totalCount': 5
+    },
+    'content': [
+      {
+        'challengeId': 30049360,
+        'id': 733195,
+        'phaseType': 'Registration',
+        'phaseStatus': 'Open',
+        'scheduledStartTime': '1438002000000',
+        'scheduledEndTime': '2019-12-02T09:00:00Z',
+        'actualStartTime': '1438002000000',
+        'actualEndTime': null,
+        'fixedStartTime': '1438002000000',
+        'duration': 137293200000,
+        'updatedAt': '2018-07-30T08:38Z',
+        'createdAt': '2015-07-27T09:19Z',
+        'createdBy': '11823846',
+        'updatedBy': '8547899'
+      },
+      {
+        'challengeId': 30049360,
+        'id': 733196,
+        'phaseType': 'Submission',
+        'phaseStatus': 'Open',
+        'scheduledStartTime': '1438002300000',
+        'scheduledEndTime': '2019-12-02T09:00:00Z',
+        'actualStartTime': null,
+        'actualEndTime': null,
+        'fixedStartTime': null,
+        'duration': 137292900000,
+        'updatedAt': '2018-07-30T08:38Z',
+        'createdAt': '2015-07-27T09:19Z',
+        'createdBy': '11823846',
+        'updatedBy': '8547899'
+      },
+      {
+        'challengeId': 30049360,
+        'id': 733197,
+        'phaseType': 'Review',
+        'phaseStatus': 'Scheduled',
+        'scheduledStartTime': '1575295200000',
+        'scheduledEndTime': '2019-12-04T09:00:00Z',
+        'actualStartTime': null,
+        'actualEndTime': null,
+        'fixedStartTime': null,
+        'duration': 172800000,
+        'updatedAt': '2018-07-30T08:38Z',
+        'createdAt': '2015-07-27T09:19Z',
+        'createdBy': '11823846',
+        'updatedBy': '8547899'
+      },
+      {
+        'challengeId': 30049360,
+        'id': 733198,
+        'phaseType': 'Appeals',
+        'phaseStatus': 'Scheduled',
+        'scheduledStartTime': '1575468000000',
+        'scheduledEndTime': '2019-12-05T09:00:00Z',
+        'actualStartTime': null,
+        'actualEndTime': null,
+        'fixedStartTime': null,
+        'duration': 86400000,
+        'updatedAt': '2018-07-30T08:38Z',
+        'createdAt': '2015-07-27T09:19Z',
+        'createdBy': '11823846',
+        'updatedBy': '8547899'
+      },
+      {
+        'challengeId': 30049360,
+        'id': 733199,
+        'phaseType': 'Appeals Response',
+        'phaseStatus': 'Scheduled',
+        'scheduledStartTime': '1575554400000',
+        'scheduledEndTime': '2019-12-05T09:00:00Z',
+        'actualStartTime': null,
+        'actualEndTime': null,
+        'fixedStartTime': null,
+        'duration': 43200000,
+        'updatedAt': '2018-07-30T08:38Z',
+        'createdAt': '2015-07-27T09:19Z',
+        'createdBy': '11823846',
+        'updatedBy': '8547899'
+      }
+    ]
+  },
+  'version': 'v3'
+}
+
 module.exports = {
   nonExReviewTypeId,
   testReviewType,
@@ -496,5 +599,6 @@ module.exports = {
   testReviewSummation,
   testReviewSummationPatch,
   testReviewSummationES,
-  testReviewSummationsES
+  testReviewSummationsES,
+  testChallengeAPIResponse
 }

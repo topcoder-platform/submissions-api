@@ -70,19 +70,23 @@ prepare(function (done) {
   // Mock Posting to Bus API and ES interactions
   const authUrl = URL.parse(config.AUTH0_URL)
   const busUrl = URL.parse(config.BUSAPI_EVENTS_URL)
+  const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_URL}/30049360/phases`)
+
   nock(/.com/)
     .persist()
     .filteringRequestBody((body) => {
-      const parsedBody = JSON.parse(body)
-      if (parsedBody.query) {
-        if (parsedBody.query.bool.filter[1]) {
-          const reqId = parsedBody.query.bool.filter[1].match_phrase.id
-          if (nonExistentIds.indexOf(reqId) !== -1) {
-            return 'nonExistent'
+      if (body) {
+        const parsedBody = JSON.parse(body)
+        if (parsedBody.query) {
+          if (parsedBody.query.bool.filter[1]) {
+            const reqId = parsedBody.query.bool.filter[1].match_phrase.id
+            if (nonExistentIds.indexOf(reqId) !== -1) {
+              return 'nonExistent'
+            }
+            return reqId
           }
-          return reqId
+          return parsedBody.query.bool.filter[0].match_phrase.resource
         }
-        return parsedBody.query.bool.filter[0].match_phrase.resource
       }
       return body
     })
@@ -90,6 +94,8 @@ prepare(function (done) {
     .reply(200, { access_token: 'test' })
     .post(busUrl.path)
     .reply(204)
+    .get(challengeApiUrl.path)
+    .reply(200, testData.testChallengeAPIResponse)
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'reviewType')
     .query(true)
     .reply(200, testData.testReviewTypesES)

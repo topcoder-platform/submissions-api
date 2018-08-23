@@ -18,6 +18,7 @@ module.exports = {
     S3_BUCKET: process.env.S3_BUCKET || 'tc-testing-submissions' // S3 Bucket to which submissions need to be uploaded
   },
   BUSAPI_EVENTS_URL: process.env.BUSAPI_EVENTS_URL || 'https://api.topcoder-dev.com/v5/bus/events',
+  CHALLENGEAPI_URL: process.env.CHALLENGEAPI_URL || 'https://api.topcoder-dev.com/v3/challenges',
   AUTH0_URL: process.env.AUTH0_URL, // Auth0 credentials for Submission Service
   AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'https://www.topcoder.com',
   TOKEN_CACHE_TIME: process.env.TOKEN_CACHE_TIME,
