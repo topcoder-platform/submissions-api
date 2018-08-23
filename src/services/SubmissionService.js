@@ -15,6 +15,7 @@ const { originator, mimeType, fileType, events } = require('../../constants').bu
 const s3 = new AWS.S3()
 
 const table = 'Submission'
+const MACHINE_USER = 'machine'
 
 /*
  * Function to upload file to S3
@@ -137,8 +138,8 @@ function * createSubmission (authUser, files, entity) {
     'challengeId': entity.challengeId,
     'created': currDate,
     'updated': currDate,
-    'createdBy': authUser.handle,
-    'updatedBy': authUser.handle
+    'createdBy': authUser.handle || MACHINE_USER,
+    'updatedBy': authUser.handle || MACHINE_USER
   }
 
   if (entity.legacySubmissionId) {
@@ -234,7 +235,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
       ':m': entity.memberId || exist.memberId,
       ':c': entity.challengeId || exist.challengeId,
       ':ua': currDate,
-      ':ub': authUser.handle
+      ':ub': authUser.handle || MACHINE_USER
     },
     ExpressionAttributeNames: {
       '#type': 'type',
@@ -266,7 +267,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table),
       'id': submissionId,
       'updated': currDate,
-      'updatedBy': authUser.handle }, entity)
+      'updatedBy': authUser.handle || MACHINE_USER }, entity)
   }
 
   // Post to Bus API using Helper function
@@ -274,7 +275,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle })
+  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || MACHINE_USER })
 }
 
 /**
