@@ -292,7 +292,7 @@ updateSubmission.schema = {
   authUser: joi.object().required(),
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    type: joi.string().required(),
+    type: joi.string(),
     url: joi.string().uri().trim().required(),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
