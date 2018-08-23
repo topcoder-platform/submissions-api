@@ -7,6 +7,7 @@ const AWS = require('aws-sdk')
 const co = require('co')
 const config = require('config')
 const elasticsearch = require('elasticsearch')
+const logger = require('./logger')
 const request = require('superagent')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
@@ -227,6 +228,29 @@ function setPaginationHeaders (req, res, data) {
   res.json(data.rows)
 }
 
+/*
+ * Get submission phase ID of a challenge from Challenge API
+ * @param challengeId Challenge ID
+ * @returns {Integer} Submission phase ID of the given challengeId
+ */
+function * getSubmissionPhaseId (challengeId) {
+  Promise.promisifyAll(request)
+  let phaseId = null
+  let response
+  try {
+    response = yield request.get(`${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+    logger.debug('Setting submissionPhaseId to Null')
+    response = null
+  }
+  if (response) {
+    const phases = _.get(response.body, 'result.content', [])
+    phaseId = _.filter(phases, {phaseType: 'Submission'})[0].id
+  }
+  return phaseId
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -235,5 +259,6 @@ module.exports = {
   postToBusAPI,
   fetchFromES,
   camelize,
-  setPaginationHeaders
+  setPaginationHeaders,
+  getSubmissionPhaseId
 }

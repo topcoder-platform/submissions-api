@@ -446,7 +446,7 @@ describe('ReviewType Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.length.should.be.eql(5)
+          res.body.length.should.be.eql(6)
           done()
         })
     }).timeout(20000)
