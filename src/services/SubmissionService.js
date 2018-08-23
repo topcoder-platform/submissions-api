@@ -61,19 +61,48 @@ function * _getSubmission (submissionId) {
 
 /**
  * Function to get submission based on ID from ES
+ * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be retrieved
  * @return {Object} Data retrieved from database
  */
-function * getSubmission (submissionId) {
+function * getSubmission (authUser, submissionId) {
   const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
   if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
-  // Return the retrieved submission
-  return response.rows[0]
+
+  const submission = response.rows[0]
+
+  // Return the retrieved submission directly for Copilots and Administrators
+  if(_.intersection(authUser.roles, ['Copilot', 'Administrator']).length !== 0) {
+    return submission
+  } else { // Check for users with role `Topcoder User`
+
+    // Allow downloading Own submission
+    if (submission.memberId === authUser.userId) {
+      return submission
+    }
+
+    const result = yield helper.fetchFromES({ challengeId: submission.challengeId,
+      memberId: authUser.userId }, helper.camelize(table))
+    // User requesting submission haven't made any submission
+    if (result.total === 0) {
+      throw new errors.HttpStatusError(403, `You are not allowed to perform this action!`)
+    }
+
+    const reqSubmission = result.rows[0]
+    // Only if the requestor has passing score, allow to download other submissions
+    if(reqSubmission.reviewSummation && reqSubmission.reviewSummation[0].isPassing) {
+      return submission
+    } else {
+      throw new errors.HttpStatusError(403, `You are not allowed to perform this action!`)
+    }
+  }
+  
 }
 
 getSubmission.schema = {
+  authUser: joi.object().required(),
   submissionId: joi.string().uuid().required()
 }
 
@@ -90,8 +119,8 @@ listSubmissions.schema = {
   query: joi.object().keys({
     type: joi.string(),
     url: joi.string().uri().trim(),
-    memberId: joi.string().uuid(),
-    challengeId: joi.string().uuid(),
+    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     page: joi.id(),
     perPage: joi.pageSize()
   })
