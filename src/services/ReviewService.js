@@ -13,6 +13,7 @@ const { originator, mimeType, events } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
 
 const table = 'Review'
+const MACHINE_USER = 'machine'
 
 /**
  * Function to get review based on ID from DynamoDB
@@ -86,8 +87,8 @@ function * createReview (authUser, entity) {
     'id': uuid(),
     'created': currDate,
     'updated': currDate,
-    'createdBy': authUser.handle,
-    'updatedBy': authUser.handle }, entity)
+    'createdBy': authUser.handle || MACHINE_USER,
+    'updatedBy': authUser.handle || MACHINE_USER }, entity)
 
   // Prepare record to be inserted
   const record = {
@@ -161,7 +162,7 @@ function * _updateReview (authUser, reviewId, entity) {
       ':t': entity.typeId || exist.typeId,
       ':r': entity.reviewerId || exist.reviewerId,
       ':ua': currDate,
-      ':ub': authUser.handle
+      ':ub': authUser.handle || MACHINE_USER
     }
   }
   yield dbhelper.updateRecord(record)
@@ -176,7 +177,7 @@ function * _updateReview (authUser, reviewId, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table),
       'id': reviewId,
       'updated': currDate,
-      'updatedBy': authUser.handle }, entity)
+      'updatedBy': authUser.handle || MACHINE_USER }, entity)
   }
 
   // Post to Bus API using Helper function
