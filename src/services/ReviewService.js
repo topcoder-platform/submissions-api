@@ -9,7 +9,6 @@ const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
-const { MACHINE_USER } = require('../../constants')
 
 const HelperService = require('./HelperService')
 
@@ -87,8 +86,8 @@ function * createReview (authUser, entity) {
     'id': uuid(),
     'created': currDate,
     'updated': currDate,
-    'createdBy': authUser.handle || MACHINE_USER,
-    'updatedBy': authUser.handle || MACHINE_USER }, entity)
+    'createdBy': authUser.handle || authUser.sub,
+    'updatedBy': authUser.handle || authUser.sub }, entity)
 
   // Prepare record to be inserted
   const record = {
@@ -162,7 +161,7 @@ function * _updateReview (authUser, reviewId, entity) {
       ':t': entity.typeId || exist.typeId,
       ':r': entity.reviewerId || exist.reviewerId,
       ':ua': currDate,
-      ':ub': authUser.handle || MACHINE_USER
+      ':ub': authUser.handle || authUser.sub
     }
   }
   yield dbhelper.updateRecord(record)
@@ -177,7 +176,7 @@ function * _updateReview (authUser, reviewId, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table),
       'id': reviewId,
       'updated': currDate,
-      'updatedBy': authUser.handle || MACHINE_USER }, entity)
+      'updatedBy': authUser.handle || authUser.sub }, entity)
   }
 
   // Post to Bus API using Helper function
@@ -185,7 +184,7 @@ function * _updateReview (authUser, reviewId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || MACHINE_USER })
+  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || authUser.sub })
 }
 
 /**
