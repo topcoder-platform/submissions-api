@@ -12,6 +12,7 @@ const uuid = require('uuid/v4')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
+const { MACHINE_USER } = require('../../constants')
 const s3 = new AWS.S3()
 
 const table = 'Submission'

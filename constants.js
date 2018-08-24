@@ -15,6 +15,9 @@ const busApiMeta = {
   }
 }
 
+const MACHINE_USER = 'machine'
+
 module.exports = {
-  busApiMeta
+  busApiMeta,
+  MACHINE_USER
 }

@@ -9,11 +9,11 @@ const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
+const { MACHINE_USER } = require('../../constants')
 
 const HelperService = require('./HelperService')
 
 const table = 'Review'
-const MACHINE_USER = 'machine'
 
 /**
  * Function to get review based on ID from DynamoDB
@@ -185,7 +185,7 @@ function * _updateReview (authUser, reviewId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle })
+  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || MACHINE_USER })
 }
 
 /**
