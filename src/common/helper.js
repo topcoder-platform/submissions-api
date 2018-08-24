@@ -246,7 +246,13 @@ function * getSubmissionPhaseId (challengeId) {
   }
   if (response) {
     const phases = _.get(response.body, 'result.content', [])
-    phaseId = _.filter(phases, {phaseType: 'Submission'})[0].id
+    const checkPoint = _.filter(phases, {phaseType: 'Checkpoint Submission', phaseStatus: 'Open'})
+    const submissionPh = _.filter(phases, {phaseType: 'Submission', phaseStatus: 'Open'})
+    if (checkPoint.length !== 0) {
+      phaseId = checkPoint[0].id
+    } else if (submissionPh.length !== 0) {
+      phaseId = submissionPh[0].id
+    }
   }
   return phaseId
 }
