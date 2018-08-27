@@ -185,7 +185,6 @@ Swagger UI will be served at `http://localhost:3000/docs`
 
 6. Please ensure to create a submission using Postman before testing Review and ReviewSummation end points, since the body of few Review and ReviewSummation requests references `submissionId` from Environment which is set by triggering POST /submissions request in Postman.
 
-
 ## General Notes
 
 1. All JWT tokens provided in Postman environment file is created in JWT.IO with secret `mysecret`
