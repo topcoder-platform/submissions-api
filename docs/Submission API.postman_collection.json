@@ -1,0 +1,2755 @@
+{
+	"info": {
+		"_postman_id": "36a71776-c802-4bdd-9fb1-6633caae2429",
+		"name": "Submission API",
+		"description": "Topcoder Submission API Postman Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Review Type",
+			"description": "End points related to Review Type",
+			"item": [
+				{
+					"name": "Create Review type without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "540a4d45-a491-48dd-be1d-420818ca7f1b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Review type with all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "78c8501d-f571-4e64-9d17-9e457f938674",
+								"type": "text/javascript",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"reviewTypeID\", response.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review type with invalid values",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21dec05",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"c56a4180-65aa-42ec-a945-5fd21dec05"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review type with non existent review types",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21decff87",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"c56a4180-65aa-42ec-a945-5fd21decff87"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review type with User Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET valid Review type with Admin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET complete Review types from ES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review types from ES with Pagination parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes?perPage=2&page=2",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "2"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review types from ES with filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes?name=Review",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Review"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review types from ES with invalid filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes?file=Review",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							],
+							"query": [
+								{
+									"key": "file",
+									"value": "Review"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HEAD complete Review types from ES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review type without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e90f2782-b6ab-4ad1-af02-735a1b261cbc",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing update\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review type with all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f13eec0d-52e8-4650-b1b0-2db09992067b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing update\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Review Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0650c1a1-4c4b-4a62-88b6-2e0ddf0ae236",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing patch\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "090f7890-3f04-48fc-9816-460f51a8b68d",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewTypes",
+								"{{reviewTypeID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ebc35496-b396-451f-ada4-0fca0c3f51d0",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "bcb2e515-5602-4d61-9aa1-0f8edd404630",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Review",
+			"description": "End points related to Review",
+			"item": [
+				{
+					"name": "Create Review without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "540a4d45-a491-48dd-be1d-420818ca7f1b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\": 85.3\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Review with all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "b0a4b893-f851-47bb-8b41-5dc60ba76fa0",
+								"type": "text/javascript",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"reviewID\", response.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\": 92.5,\n\t\"scoreCardId\": \"d46a4180-65aa-42ec-a945-5fd21d3d26f8\",\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"typeId\": \"c56a4180-65aa-42ec-a945-5fd21dec0503\",\n\t\"reviewerId\": \"c56a4180-65aa-42ec-a945-5fd21d3d26f8\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review with invalid values",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/c56a4180-65aa-42ec-a945-5fd21dec05",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"c56a4180-65aa-42ec-a945-5fd21dec05"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review with non existent review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/c56a4180-65aa-42ec-a945-5fd21decff87",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"c56a4180-65aa-42ec-a945-5fd21decff87"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review with User Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/{{reviewID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET valid Review with Admin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/{{reviewID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET complete Reviews from ES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Reviews from ES with pagination parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews?perPage=1&page=3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "1"
+								},
+								{
+									"key": "page",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Reviews from ES with filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews?submissionId=a12a4180-65aa-42ec-a945-5fd21dec0502",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							],
+							"query": [
+								{
+									"key": "submissionId",
+									"value": "a12a4180-65aa-42ec-a945-5fd21dec0502"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Reviews from ES with invalid filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews?userId=a12a4180-65aa-42ec-a945-5fd21dec0502",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							],
+							"query": [
+								{
+									"key": "userId",
+									"value": "a12a4180-65aa-42ec-a945-5fd21dec0502"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HEAD complete Reviews from ES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HEAD valid Review with Admin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/{{reviewID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e90f2782-b6ab-4ad1-af02-735a1b261cbc",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\": 90.5\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/{{reviewID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review with all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f13eec0d-52e8-4650-b1b0-2db09992067b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\": 90.5,\n\t\"scoreCardId\": \"d46a4180-65aa-42ec-a555-5fd21d3d26f8\",\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"typeId\": \"c56a4180-65aa-42ec-a945-5fd21dec0503\",\n\t\"reviewerId\": \"c56a4180-65aa-42ec-a945-5fd21d3d26f8\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/{{reviewID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0650c1a1-4c4b-4a62-88b6-2e0ddf0ae236",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"score\": 99.2\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/{{reviewID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "090f7890-3f04-48fc-9816-460f51a8b68d",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/reviews/{{reviewID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviews",
+								"{{reviewID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5dffa3cc-61e9-425b-b79f-f554fe3a3d0f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ff7193c7-f644-4cf1-93c5-df1d6e86e978",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "ReviewSummation",
+			"description": "End points related to Review Summation",
+			"item": [
+				{
+					"name": "Create Review Summation without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "540a4d45-a491-48dd-be1d-420818ca7f1b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"aggregateScore\": 98.5\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Review Summation with all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "9a901742-45ac-4e6e-b3c5-3379ed7e74bf",
+								"type": "text/javascript",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"reviewSummationID\", response.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"aggregateScore\": 97.8,\n\t\"scoreCardId\": \"d46a4180-65aa-42ec-a945-5fd21d3d26f8\",\n\t\"isPassing\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review Summation with invalid values",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/c56a4180-65aa-42ec-a945-5fd21dec05",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"c56a4180-65aa-42ec-a945-5fd21dec05"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review Summation with non existent review summation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{COPILOT_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/c56a4180-65aa-42ec-a945-5fd21decff87",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"c56a4180-65aa-42ec-a945-5fd21decff87"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review Summation with User Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"{{reviewSummationID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET valid Review Summation with Admin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"{{reviewSummationID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET complete Review Summations from ES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review Summations from ES with pagination parameters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations?perPage=1",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations"
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review Summations from ES with filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations?aggregateScore=99",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations"
+							],
+							"query": [
+								{
+									"key": "aggregateScore",
+									"value": "99"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Review Summations from ES with invalid filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations?score=99",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations"
+							],
+							"query": [
+								{
+									"key": "score",
+									"value": "99"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HEAD complete Review Summations from ES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HEAD valid Review Summation with Admin token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "290c7b35-fc15-468e-81a8-bd2a4eefcd27",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"{{reviewSummationID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review Summation without all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e90f2782-b6ab-4ad1-af02-735a1b261cbc",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"name\": \"testing update\"\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"{{reviewSummationID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Review Summation with all attributes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f13eec0d-52e8-4650-b1b0-2db09992067b",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"aggregateScore\": 93.5,\n\t\"scoreCardId\": \"d46a4180-65aa-42ec-a945-5fd21d3d26f8\",\n\t\"isPassing\": true\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"{{reviewSummationID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patch Review Summation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0650c1a1-4c4b-4a62-88b6-2e0ddf0ae236",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"aggregateScore\": 85.7\n}"
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"{{reviewSummationID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Review Summation",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "090f7890-3f04-48fc-9816-460f51a8b68d",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"reviewSummations",
+								"{{reviewSummationID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5dffa3cc-61e9-425b-b79f-f554fe3a3d0f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "ff7193c7-f644-4cf1-93c5-df1d6e86e978",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Submission",
+			"description": "End points related to Submission",
+			"item": [
+				{
+					"name": "Create Submission by Uploading file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
+								"type": "text/javascript",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"submissionID\", response.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "submission",
+									"type": "file",
+									"value": ""
+								},
+								{
+									"key": "type",
+									"value": "challengesubmission",
+									"type": "text"
+								},
+								{
+									"key": "memberId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"type": "text"
+								},
+								{
+									"key": "challengeId",
+									"value": "c56a4180-65aa-42ec-a945-3f521dec0587",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Submission with URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "dc626f22-ee07-4a39-b0d5-a7e5fb88bc51",
+								"type": "text/javascript",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"submissionID\", response.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "challengesubmission",
+									"type": "text"
+								},
+								{
+									"key": "memberId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"type": "text"
+								},
+								{
+									"key": "challengeId",
+									"value": "c56a4180-65aa-42ec-a945-3f521dec0587",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission with invalid Submission ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/974969cb-33fb-4fc9-83f8-39e15d",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"974969cb-33fb-4fc9-83f8-39e15d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission with non-existent submission ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/974969cb-33fb-4fc9-83f8-39e15d3fffff",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"974969cb-33fb-4fc9-83f8-39e15d3fffff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get complete Submissions from ES",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submissions from ES with pagination parameters",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions?perPage=2&page=3",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							],
+							"query": [
+								{
+									"key": "perPage",
+									"value": "2"
+								},
+								{
+									"key": "page",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submissions from ES with filters",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions?type=ContestSubmission",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "ContestSubmission"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submissions from ES with invalid filters",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions?name=test",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "test"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HEAD complete Submissions from ES",
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HEAD valid submission",
+					"request": {
+						"method": "HEAD",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Try update with User Token",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Try update without complete Details",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "testing",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://something.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Update by Admin",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "testing",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://something.com",
+									"type": "text"
+								},
+								{
+									"key": "memberId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+									"type": "text"
+								},
+								{
+									"key": "challengeId",
+									"value": "c56a4180-65aa-42ec-a945-5fd21dec2543",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Valid Patch by Admin",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "type",
+									"value": "test patching",
+									"type": "text"
+								},
+								{
+									"key": "url",
+									"value": "https://patching.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Submission",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "36ae69eb-1c73-452b-8311-7da740456368",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "36485be4-86c2-46a9-aa9d-3e6a662ab673",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}

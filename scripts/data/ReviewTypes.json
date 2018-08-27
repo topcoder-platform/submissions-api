@@ -1,0 +1,25 @@
+[{
+  "id": "c56a4180-65aa-42ec-a945-5fd21dec0501",
+  "name": "Screening",
+  "isActive": true
+}, {
+  "id": "c56a4180-65aa-42ec-a945-5fd21dec0502",
+  "name": "Checkpoint Review",
+  "isActive": true
+}, {
+  "id": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+  "name": "Review",
+  "isActive": true
+}, {
+  "id": "c56a4180-65aa-42ec-a945-5fd21dec0504",
+  "name": "Appeals Response",
+  "isActive": true
+}, {
+  "id": "c56a4180-65aa-42ec-a945-5fd21dec0505",
+  "name": "Iterative Review",
+  "isActive": true
+}, {
+  "id": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
+  "name": "AV Scan",
+  "isActive": true
+}]
