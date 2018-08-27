@@ -94,7 +94,16 @@ listSubmissions.schema = {
     memberId: joi.string().uuid(),
     challengeId: joi.string().uuid(),
     page: joi.id(),
-    perPage: joi.pageSize()
+    perPage: joi.pageSize(),
+    'review.score': joi.score(),
+    'review.typeId': joi.string().uuid(),
+    'review.reviewerId': joi.string().uuid(),
+    'review.scoreCardId': joi.string().uuid(),
+    'review.submissionId': joi.string().uuid(),
+    'reviewSummation.scoreCardId': joi.string().uuid(),
+    'reviewSummation.submissionId': joi.string().uuid(),
+    'reviewSummation.aggregateScore': joi.score(),
+    'reviewSummation.isPassing': joi.boolean()
   })
 }
 
