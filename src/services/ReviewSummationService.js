@@ -61,10 +61,11 @@ function * listReviewSummations (query) {
 
 listReviewSummations.schema = {
   query: joi.object().keys({
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
+    isFinal: joi.boolean(),
     page: joi.id(),
     perPage: joi.pageSize()
   })
@@ -88,6 +89,10 @@ function * createReviewSummation (authUser, entity) {
     'updated': currDate,
     'createdBy': authUser.handle || authUser.sub,
     'updatedBy': authUser.handle || authUser.sub }, entity)
+
+  if (entity.isFinal) {
+    item['isFinal'] = entity.isFinal
+  }
 
   const record = {
     TableName: table,
@@ -117,10 +122,11 @@ function * createReviewSummation (authUser, entity) {
 createReviewSummation.schema = {
   authUser: joi.object().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
-    isPassing: joi.boolean().required()
+    isPassing: joi.boolean().required(),
+    isFinal: joi.boolean()
   }).required()
 }
 
@@ -168,6 +174,21 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       ':ub': authUser.handle || authUser.sub
     }
   }
+
+   // If legacy submission ID exists, add it to the update expression
+  if (entity.isFinal || exist.isFinal) {
+    let isFinal // Attribute to store boolean value
+    
+    if (entity.isFinal === undefined) {
+      isFinal = exist.isFinal
+    } else {
+      isFinal = entity.isFinal
+    }
+    
+    record['UpdateExpression'] = record['UpdateExpression'] + `, isFinal = :ls`
+    record['ExpressionAttributeValues'][':ls'] = isFinal
+  }
+
   yield dbhelper.updateRecord(record)
 
   // Push Review Summation updated event to Bus API
@@ -206,10 +227,11 @@ updateReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
-    isPassing: joi.boolean().required()
+    isPassing: joi.boolean().required(),
+    isFinal: joi.boolean()
   }).required()
 }
 
@@ -228,10 +250,11 @@ patchReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
-    isPassing: joi.boolean()
+    isPassing: joi.boolean(),
+    isFinal: joi.boolean()
   })
 }
 
