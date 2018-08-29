@@ -265,6 +265,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   }
 
   yield dbhelper.updateRecord(record)
+  const updatedSub = yield _getSubmission(submissionId)
 
   // Push Submission updated event to Bus API
   // Request body for Posting to Bus API
@@ -273,10 +274,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
     'originator': originator,
     'timestamp': currDate, // time when submission was updated
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table),
-      'id': submissionId,
-      'updated': currDate,
-      'updatedBy': authUser.handle || authUser.sub }, entity)
+    'payload': _.extend({ 'resource': helper.camelize(table) }, updatedSub)
   }
 
   // Post to Bus API using Helper function
