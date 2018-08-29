@@ -256,7 +256,7 @@ describe('Submission Service tests', () => {
         .send({})
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql('"type" is required')
+          res.body.message.should.be.eql('"url" is required')
           done()
         })
     })
