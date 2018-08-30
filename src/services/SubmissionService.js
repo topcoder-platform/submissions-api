@@ -71,6 +71,10 @@ function * getSubmission (submissionId) {
 
   if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
     submissionRecord = _getSubmission(submissionId)
+
+    if (!submissionRecord.id) {
+      submissionRecord = null
+    }
   } else {
     submissionRecord = response.rows[0]
   }
