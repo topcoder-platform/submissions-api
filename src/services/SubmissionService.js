@@ -274,7 +274,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
     'originator': originator,
     'timestamp': currDate, // time when submission was updated
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table) }, updatedSub)
+    'payload': _.extend({ 'resource': helper.camelize(table) }, entity)
   }
 
   // Post to Bus API using Helper function
