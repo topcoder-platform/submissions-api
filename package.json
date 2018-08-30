@@ -1,23 +1,65 @@
 {
-  "name": "topcoder-submissions-rest-api",
-  "version": "5.0.0",
-  "description": "REST API for Topcoder Submissions.  ### Pagination   Requests that return multiple items will be paginated to 20 items by default. You can specify   further pages with the `page` parameter. You can also set a custom page   size up to 100 with the `perPage` parameter.    Pagination response data is included in http headers. By Default, the response header contains links with `next`, `last`, `first`, `prev` resource links. ",
-  "main": "index.js",
+  "name": "submissions-api",
+  "version": "1.0.0",
+  "description": "Topcoder Submissions API",
+  "main": "app.js",
   "scripts": {
-    "prestart": "npm install",
-    "start": "node index.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "create-tables": "node scripts/createTables.js",
+    "init-db": "node scripts/importData.js",
+    "create-index": "node scripts/createIndex.js",
+    "delete-index": "node scripts/deleteIndex.js",
+    "init-es": "node scripts/loadES.js",
+    "test": "mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
+    "e2e": "mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit",
+    "cov": "nyc --reporter=html --reporter=text mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
+    "cov-e2e": "nyc --reporter=html --reporter=text mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit"
   },
-  "keywords": [
-    "swagger"
-  ],
-  "license": "Unlicense",
-  "private": true,
   "dependencies": {
-    "connect": "^3.2.0",
-    "js-yaml": "^3.3.0",
-    "swagger-tools": "0.10.1"
+    "aws-sdk": "^2.265.1",
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.3",
+    "co": "^4.6.0",
+    "common-errors": "^1.0.4",
+    "config": "^1.26.2",
+    "cors": "^2.8.4",
+    "elasticsearch": "^15.1.1",
+    "express": "^4.15.4",
+    "express-fileupload": "^0.4.0",
+    "file-type": "^9.0.0",
+    "get-parameter-names": "^0.3.0",
+    "http-aws-es": "^6.0.0",
+    "http-status": "^1.2.0",
+    "joi": "^13.4.0",
+    "lodash": "^4.17.10",
+    "superagent": "^3.8.3",
+    "swagger-ui-express": "^3.0.10",
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#feature/m2mtoken",
+    "uuid": "^3.3.0",
+    "winston": "^2.4.3",
+    "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "aws-sdk-mock": "^4.0.0",
+    "chai": "^4.1.2",
+    "chai-http": "^4.0.0",
+    "co-mocha": "^1.2.2",
+    "mocha": "^5.2.0",
+    "mocha-prepare": "^0.1.0",
+    "nock": "^9.4.3",
+    "nodemon": "^1.17.5",
+    "nyc": "^12.0.2",
+    "standard": "^11.0.1"
   },
   "engines": {
-    "node": "~8"
+    "node": "8.11.x"
+  },
+  "standard": {
+    "env": [
+      "mocha"
+    ]
   }
 }
