@@ -67,11 +67,19 @@ function * _getSubmission (submissionId) {
  */
 function * getSubmission (submissionId) {
   const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
-  if (response.total === 0) {
+  let submissionRecord = null
+
+  if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
+    submissionRecord = _getSubmission(submissionId)
+  } else {
+    submissionRecord = response.rows[0]
+  }
+
+  if (!submissionRecord) { // CWD-- couldn't find it in ES nor the DB
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
   // Return the retrieved submission
-  return response.rows[0]
+  return submissionRecord
 }
 
 getSubmission.schema = {
