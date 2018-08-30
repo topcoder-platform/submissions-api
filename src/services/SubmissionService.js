@@ -68,26 +68,26 @@ function * _getSubmission (submissionId) {
 function * getSubmission (submissionId) {
   const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
   let submissionRecord = null
-  logger.debug(`getSubmission: fetching submissionId ${submissionId}`)
+  logger.info(`getSubmission: fetching submissionId ${submissionId}`)
   if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
-    logger.debug(`getSubmission: submissionId not found in ES: ${submissionId}`)
+    logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
     submissionRecord = _getSubmission(submissionId)
 
     if (!submissionRecord.id) {
-      logger.debug(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
+      logger.info(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
       submissionRecord = null
     }
   } else {
-    logger.debug(`getSubmission: submissionId found in ES: ${submissionId}`)
+    logger.info(`getSubmission: submissionId found in ES: ${submissionId}`)
     submissionRecord = response.rows[0]
   }
 
   if (!submissionRecord) { // CWD-- couldn't find it in ES nor the DB
-    logger.debug(`getSubmission: submissionId not found in ES nor DB so throwing 404: ${submissionId}`)
+    logger.info(`getSubmission: submissionId not found in ES nor DB so throwing 404: ${submissionId}`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
   // Return the retrieved submission
-  logger.debug(`getSubmission: returning data for submissionId: ${submissionId}`)
+  logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
   return submissionRecord
 }
 
