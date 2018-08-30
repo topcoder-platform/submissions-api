@@ -71,7 +71,7 @@ function * getSubmission (submissionId) {
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
   if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
     logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
-    submissionRecord = _getSubmission(submissionId)
+    submissionRecord = yield _getSubmission(submissionId)
 
     if (!submissionRecord.id) {
       logger.info(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
