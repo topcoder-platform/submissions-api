@@ -64,6 +64,9 @@ paths:
         - $ref: '#/parameters/filterSubmissionUrl'
         - $ref: '#/parameters/filterSubmissionMemberId'
         - $ref: '#/parameters/filterSubmissionChallengeId'
+        - $ref: '#/parameters/filterSubmissionLegacySubmissionId'
+        - $ref: '#/parameters/filterSubmissionLegacyUploadId'
+        - $ref: '#/parameters/filterSubmissionSubmissionPhaseId'
       responses:
         200:
           description: OK - the request was successful, the submissions resource are returned.
@@ -141,6 +144,9 @@ paths:
         - $ref: '#/parameters/filterSubmissionUrl'
         - $ref: '#/parameters/filterSubmissionMemberId'
         - $ref: '#/parameters/filterSubmissionChallengeId'
+        - $ref: '#/parameters/filterSubmissionLegacySubmissionId'
+        - $ref: '#/parameters/filterSubmissionLegacyUploadId'
+        - $ref: '#/parameters/filterSubmissionSubmissionPhaseId'
       responses:
         200:
           description: OK - The request was successful.
@@ -224,6 +230,12 @@ paths:
           description: Challenge Id.
         - in: formData
           name: legacySubmissionId
+          oneOf:
+            - type: string
+            - type: integer
+          description: Legacy Submission Id
+        - in: formData
+          name: legacyUploadId
           oneOf:
             - type: string
             - type: integer
@@ -1369,6 +1381,33 @@ parameters:
     in: query
     name: challengeId
     description: The challenge id filter for submissions.
+    required: false
+    oneOf:
+      - type: string
+      - type: integer
+
+  filterSubmissionLegacySubmissionId:
+    in: query
+    name: legacySubmissionId
+    description: The legacy submission id filter for submissions.
+    required: false
+    oneOf:
+      - type: string
+      - type: integer
+
+  filterSubmissionLegacyUploadId:
+    in: query
+    name: legacyUploadId
+    description: The legacy upload id filter for submissions.
+    required: false
+    oneOf:
+      - type: string
+      - type: integer
+
+  filterSubmissionSubmissionPhaseId:
+    in: query
+    name: submissionPhaseId
+    description: The submission phase id filter for submissions.
     required: false
     oneOf:
       - type: string
