@@ -108,9 +108,11 @@ listSubmissions.schema = {
   query: joi.object().keys({
     type: joi.string(),
     url: joi.string().uri().trim(),
-    memberId: joi.string().uuid(),
-    challengeId: joi.string().uuid(),
+    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     page: joi.id(),
     perPage: joi.pageSize(),
     'review.score': joi.score(),
