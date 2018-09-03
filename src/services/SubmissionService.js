@@ -111,6 +111,7 @@ listSubmissions.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     page: joi.id(),
     perPage: joi.pageSize(),
@@ -174,6 +175,10 @@ function * createSubmission (authUser, files, entity) {
     item['legacySubmissionId'] = entity.legacySubmissionId
   }
 
+  if (entity.legacyUploadId) {
+    item['legacyUploadId'] = entity.legacyUploadId
+  }
+
   if (entity.submissionPhaseId) {
     item['submissionPhaseId'] = entity.submissionPhaseId
   } else {
@@ -230,6 +235,7 @@ createSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
@@ -275,6 +281,12 @@ function * _updateSubmission (authUser, submissionId, entity) {
   if (entity.legacySubmissionId || exist.legacySubmissionId) {
     record['UpdateExpression'] = record['UpdateExpression'] + `, legacySubmissionId = :ls`
     record['ExpressionAttributeValues'][':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
+  }
+
+  // If legacy upload ID exists, add it to the update expression
+  if (entity.legacyUploadId || exist.legacyUploadId) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, legacyUploadId = :lu`
+    record['ExpressionAttributeValues'][':lu'] = entity.legacyUploadId || exist.legacyUploadId
   }
 
   // If submissionPhaseId exists, add it to the update expression
@@ -331,6 +343,7 @@ updateSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
@@ -355,6 +368,7 @@ patchSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   })
 }
