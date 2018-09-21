@@ -141,6 +141,23 @@ function * deleteRecord (filter) {
   })
 }
 
+/**
+ * Get multiple records from DynamoDB based on the parameters
+ * @param     {object} params Parameters to be used for Scanning
+ * @return    {promise}
+ */
+function * scanRecords (params) {
+  const dbClient = getDbClient()
+  return new Promise((resolve, reject) => {
+    dbClient.scan(params, (err, data) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(data)
+    })
+  })
+}
+
 // exports the functions
 module.exports = {
   getDb,
@@ -150,5 +167,6 @@ module.exports = {
   insertRecord,
   getRecord,
   updateRecord,
-  deleteRecord
+  deleteRecord,
+  scanRecords
 }
