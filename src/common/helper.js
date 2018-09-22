@@ -9,12 +9,14 @@ const config = require('config')
 const elasticsearch = require('elasticsearch')
 const logger = require('./logger')
 const request = require('superagent')
-const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
+const busApi = require('tc-bus-api-wrapper')
 
 AWS.config.region = config.get('aws.AWS_REGION')
 // ES Client mapping
 const esClients = {}
+
+// Bus API Clients mapping
+const busApiClients = {}
 
 /**
  * Wrap generator function to standard express function
@@ -48,30 +50,20 @@ function autoWrapExpress (obj) {
   return obj
 }
 
-/* Function to get M2M token
- * @returns {Promise}
- */
-function * getM2Mtoken () {
-  return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
-}
-
 /**
- * Function to POST to Bus API
- * @param{Object} reqBody Body of the request to be Posted
- * @returns {Promise}
- */
-function * postToBusAPI (reqBody) {
-  // M2M token necessary for pushing to Bus API
-  const token = yield getM2Mtoken()
+ * Get Bus API Client
+ * @return {Object} Bus API Client Instance
+*/
+function getBusApiClient () {
+  // If there is no Client instance, Create a new instance
+  if (!busApiClients['client']) {
+    busApiClients['client'] = busApi(_.pick(config,
+      ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME',
+        'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'BUSAPI_URL',
+        'KAFKA_ERROR_TOPIC']))
+  }
 
-  Promise.promisifyAll(request)
-
-  // Post the request body to Bus API
-  yield request
-    .post(config.BUSAPI_EVENTS_URL)
-    .set('Authorization', `Bearer ${token}`)
-    .set('Content-Type', 'application/json')
-    .send(reqBody)
+  return busApiClients['client']
 }
 
 /**
@@ -298,9 +290,8 @@ function * getSubmissionPhaseId (challengeId) {
 module.exports = {
   wrapExpress,
   autoWrapExpress,
-  getM2Mtoken,
   getEsClient,
-  postToBusAPI,
+  getBusApiClient,
   fetchFromES,
   camelize,
   setPaginationHeaders,

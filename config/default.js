@@ -17,7 +17,8 @@ module.exports = {
     AWS_WRITE_UNITS: process.env.AWS_WRITE_UNITS || 5,
     S3_BUCKET: process.env.S3_BUCKET || 'tc-testing-submissions' // S3 Bucket to which submissions need to be uploaded
   },
-  BUSAPI_EVENTS_URL: process.env.BUSAPI_EVENTS_URL || 'https://api.topcoder-dev.com/v5/bus/events',
+  BUSAPI_URL: process.env.BUSAPI_URL || 'https://api.topcoder-dev.com/v5',
+  KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'error.notification',
   CHALLENGEAPI_URL: process.env.CHALLENGEAPI_URL || 'https://api.topcoder-dev.com/v3/challenges',
   AUTH0_URL: process.env.AUTH0_URL, // Auth0 credentials for Submission Service
   AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'https://www.topcoder.com',
