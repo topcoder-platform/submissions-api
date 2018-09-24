@@ -108,8 +108,11 @@ listSubmissions.schema = {
   query: joi.object().keys({
     type: joi.string(),
     url: joi.string().uri().trim(),
-    memberId: joi.string().uuid(),
-    challengeId: joi.string().uuid(),
+    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     page: joi.id(),
     perPage: joi.pageSize(),
     'review.score': joi.score(),
@@ -132,11 +135,14 @@ listSubmissions.schema = {
  * @return {Promise}
  */
 function * createSubmission (authUser, files, entity) {
+  logger.info('Creating a new submission')
   if (files && entity.url) {
+    logger.info('Cannot create submission. Neither file nor url to upload has been passed')
     throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
   }
 
   if (!files && !entity.url) {
+    logger.info('Cannot create submission. Ambiguous parameters. Both file and url have been provided. Unsure which to use')
     throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
   }
 
@@ -148,6 +154,7 @@ function * createSubmission (authUser, files, entity) {
     const pFileType = entity.fileType || fileType // File type parameter
     const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
     if (pFileType !== uFileType) {
+      logger.info('Actual file type of the file does not match the file type attribute in the request')
       throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
     }
     const file = yield _uploadToS3(files.submission, submissionId)
@@ -172,6 +179,10 @@ function * createSubmission (authUser, files, entity) {
     item['legacySubmissionId'] = entity.legacySubmissionId
   }
 
+  if (entity.legacyUploadId) {
+    item['legacyUploadId'] = entity.legacyUploadId
+  }
+
   if (entity.submissionPhaseId) {
     item['submissionPhaseId'] = entity.submissionPhaseId
   } else {
@@ -190,6 +201,7 @@ function * createSubmission (authUser, files, entity) {
     Item: item
   }
 
+  logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
   yield dbhelper.insertRecord(record)
 
   // Push Submission created event to Bus API
@@ -210,6 +222,8 @@ function * createSubmission (authUser, files, entity) {
     reqBody['payload']['isFileSubmission'] = false
   }
 
+  logger.info('Prepared submission create event payload to pass to THE bus')
+
   // Post to Bus API using Helper function
   yield helper.postToBusAPI(reqBody)
 
@@ -228,6 +242,7 @@ createSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
@@ -241,8 +256,11 @@ createSubmission.schema = {
  * @return {Promise}
  **/
 function * _updateSubmission (authUser, submissionId, entity) {
+  logger.info(`Updating submission with submission id ${submissionId}`)
+
   const exist = yield _getSubmission(submissionId)
   if (!exist) {
+    logger.info(`Submission with ID = ${submissionId} is not found`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
@@ -275,11 +293,19 @@ function * _updateSubmission (authUser, submissionId, entity) {
     record['ExpressionAttributeValues'][':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
   }
 
+  // If legacy upload ID exists, add it to the update expression
+  if (entity.legacyUploadId || exist.legacyUploadId) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, legacyUploadId = :lu`
+    record['ExpressionAttributeValues'][':lu'] = entity.legacyUploadId || exist.legacyUploadId
+  }
+
   // If submissionPhaseId exists, add it to the update expression
   if (entity.submissionPhaseId || exist.submissionPhaseId) {
     record['UpdateExpression'] = record['UpdateExpression'] + `, submissionPhaseId = :sp`
     record['ExpressionAttributeValues'][':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
   }
+
+  logger.info('Prepared submission item to update in Dynamodb. Updating...')
 
   yield dbhelper.updateRecord(record)
   const updatedSub = yield _getSubmission(submissionId)
@@ -300,6 +326,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
       'type': updatedSub.type
     }, entity)
   }
+
+  logger.info('Prepared submission update event payload to pass to THE bus')
 
   // Post to Bus API using Helper function
   yield helper.postToBusAPI(reqBody)
@@ -329,6 +357,7 @@ updateSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
@@ -353,6 +382,7 @@ patchSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   })
 }

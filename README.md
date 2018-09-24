@@ -163,6 +163,14 @@ To run integration tests with coverage report
 npm run cov-e2e
 ```
 
+#### Migrating data from DynamoDB to ES
+
+To migrate the existing data from DynamoDB to ES, run the following script
+
+```
+npm run db-to-es
+```
+
 #### Swagger UI
 
 Swagger UI will be served at `http://localhost:3000/docs`

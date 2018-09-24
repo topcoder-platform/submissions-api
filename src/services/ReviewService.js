@@ -64,7 +64,7 @@ listReviews.schema = {
     score: joi.score(),
     typeId: joi.string().uuid(),
     reviewerId: joi.string().uuid(),
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     page: joi.id(),
     perPage: joi.pageSize()
@@ -205,7 +205,7 @@ updateReview.schema = {
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
     reviewerId: joi.string().uuid().required(),
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required()
   }).required()
 }
@@ -228,7 +228,7 @@ patchReview.schema = {
     score: joi.score(),
     typeId: joi.string().uuid(),
     reviewerId: joi.string().uuid(),
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid()
   })
 }
