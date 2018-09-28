@@ -15,8 +15,8 @@ AWS.config.region = config.get('aws.AWS_REGION')
 // ES Client mapping
 const esClients = {}
 
-// Bus API Clients mapping
-const busApiClients = {}
+// Bus API Client
+let busApiClient
 
 /**
  * Wrap generator function to standard express function
@@ -56,14 +56,14 @@ function autoWrapExpress (obj) {
 */
 function getBusApiClient () {
   // If there is no Client instance, Create a new instance
-  if (!busApiClients['client']) {
-    busApiClients['client'] = busApi(_.pick(config,
+  if (!busApiClient) {
+    busApiClient = busApi(_.pick(config,
       ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME',
         'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'BUSAPI_URL',
         'KAFKA_ERROR_TOPIC']))
   }
 
-  return busApiClients['client']
+  return busApiClient
 }
 
 /**
