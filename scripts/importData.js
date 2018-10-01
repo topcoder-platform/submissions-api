@@ -21,7 +21,7 @@ co(function * loadData () {
     }
     promises.push(dbhelper.insertRecord(record))
   })
-  
+
   submissions.forEach((submission) => {
     let record = {
       TableName: 'Submission',
@@ -29,7 +29,7 @@ co(function * loadData () {
     }
     promises.push(dbhelper.insertRecord(record))
   })
-  
+
   reviews.forEach((review) => {
     let record = {
       TableName: 'Review',
@@ -37,7 +37,7 @@ co(function * loadData () {
     }
     promises.push(dbhelper.insertRecord(record))
   })
-  
+
   reviewSummations.forEach((reviewSummation) => {
     let record = {
       TableName: 'ReviewSummation',
@@ -45,7 +45,7 @@ co(function * loadData () {
     }
     promises.push(dbhelper.insertRecord(record))
   })
-  
+
   yield promises
   logger.info('Data import succeeded!')
   process.exit(0)
