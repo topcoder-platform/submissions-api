@@ -10,7 +10,11 @@ const elasticsearch = require('elasticsearch')
 const logger = require('./logger')
 const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
+const errors = require('common-errors')
+const m2mAuth = require('tc-core-library-js').auth.m2m
+const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
 
+Promise.promisifyAll(request)
 AWS.config.region = config.get('aws.AWS_REGION')
 // ES Client mapping
 const esClients = {}
@@ -258,17 +262,26 @@ function setPaginationHeaders (req, res, data) {
   res.json(data.rows)
 }
 
+/* Function to get M2M token
+ * @returns {Promise}
+ */
+function * getM2Mtoken () {
+  return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+}
+
 /*
  * Get submission phase ID of a challenge from Challenge API
  * @param challengeId Challenge ID
  * @returns {Integer} Submission phase ID of the given challengeId
  */
 function * getSubmissionPhaseId (challengeId) {
-  Promise.promisifyAll(request)
   let phaseId = null
   let response
   try {
+    const token = yield getM2Mtoken()
     response = yield request.get(`${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
     logger.debug('Setting submissionPhaseId to Null')
@@ -278,13 +291,62 @@ function * getSubmissionPhaseId (challengeId) {
     const phases = _.get(response.body, 'result.content', [])
     const checkPoint = _.filter(phases, {phaseType: 'Checkpoint Submission', phaseStatus: 'Open'})
     const submissionPh = _.filter(phases, {phaseType: 'Submission', phaseStatus: 'Open'})
+    const finalFixPh = _.filter(phases, {phaseType: 'Final Fix', phaseStatus: 'Open'})
     if (checkPoint.length !== 0) {
       phaseId = checkPoint[0].id
     } else if (submissionPh.length !== 0) {
       phaseId = submissionPh[0].id
+    } else if (finalFixPh.length !== 0) {
+      phaseId = finalFixPh[0].id
     }
   }
   return phaseId
+}
+
+/*
+ * Function to check user access to create a submission
+ * @param authUser Authenticated user
+ * @param challengeId Challenge ID
+ * @param submissionPhaseId Submission phase ID
+ * @returns {Promise}
+ */
+function * checkUserAccess (authUser, challengeId, submissionPhaseId) {
+  let response
+
+  if (submissionPhaseId == null) {
+    throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
+  }
+
+  try {
+    const token = yield getM2Mtoken()
+    response = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${challengeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${challengeId}`)
+    return false
+  }
+
+  if (response) {
+    // Get phases and winner detail from response
+    const phases = response.body.result.content[0].allPhases
+    const winner = response.body.result.content[0].winners
+
+    const currPhase = _.filter(phases, {id: submissionPhaseId})
+
+    // Detecting case where invalid submissionPhaseId could be passed
+    if (currPhase.length === 0) {
+      throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
+    }
+
+    if (currPhase[0].phaseType === 'Final Fix') {
+      if (!authUser.handle.equals(winner[0].handle)) {
+        throw new errors.HttpStatusError(403, 'Only winner is allowed to submit during Final Fix phase')
+      }
+    }
+  }
+
+  return true
 }
 
 module.exports = {
@@ -295,5 +357,6 @@ module.exports = {
   fetchFromES,
   camelize,
   setPaginationHeaders,
-  getSubmissionPhaseId
+  getSubmissionPhaseId,
+  checkUserAccess
 }

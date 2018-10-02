@@ -196,6 +196,12 @@ function * createSubmission (authUser, files, entity) {
     item['fileType'] = fileType
   }
 
+  logger.info('Check User access before creating the submission')
+  // If the User has only Topcoder User role, check the user access
+  if (_.intersection(authUser.roles, ['Copilot', 'Administrator']).length === 0) {
+    yield helper.checkUserAccess(authUser, item.challengeId, item.submissionPhaseId)
+  }
+
   // Prepare record to be inserted
   const record = {
     TableName: table,
