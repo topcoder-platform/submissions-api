@@ -13,7 +13,9 @@ const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
 const s3 = new AWS.S3()
+const logger = require('winston')
 
+const busApiClient = helper.getBusApiClient()
 const table = 'Submission'
 
 /*
@@ -67,7 +69,23 @@ function * _getSubmission (submissionId) {
  */
 function * getSubmission (authUser, submissionId) {
   const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
-  if (response.total === 0) {
+  let submissionRecord = null
+  logger.info(`getSubmission: fetching submissionId ${submissionId}`)
+  if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
+    logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
+    submissionRecord = yield _getSubmission(submissionId)
+
+    if (!submissionRecord.id) {
+      logger.info(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
+      submissionRecord = null
+    }
+  } else {
+    logger.info(`getSubmission: submissionId found in ES: ${submissionId}`)
+    submissionRecord = response.rows[0]
+  }
+
+  if (!submissionRecord) { // CWD-- couldn't find it in ES nor the DB
+    logger.info(`getSubmission: submissionId not found in ES nor DB so throwing 404: ${submissionId}`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
@@ -119,10 +137,22 @@ listSubmissions.schema = {
   query: joi.object().keys({
     type: joi.string(),
     url: joi.string().uri().trim(),
-    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     page: joi.id(),
-    perPage: joi.pageSize()
+    perPage: joi.pageSize(),
+    'review.score': joi.score(),
+    'review.typeId': joi.string().uuid(),
+    'review.reviewerId': joi.string().uuid(),
+    'review.scoreCardId': joi.string().uuid(),
+    'review.submissionId': joi.string().uuid(),
+    'reviewSummation.scoreCardId': joi.string().uuid(),
+    'reviewSummation.submissionId': joi.string().uuid(),
+    'reviewSummation.aggregateScore': joi.score(),
+    'reviewSummation.isPassing': joi.boolean()
   })
 }
 
@@ -134,11 +164,14 @@ listSubmissions.schema = {
  * @return {Promise}
  */
 function * createSubmission (authUser, files, entity) {
+  logger.info('Creating a new submission')
   if (files && entity.url) {
+    logger.info('Cannot create submission. Neither file nor url to upload has been passed')
     throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
   }
 
   if (!files && !entity.url) {
+    logger.info('Cannot create submission. Ambiguous parameters. Both file and url have been provided. Unsure which to use')
     throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
   }
 
@@ -150,6 +183,7 @@ function * createSubmission (authUser, files, entity) {
     const pFileType = entity.fileType || fileType // File type parameter
     const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
     if (pFileType !== uFileType) {
+      logger.info('Actual file type of the file does not match the file type attribute in the request')
       throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
     }
     const file = yield _uploadToS3(files.submission, submissionId)
@@ -166,16 +200,22 @@ function * createSubmission (authUser, files, entity) {
     'challengeId': entity.challengeId,
     'created': currDate,
     'updated': currDate,
-    'createdBy': authUser.handle,
-    'updatedBy': authUser.handle
+    'createdBy': authUser.handle || authUser.sub,
+    'updatedBy': authUser.handle || authUser.sub
   }
 
   if (entity.legacySubmissionId) {
     item['legacySubmissionId'] = entity.legacySubmissionId
   }
 
+  if (entity.legacyUploadId) {
+    item['legacyUploadId'] = entity.legacyUploadId
+  }
+
   if (entity.submissionPhaseId) {
     item['submissionPhaseId'] = entity.submissionPhaseId
+  } else {
+    item['submissionPhaseId'] = yield helper.getSubmissionPhaseId(entity.challengeId)
   }
 
   if (entity.fileType) {
@@ -190,6 +230,7 @@ function * createSubmission (authUser, files, entity) {
     Item: item
   }
 
+  logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
   yield dbhelper.insertRecord(record)
 
   // Push Submission created event to Bus API
@@ -210,8 +251,10 @@ function * createSubmission (authUser, files, entity) {
     reqBody['payload']['isFileSubmission'] = false
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  logger.info('Prepared submission create event payload to pass to THE bus')
+
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
@@ -228,6 +271,7 @@ createSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
@@ -241,8 +285,11 @@ createSubmission.schema = {
  * @return {Promise}
  **/
 function * _updateSubmission (authUser, submissionId, entity) {
+  logger.info(`Updating submission with submission id ${submissionId}`)
+
   const exist = yield _getSubmission(submissionId)
   if (!exist) {
+    logger.info(`Submission with ID = ${submissionId} is not found`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
@@ -261,7 +308,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
       ':m': entity.memberId || exist.memberId,
       ':c': entity.challengeId || exist.challengeId,
       ':ua': currDate,
-      ':ub': authUser.handle
+      ':ub': authUser.handle || authUser.sub
     },
     ExpressionAttributeNames: {
       '#type': 'type',
@@ -275,13 +322,22 @@ function * _updateSubmission (authUser, submissionId, entity) {
     record['ExpressionAttributeValues'][':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
   }
 
+  // If legacy upload ID exists, add it to the update expression
+  if (entity.legacyUploadId || exist.legacyUploadId) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, legacyUploadId = :lu`
+    record['ExpressionAttributeValues'][':lu'] = entity.legacyUploadId || exist.legacyUploadId
+  }
+
   // If submissionPhaseId exists, add it to the update expression
   if (entity.submissionPhaseId || exist.submissionPhaseId) {
     record['UpdateExpression'] = record['UpdateExpression'] + `, submissionPhaseId = :sp`
     record['ExpressionAttributeValues'][':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
   }
 
+  logger.info('Prepared submission item to update in Dynamodb. Updating...')
+
   yield dbhelper.updateRecord(record)
+  const updatedSub = yield _getSubmission(submissionId)
 
   // Push Submission updated event to Bus API
   // Request body for Posting to Bus API
@@ -290,18 +346,22 @@ function * _updateSubmission (authUser, submissionId, entity) {
     'originator': originator,
     'timestamp': currDate, // time when submission was updated
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table),
+    'payload': _.extend({
+      'resource': helper.camelize(table),
       'id': submissionId,
-      'updated': currDate,
-      'updatedBy': authUser.handle }, entity)
+      'challengeId': updatedSub.challengeId,
+      'memberId': updatedSub.memberId,
+      'submissionPhaseId': updatedSub.submissionPhaseId,
+      'type': updatedSub.type
+    }, entity)
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle })
+  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || authUser.sub })
 }
 
 /**
@@ -319,11 +379,12 @@ updateSubmission.schema = {
   authUser: joi.object().required(),
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    type: joi.string().required(),
+    type: joi.string(),
     url: joi.string().uri().trim().required(),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   }).required()
 }
@@ -348,6 +409,7 @@ patchSubmission.schema = {
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
   })
 }
@@ -386,8 +448,8 @@ function * deleteSubmission (submissionId) {
     }
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 }
 
 deleteSubmission.schema = {

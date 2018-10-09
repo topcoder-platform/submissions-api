@@ -5,6 +5,45 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0501",
     "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0502",
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0501",
+        "score": 95.5,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      },
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0502",
+        "score": 92.0,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0501",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "reviewSummation": [
+      {
+        "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+        "aggregateScore": 99.0,
+        "scoreCardId": "a12a4180-65aa-42ec-a945-5fd21dec0587",
+        "isPassing": true,
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "copilot",
+        "updatedBy": "copilot"
+      }
+    ],
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
     "createdBy": "topcoder user",
@@ -64,8 +103,46 @@
     "id": "a12a4180-65aa-42ec-a945-5fd21dec0503",
     "type": "ContestSubmission",
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123458",
-    "memberId": 40493051,
-    "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0502",
+    "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0503",
+    "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0503",
+    "review": [
+       {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0503",
+        "score": 80.83,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0503",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      },
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0504",
+        "score": 85.62,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0502",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0503",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      },
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0505",
+        "score": 100,
+        "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0503",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
     "createdBy": "topcoder user",
@@ -88,8 +165,34 @@
     "id": "a12a4180-65aa-42ec-a945-5fd21dec0504",
     "type": "ContestSubmission",
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123459",
-    "memberId": 40493052,
-    "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0502",
+    "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0504",
+    "challengeId": 30051825,
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0506",
+        "score": 65.0,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0504",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      },
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0507",
+        "score": 68.0,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0502",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0504",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
     "createdBy": "topcoder user",
@@ -100,11 +203,49 @@
     "type": "ContestSubmission",
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0505",
-    "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0502",
+    "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0503",
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0508",
+        "score": 100,
+        "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "created": "2018-05-20T07:00:30.123Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "a12a4180-65aa-42ec-a945-5fd21dec0506",
+    "type": "ContestSubmission",
+    "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460",
+    "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0506",
+    "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0503",
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
+        "score": 92.5,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": "b25a4180-65aa-42ec-a945-5fd21dec0503",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
     "createdBy": "topcoder user",
     "updatedBy": "topcoder user"
   }
-
 ]

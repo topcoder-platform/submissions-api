@@ -9,9 +9,9 @@ const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
-
 const HelperService = require('./HelperService')
 
+const busApiClient = helper.getBusApiClient()
 const table = 'ReviewSummation'
 
 /**
@@ -61,10 +61,11 @@ function * listReviewSummations (query) {
 
 listReviewSummations.schema = {
   query: joi.object().keys({
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
+    isFinal: joi.boolean(),
     page: joi.id(),
     perPage: joi.pageSize()
   })
@@ -86,8 +87,12 @@ function * createReviewSummation (authUser, entity) {
     'id': uuid(),
     'created': currDate,
     'updated': currDate,
-    'createdBy': authUser.handle,
-    'updatedBy': authUser.handle }, entity)
+    'createdBy': authUser.handle || authUser.sub,
+    'updatedBy': authUser.handle || authUser.sub }, entity)
+
+  if (entity.isFinal) {
+    item['isFinal'] = entity.isFinal
+  }
 
   const record = {
     TableName: table,
@@ -106,8 +111,8 @@ function * createReviewSummation (authUser, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table) }, item)
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
@@ -117,10 +122,11 @@ function * createReviewSummation (authUser, entity) {
 createReviewSummation.schema = {
   authUser: joi.object().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
-    isPassing: joi.boolean().required()
+    isPassing: joi.boolean().required(),
+    isFinal: joi.boolean()
   }).required()
 }
 
@@ -165,9 +171,24 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       ':su': entity.submissionId || exist.submissionId,
       ':ip': isPassing,
       ':ua': currDate,
-      ':ub': authUser.handle
+      ':ub': authUser.handle || authUser.sub
     }
   }
+
+  // If legacy submission ID exists, add it to the update expression
+  if (entity.isFinal || exist.isFinal) {
+    let isFinal // Attribute to store boolean value
+
+    if (entity.isFinal === undefined) {
+      isFinal = exist.isFinal
+    } else {
+      isFinal = entity.isFinal
+    }
+
+    record['UpdateExpression'] = record['UpdateExpression'] + `, isFinal = :ls`
+    record['ExpressionAttributeValues'][':ls'] = isFinal
+  }
+
   yield dbhelper.updateRecord(record)
 
   // Push Review Summation updated event to Bus API
@@ -180,15 +201,15 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table),
       'id': reviewSummationId,
       'updated': currDate,
-      'updatedBy': authUser.handle }, entity)
+      'updatedBy': authUser.handle || authUser.sub }, entity)
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle })
+  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || authUser.sub })
 }
 
 /**
@@ -206,10 +227,11 @@ updateReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
-    isPassing: joi.boolean().required()
+    isPassing: joi.boolean().required(),
+    isFinal: joi.boolean()
   }).required()
 }
 
@@ -228,10 +250,11 @@ patchReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
-    isPassing: joi.boolean()
+    isPassing: joi.boolean(),
+    isFinal: joi.boolean()
   })
 }
 
@@ -269,8 +292,8 @@ function * deleteReviewSummation (reviewSummationId) {
     }
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 }
 
 deleteReviewSummation.schema = {

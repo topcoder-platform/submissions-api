@@ -5,7 +5,7 @@
 1. Active AWS Account
 2. Node.js 8.11.x
 3. Npm 5.6.x
-4. Postman for Verification
+4. Postman for Verification 
 5. Docker and Docker-Compose (Optional for Local Deployment)
 
 ## Setup
@@ -160,6 +160,14 @@ To run integration tests with coverage report
 
 ```
 npm run cov-e2e
+```
+
+#### Migrating data from DynamoDB to ES
+
+To migrate the existing data from DynamoDB to ES, run the following script
+
+```
+npm run db-to-es
 ```
 
 #### Swagger UI

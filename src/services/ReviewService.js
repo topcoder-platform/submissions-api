@@ -9,9 +9,9 @@ const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
-
 const HelperService = require('./HelperService')
 
+const busApiClient = helper.getBusApiClient()
 const table = 'Review'
 
 /**
@@ -64,7 +64,7 @@ listReviews.schema = {
     score: joi.score(),
     typeId: joi.string().uuid(),
     reviewerId: joi.string().uuid(),
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     page: joi.id(),
     perPage: joi.pageSize()
@@ -86,8 +86,8 @@ function * createReview (authUser, entity) {
     'id': uuid(),
     'created': currDate,
     'updated': currDate,
-    'createdBy': authUser.handle,
-    'updatedBy': authUser.handle }, entity)
+    'createdBy': authUser.handle || authUser.sub,
+    'updatedBy': authUser.handle || authUser.sub }, entity)
 
   // Prepare record to be inserted
   const record = {
@@ -107,8 +107,8 @@ function * createReview (authUser, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table) }, item)
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
@@ -121,7 +121,7 @@ createReview.schema = {
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
     reviewerId: joi.string().uuid().required(),
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required()
   }).required()
 }
@@ -151,7 +151,7 @@ function * _updateReview (authUser, reviewId, entity) {
     Key: {
       'id': reviewId
     },
-    UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su, 
+    UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
                         typeId = :t, reviewerId = :r,
                         updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
@@ -161,7 +161,7 @@ function * _updateReview (authUser, reviewId, entity) {
       ':t': entity.typeId || exist.typeId,
       ':r': entity.reviewerId || exist.reviewerId,
       ':ua': currDate,
-      ':ub': authUser.handle
+      ':ub': authUser.handle || authUser.sub
     }
   }
   yield dbhelper.updateRecord(record)
@@ -176,15 +176,15 @@ function * _updateReview (authUser, reviewId, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table),
       'id': reviewId,
       'updated': currDate,
-      'updatedBy': authUser.handle }, entity)
+      'updatedBy': authUser.handle || authUser.sub }, entity)
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle })
+  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || authUser.sub })
 }
 
 /**
@@ -205,7 +205,7 @@ updateReview.schema = {
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
     reviewerId: joi.string().uuid().required(),
-    scoreCardId: joi.string().uuid().required(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required()
   }).required()
 }
@@ -228,7 +228,7 @@ patchReview.schema = {
     score: joi.score(),
     typeId: joi.string().uuid(),
     reviewerId: joi.string().uuid(),
-    scoreCardId: joi.string().uuid(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid()
   })
 }
@@ -267,8 +267,8 @@ function * deleteReview (reviewId) {
     }
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 }
 
 deleteReview.schema = {

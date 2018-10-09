@@ -7,13 +7,16 @@ const AWS = require('aws-sdk')
 const co = require('co')
 const config = require('config')
 const elasticsearch = require('elasticsearch')
+const logger = require('./logger')
 const request = require('superagent')
-const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
+const busApi = require('tc-bus-api-wrapper')
 
 AWS.config.region = config.get('aws.AWS_REGION')
 // ES Client mapping
 const esClients = {}
+
+// Bus API Client
+let busApiClient
 
 /**
  * Wrap generator function to standard express function
@@ -47,30 +50,20 @@ function autoWrapExpress (obj) {
   return obj
 }
 
-/* Function to get M2M token
- * @returns {Promise}
- */
-function * getM2Mtoken () {
-  return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
-}
-
 /**
- * Function to POST to Bus API
- * @param{Object} reqBody Body of the request to be Posted
- * @returns {Promise}
- */
-function * postToBusAPI (reqBody) {
-  // M2M token necessary for pushing to Bus API
-  const token = yield getM2Mtoken()
+ * Get Bus API Client
+ * @return {Object} Bus API Client Instance
+*/
+function getBusApiClient () {
+  // If there is no Client instance, Create a new instance
+  if (!busApiClient) {
+    busApiClient = busApi(_.pick(config,
+      ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME',
+        'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'BUSAPI_URL',
+        'KAFKA_ERROR_TOPIC']))
+  }
 
-  Promise.promisifyAll(request)
-
-  // Post the request body to Bus API
-  yield request
-    .post(config.BUSAPI_EVENTS_URL)
-    .set('Authorization', `Bearer ${token}`)
-    .set('Content-Type', 'application/json')
-    .send(reqBody)
+  return busApiClient
 }
 
 /**
@@ -125,13 +118,51 @@ function prepESFilter (query, actResource) {
   const filters = _.omit(query, ['perPage', 'page'])
   // Add match phrase filters for all query filters except page and perPage
   const boolQuery = []
+  const reviewFilters = []
+  const reviewSummationFilters = []
   // Adding resource filter
   boolQuery.push({ match_phrase: { resource: actResource } })
   _.map(filters, (value, key) => {
     let pair = {}
     pair[key] = value
-    boolQuery.push({ match_phrase: pair })
+    if (key.indexOf('.') > -1) {
+      const resKey = key.split('.')[0]
+      if (resKey === 'review') {
+        reviewFilters.push({ match_phrase: pair })
+      } else if (resKey === 'reviewSummation') {
+        reviewSummationFilters.push({ match_phrase: pair })
+      }
+    } else {
+      boolQuery.push({ match_phrase: pair })
+    }
   })
+
+  if (reviewFilters.length !== 0) {
+    boolQuery.push({
+      nested: {
+        path: 'review',
+        query: {
+          bool: {
+            filter: reviewFilters
+          }
+        }
+      }
+    })
+  }
+
+  if (reviewSummationFilters.length !== 0) {
+    boolQuery.push({
+      nested: {
+        path: 'reviewSummation',
+        query: {
+          bool: {
+            filter: reviewSummationFilters
+          }
+        }
+      }
+    })
+  }
+
   const searchCriteria = {
     index: config.get('esConfig.ES_INDEX'),
     type: config.get('esConfig.ES_TYPE'),
@@ -149,7 +180,7 @@ function prepESFilter (query, actResource) {
     }
   }
   return searchCriteria
-};
+}
 
 /*
  * Fetch data from ES and return to the caller
@@ -227,13 +258,42 @@ function setPaginationHeaders (req, res, data) {
   res.json(data.rows)
 }
 
+/*
+ * Get submission phase ID of a challenge from Challenge API
+ * @param challengeId Challenge ID
+ * @returns {Integer} Submission phase ID of the given challengeId
+ */
+function * getSubmissionPhaseId (challengeId) {
+  Promise.promisifyAll(request)
+  let phaseId = null
+  let response
+  try {
+    response = yield request.get(`${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+    logger.debug('Setting submissionPhaseId to Null')
+    response = null
+  }
+  if (response) {
+    const phases = _.get(response.body, 'result.content', [])
+    const checkPoint = _.filter(phases, {phaseType: 'Checkpoint Submission', phaseStatus: 'Open'})
+    const submissionPh = _.filter(phases, {phaseType: 'Submission', phaseStatus: 'Open'})
+    if (checkPoint.length !== 0) {
+      phaseId = checkPoint[0].id
+    } else if (submissionPh.length !== 0) {
+      phaseId = submissionPh[0].id
+    }
+  }
+  return phaseId
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
-  getM2Mtoken,
   getEsClient,
-  postToBusAPI,
+  getBusApiClient,
   fetchFromES,
   camelize,
-  setPaginationHeaders
+  setPaginationHeaders,
+  getSubmissionPhaseId
 }
