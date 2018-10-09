@@ -310,7 +310,7 @@ function * getSubmissionPhaseId (challengeId) {
  * @param submissionPhaseId Submission phase ID
  * @returns {Promise}
  */
-function * checkUserAccess (authUser, challengeId, submissionPhaseId) {
+function * checkCreateAccess (authUser, challengeId, submissionPhaseId) {
   let response
 
   if (submissionPhaseId == null) {
@@ -358,5 +358,5 @@ module.exports = {
   camelize,
   setPaginationHeaders,
   getSubmissionPhaseId,
-  checkUserAccess
+  checkCreateAccess
 }
