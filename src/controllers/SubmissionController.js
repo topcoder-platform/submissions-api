@@ -11,7 +11,7 @@ const helper = require('../common/helper')
  * @param res the http response
  */
 function * getSubmission (req, res) {
-  res.json(yield SubmissionService.getSubmission(req.authUser, req.params.submissionId))
+  res.json(yield SubmissionService.getSubmission(req.params.submissionId))
 }
 
 /**
