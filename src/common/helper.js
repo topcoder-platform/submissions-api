@@ -2,6 +2,7 @@
  * Contains generic helper methods
  */
 
+global.Promise = require('bluebird')
 const _ = require('lodash')
 const AWS = require('aws-sdk')
 const co = require('co')
@@ -10,6 +11,11 @@ const elasticsearch = require('elasticsearch')
 const logger = require('./logger')
 const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
+const errors = require('common-errors')
+const m2mAuth = require('tc-core-library-js').auth.m2m
+const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME']))
+
+Promise.promisifyAll(request)
 
 AWS.config.region = config.get('aws.AWS_REGION')
 // ES Client mapping
@@ -258,17 +264,26 @@ function setPaginationHeaders (req, res, data) {
   res.json(data.rows)
 }
 
+/* Function to get M2M token
+ * @returns {Promise}
+ */
+function * getM2Mtoken () {
+  return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+}
+
 /*
  * Get submission phase ID of a challenge from Challenge API
  * @param challengeId Challenge ID
  * @returns {Integer} Submission phase ID of the given challengeId
  */
 function * getSubmissionPhaseId (challengeId) {
-  Promise.promisifyAll(request)
   let phaseId = null
   let response
   try {
+    const token = yield getM2Mtoken()
     response = yield request.get(`${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
     logger.debug('Setting submissionPhaseId to Null')
@@ -278,13 +293,165 @@ function * getSubmissionPhaseId (challengeId) {
     const phases = _.get(response.body, 'result.content', [])
     const checkPoint = _.filter(phases, {phaseType: 'Checkpoint Submission', phaseStatus: 'Open'})
     const submissionPh = _.filter(phases, {phaseType: 'Submission', phaseStatus: 'Open'})
+    const finalFixPh = _.filter(phases, {phaseType: 'Final Fix', phaseStatus: 'Open'})
     if (checkPoint.length !== 0) {
       phaseId = checkPoint[0].id
     } else if (submissionPh.length !== 0) {
       phaseId = submissionPh[0].id
+    } else if (finalFixPh.length !== 0) {
+      phaseId = finalFixPh[0].id
     }
   }
   return phaseId
+}
+
+/*
+ * Function to check user access to create a submission
+ * @param authUser Authenticated user
+ * @param subEntity Submission Entity
+ * @returns {Promise}
+ */
+function * checkCreateAccess (authUser, subEntity) {
+  let response
+
+  if (subEntity.submissionPhaseId == null) {
+    throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
+  }
+
+  // User can only create submission for themselves
+  if (authUser.userId !== subEntity.memberId) {
+    throw new errors.HttpStatusError(403, 'You are not allowed to submit on behalf of others')
+  }
+
+  try {
+    const token = yield getM2Mtoken()
+    response = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+    return false
+  }
+
+  if (response) {
+    // Get phases and winner detail from response
+    const phases = response.body.result.content[0].allPhases
+    const winner = response.body.result.content[0].winners
+
+    const currPhase = _.filter(phases, {id: subEntity.submissionPhaseId})
+
+    // Detecting case where invalid submissionPhaseId could be passed
+    if (currPhase.length === 0) {
+      throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
+    }
+
+    if (currPhase[0].phaseType === 'Final Fix') {
+      if (!authUser.handle.equals(winner[0].handle)) {
+        throw new errors.HttpStatusError(403, 'Only winner is allowed to submit during Final Fix phase')
+      }
+    }
+  }
+
+  return true
+}
+
+/*
+ * Function to check user access to get a submission
+ * @param authUser Authenticated user
+ * @param submission Submission Entity
+ * @returns {Promise}
+ */
+function * checkGetAccess (authUser, submission) {
+  let resources
+  let challengeDetails
+  // Allow downloading Own submission
+  if (submission.memberId === authUser.userId) {
+    return true
+  }
+
+  const token = yield getM2Mtoken()
+
+  try {
+    resources = yield request.get(`${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
+    return false
+  }
+
+  try {
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(ex)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    return false
+  }
+
+  if (resources && challengeDetails) {
+    // Fetch all roles of the User pertaining to the current challenge
+    const currUserRoles = _.filter(resources.body.result.content, { properties: { Handle: authUser.handle } })
+    const subTrack = challengeDetails.body.result.content[0].subTrack
+    const phases = challengeDetails.body.result.content[0].allPhases
+
+    // Check if the User is a Copilot
+    const copilot = _.filter(currUserRoles, { role: 'Copilot' })
+    // Copilot have access to all submissions regardless of Phases
+    if (copilot.length !== 0) {
+      return true
+    }
+    // Check for Reviewer / Submitter roles
+    if (subTrack === 'FIRST_2_FINISH') {
+      const iterativeReviewer = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
+      // If the User is a Iterative Reviewer return the submission
+      if (iterativeReviewer.length !== 0) {
+        return true
+      } else { // In F2F, Member cannot access other memeber submissions
+        throw new errors.HttpStatusError(403, 'You cannot access other member submission')
+      }
+    } else { // For other sub tracks, check if the Review / Screening phase is not scheduled
+      const screener = _.filter(currUserRoles, { role: 'Primary Screener' })
+      const reviewer = _.filter(currUserRoles, { role: 'Reviewer' })
+
+      // User is either a Reviewer or Screener
+      if (screener.length !== 0 || reviewer.length !== 0) {
+        const screeningPhase = _.filter(phases, { phaseType: 'Screening', 'phaseStatus': 'Scheduled' })
+        const reviewPhase = _.filter(phases, { phaseType: 'Review', 'phaseStatus': 'Scheduled' })
+
+        // Neither Screening Nor Review is Opened / Closed
+        if (screeningPhase.length !== 0 && reviewPhase.length !== 0) {
+          throw new errors.HttpStatusError(403, 'You can access the submission only when Screening / Review is open')
+        }
+      } else {
+        const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', 'phaseStatus': 'Closed' })
+
+        // Appeals Response is not closed yet
+        if (appealsResponse.length === 0) {
+          throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
+        } else {
+          const userSubmission = yield fetchFromES({ challengeId: submission.challengeId,
+            memberId: authUser.userId }, camelize('Submission'))
+          // User requesting submission haven't made any submission
+          if (userSubmission.total === 0) {
+            throw new errors.HttpStatusError(403, `You did not submit to the challenge!`)
+          }
+
+          const reqSubmission = userSubmission.rows[0]
+          // Only if the requestor has passing score, allow to download other submissions
+          if (reqSubmission.reviewSummation && reqSubmission.reviewSummation[0].isPassing) {
+            return true
+          } else {
+            throw new errors.HttpStatusError(403, `You should have passed the review to access other member submissions!`)
+          }
+        }
+      }
+    }
+  } else {
+    // We don't have enough details to validate the access
+    logger.debug('No enough details to validate the Permissions')
+    return true
+  }
 }
 
 module.exports = {
@@ -295,5 +462,7 @@ module.exports = {
   fetchFromES,
   camelize,
   setPaginationHeaders,
-  getSubmissionPhaseId
+  getSubmissionPhaseId,
+  checkCreateAccess,
+  checkGetAccess
 }
