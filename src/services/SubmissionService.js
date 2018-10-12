@@ -158,7 +158,7 @@ function * createSubmission (authUser, files, entity) {
       logger.info('Actual file type of the file does not match the file type attribute in the request')
       throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
     }
-    const file = yield _uploadToS3(files.submission, submissionId)
+    const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
     url = file.Location
   }
 
