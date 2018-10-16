@@ -63,10 +63,11 @@ function * _getSubmission (submissionId) {
 
 /**
  * Function to get submission based on ID from ES
+ * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be retrieved
  * @return {Object} Data retrieved from database
  */
-function * getSubmission (submissionId) {
+function * getSubmission (authUser, submissionId) {
   const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
   let submissionRecord = null
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
@@ -87,12 +88,19 @@ function * getSubmission (submissionId) {
     logger.info(`getSubmission: submissionId not found in ES nor DB so throwing 404: ${submissionId}`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
+
+  logger.info('Check User access before returning the submission')
+  if (_.intersection(authUser.roles, ['Administrator']).length === 0) {
+    yield helper.checkGetAccess(authUser, submissionRecord)
+  }
+
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
   return submissionRecord
 }
 
 getSubmission.schema = {
+  authUser: joi.object().required(),
   submissionId: joi.string().uuid().required()
 }
 
@@ -194,6 +202,11 @@ function * createSubmission (authUser, files, entity) {
     item['fileType'] = entity.fileType
   } else {
     item['fileType'] = fileType
+  }
+
+  logger.info('Check User access before creating the submission')
+  if (_.intersection(authUser.roles, ['Administrator']).length === 0) {
+    yield helper.checkCreateAccess(authUser, item)
   }
 
   // Prepare record to be inserted
