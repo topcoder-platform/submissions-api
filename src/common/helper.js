@@ -314,10 +314,6 @@ function * getSubmissionPhaseId (challengeId) {
 function * checkCreateAccess (authUser, subEntity) {
   let response
 
-  if (subEntity.submissionPhaseId == null) {
-    throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
-  }
-
   // User can only create submission for themselves
   if (authUser.userId !== subEntity.memberId) {
     throw new errors.HttpStatusError(403, 'You are not allowed to submit on behalf of others')
@@ -330,6 +326,7 @@ function * checkCreateAccess (authUser, subEntity) {
       .set('Content-Type', 'application/json')
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+    logger.error(ex)
     return false
   }
 
@@ -338,12 +335,13 @@ function * checkCreateAccess (authUser, subEntity) {
     const phases = response.body.result.content[0].allPhases
     const winner = response.body.result.content[0].winners
 
-    const currPhase = _.filter(phases, {id: subEntity.submissionPhaseId})
+    const submissionPhaseId = yield getSubmissionPhaseId(subEntity.challengeId)
 
-    // Detecting case where invalid submissionPhaseId could be passed
-    if (currPhase.length === 0) {
+    if (submissionPhaseId == null) {
       throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
     }
+
+    const currPhase = _.filter(phases, {id: submissionPhaseId})
 
     if (currPhase[0].phaseType === 'Final Fix') {
       if (!authUser.handle.equals(winner[0].handle)) {
@@ -377,15 +375,17 @@ function * checkGetAccess (authUser, submission) {
       .set('Content-Type', 'application/json')
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
+    logger.error(ex)
     return false
   }
 
   try {
     challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(ex)
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    logger.error(ex)
     return false
   }
 
