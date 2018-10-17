@@ -16,7 +16,7 @@ module.exports = {
       method: 'listReviewTypes',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['create:review_type', 'all:review_type']
+      scopes: ['read:review_type', 'all:review_type']
     }
   },
   '/reviewTypes/:reviewTypeId': {
