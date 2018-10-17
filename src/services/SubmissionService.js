@@ -89,10 +89,10 @@ function * getSubmission (authUser, submissionId) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
-  logger.info('Check User access before returning the submission')
-  if (_.intersection(authUser.roles, ['Administrator']).length === 0) {
-    yield helper.checkGetAccess(authUser, submissionRecord)
-  }
+//  logger.info('Check User access before returning the submission')
+//  if (_.intersection(authUser.roles, ['Administrator']).length === 0) {
+//    yield helper.checkGetAccess(authUser, submissionRecord)
+//  }
 
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
