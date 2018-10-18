@@ -89,10 +89,10 @@ function * getSubmission (authUser, submissionId) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
-//  logger.info('Check User access before returning the submission')
-//  if (_.intersection(authUser.roles, ['Administrator']).length === 0) {
-//    yield helper.checkGetAccess(authUser, submissionRecord)
-//  }
+  logger.info('Check User access before returning the submission')
+  if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
+    yield helper.checkGetAccess(authUser, submissionRecord)
+  }
 
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
@@ -205,7 +205,7 @@ function * createSubmission (authUser, files, entity) {
   }
 
   logger.info('Check User access before creating the submission')
-  if (_.intersection(authUser.roles, ['Administrator']).length === 0) {
+  if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
     yield helper.checkCreateAccess(authUser, item)
   }
 
