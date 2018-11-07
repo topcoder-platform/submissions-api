@@ -12,6 +12,7 @@ const uuid = require('uuid/v4')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
+const { submissionIndex } = require('../../constants')
 const s3 = new AWS.S3()
 const logger = require('winston')
 
@@ -58,7 +59,34 @@ function * _getSubmission (submissionId) {
     }
   }
   const result = yield dbhelper.getRecord(filter)
-  return result.Item
+  const submission = result.Item
+  // Fetch associated reviews
+  const reviewFilter = {
+    TableName: 'Review',
+    IndexName: submissionIndex,
+    KeyConditionExpression: 'submissionId = :p_submissionId',
+    ExpressionAttributeValues: {
+      ':p_submissionId': submissionId
+    }
+  }
+  const review = yield dbhelper.queryRecords(reviewFilter)
+  if (review.Count !== 0) {
+    submission.review = review.Items
+  }
+  // Fetch associated review summations
+  const reviewSummationFilter = {
+    TableName: 'ReviewSummation',
+    IndexName: submissionIndex,
+    KeyConditionExpression: 'submissionId = :p_submissionId',
+    ExpressionAttributeValues: {
+      ':p_submissionId': submissionId
+    }
+  }
+  const reviewSummation = yield dbhelper.queryRecords(reviewSummationFilter)
+  if (reviewSummation.Count !== 0) {
+    submission.reviewSummation = reviewSummation.Items
+  }
+  return submission
 }
 
 /**
