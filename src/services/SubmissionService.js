@@ -103,7 +103,7 @@ function * getSubmission (authUser, submissionId) {
     logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
     submissionRecord = yield _getSubmission(submissionId)
 
-    if (!submissionRecord.id) {
+    if (!_.get(submissionRecord, 'id', null)) {
       logger.info(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
       submissionRecord = null
     }
