@@ -126,7 +126,8 @@ createReviewSummation.schema = {
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
-    isFinal: joi.boolean()
+    isFinal: joi.boolean(),
+    metadata: joi.object()
   }).required()
 }
 
@@ -173,6 +174,12 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub
     }
+  }
+
+  // If legacy submission ID exists, add it to the update expression
+  if (entity.metadata || exist.metadata) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
+    record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
   }
 
   // If legacy submission ID exists, add it to the update expression
@@ -231,7 +238,8 @@ updateReviewSummation.schema = {
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
-    isFinal: joi.boolean()
+    isFinal: joi.boolean(),
+    metadata: joi.object()
   }).required()
 }
 
@@ -254,7 +262,8 @@ patchReviewSummation.schema = {
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
-    isFinal: joi.boolean()
+    isFinal: joi.boolean(),
+    metadata: joi.object()
   })
 }
 
