@@ -176,7 +176,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
     }
   }
 
-  // If legacy submission ID exists, add it to the update expression
+  // If metadata exists, add it to the update expression
   if (entity.metadata || exist.metadata) {
     record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
     record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
