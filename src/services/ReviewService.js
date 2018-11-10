@@ -122,7 +122,8 @@ createReview.schema = {
     typeId: joi.string().uuid().required(),
     reviewerId: joi.string().uuid().required(),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    submissionId: joi.string().uuid().required()
+    submissionId: joi.string().uuid().required(),
+    metadata: joi.object()
   }).required()
 }
 
@@ -164,6 +165,13 @@ function * _updateReview (authUser, reviewId, entity) {
       ':ub': authUser.handle || authUser.sub
     }
   }
+
+  // If metadata exists, add it to the update expression
+  if (entity.metadata || exist.metadata) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
+    record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
+  }
+
   yield dbhelper.updateRecord(record)
 
   // Push Review updated event to Bus API
@@ -206,7 +214,8 @@ updateReview.schema = {
     typeId: joi.string().uuid().required(),
     reviewerId: joi.string().uuid().required(),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    submissionId: joi.string().uuid().required()
+    submissionId: joi.string().uuid().required(),
+    metadata: joi.object()
   }).required()
 }
 
@@ -229,7 +238,8 @@ patchReview.schema = {
     typeId: joi.string().uuid(),
     reviewerId: joi.string().uuid(),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionId: joi.string().uuid()
+    submissionId: joi.string().uuid(),
+    metadata: joi.object()
   })
 }
 
