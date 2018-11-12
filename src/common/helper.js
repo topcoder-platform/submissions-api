@@ -63,7 +63,7 @@ function autoWrapExpress (obj) {
 function getBusApiClient () {
   // If there is no Client instance, Create a new instance
   if (!busApiClient) {
-    logger.debug('Creating Bus API client')
+    logger.debug(`Creating Bus API client for ${config.BUSAPI_URL} `)
     busApiClient = busApi(_.pick(config,
       ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME',
         'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'BUSAPI_URL',
