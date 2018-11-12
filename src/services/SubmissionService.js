@@ -264,10 +264,12 @@ function * createSubmission (authUser, files, entity) {
     reqBody['payload']['isFileSubmission'] = false
   }
 
-  logger.info('Prepared submission create event payload to pass to THE bus')
+  logger.info('Prepared submission create event payload to pass to the Bus')
 
   // Post to Bus API using Client
   yield busApiClient.postEvent(reqBody)
+  
+  logger.info('Submission create event payload sent to the Bus. Finished creation of submission')
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
