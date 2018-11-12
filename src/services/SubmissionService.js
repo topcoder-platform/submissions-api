@@ -118,7 +118,7 @@ function * getSubmission (authUser, submissionId) {
   }
 
   logger.info('Check User access before returning the submission')
-  if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     yield helper.checkGetAccess(authUser, submissionRecord)
   }
 
