@@ -233,7 +233,7 @@ function * createSubmission (authUser, files, entity) {
   }
 
   logger.info('Check User access before creating the submission')
-  if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     yield helper.checkCreateAccess(authUser, item)
   }
 
