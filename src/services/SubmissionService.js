@@ -265,9 +265,15 @@ function * createSubmission (authUser, files, entity) {
   }
 
   logger.info('Prepared submission create event payload to pass to the Bus')
-
+  logger.info(`Posting to bus ${reqBody}`)
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  
+  try
+  {
+    yield busApiClient.postEvent(reqBody)
+  } catch(e) {
+    logger.error(e)
+  }
   
   logger.info('Submission create event payload sent to the Bus. Finished creation of submission')
 
