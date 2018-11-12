@@ -15,6 +15,9 @@ const busApiMeta = {
   }
 }
 
+const submissionIndex = 'submissionId-index'
+
 module.exports = {
-  busApiMeta
+  busApiMeta,
+  submissionIndex
 }

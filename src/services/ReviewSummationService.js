@@ -9,9 +9,9 @@ const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
-
 const HelperService = require('./HelperService')
 
+const busApiClient = helper.getBusApiClient()
 const table = 'ReviewSummation'
 
 /**
@@ -111,8 +111,8 @@ function * createReviewSummation (authUser, entity) {
     'payload': _.extend({ 'resource': helper.camelize(table) }, item)
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
@@ -126,7 +126,8 @@ createReviewSummation.schema = {
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
-    isFinal: joi.boolean()
+    isFinal: joi.boolean(),
+    metadata: joi.object()
   }).required()
 }
 
@@ -175,16 +176,22 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
     }
   }
 
-   // If legacy submission ID exists, add it to the update expression
+  // If metadata exists, add it to the update expression
+  if (entity.metadata || exist.metadata) {
+    record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
+    record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
+  }
+
+  // If legacy submission ID exists, add it to the update expression
   if (entity.isFinal || exist.isFinal) {
     let isFinal // Attribute to store boolean value
-    
+
     if (entity.isFinal === undefined) {
       isFinal = exist.isFinal
     } else {
       isFinal = entity.isFinal
     }
-    
+
     record['UpdateExpression'] = record['UpdateExpression'] + `, isFinal = :ls`
     record['ExpressionAttributeValues'][':ls'] = isFinal
   }
@@ -204,8 +211,8 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       'updatedBy': authUser.handle || authUser.sub }, entity)
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -231,7 +238,8 @@ updateReviewSummation.schema = {
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
-    isFinal: joi.boolean()
+    isFinal: joi.boolean(),
+    metadata: joi.object()
   }).required()
 }
 
@@ -254,7 +262,8 @@ patchReviewSummation.schema = {
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
-    isFinal: joi.boolean()
+    isFinal: joi.boolean(),
+    metadata: joi.object()
   })
 }
 
@@ -292,8 +301,8 @@ function * deleteReviewSummation (reviewSummationId) {
     }
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 }
 
 deleteReviewSummation.schema = {

@@ -158,6 +158,23 @@ function * scanRecords (params) {
   })
 }
 
+/**
+ * Get records from DynamoDB based on the secondary index filter
+ * @param     {object} filter Secondary index filter to be applied on the database
+ * @return    {promise}
+ */
+function * queryRecords (filter) {
+  const dbClient = getDbClient()
+  return new Promise((resolve, reject) => {
+    dbClient.query(filter, (err, data) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(data)
+    })
+  })
+}
+
 // exports the functions
 module.exports = {
   getDb,
@@ -168,5 +185,6 @@ module.exports = {
   getRecord,
   updateRecord,
   deleteRecord,
-  scanRecords
+  scanRecords,
+  queryRecords
 }

@@ -12,9 +12,11 @@ const uuid = require('uuid/v4')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
+const { submissionIndex } = require('../../constants')
 const s3 = new AWS.S3()
 const logger = require('winston')
 
+const busApiClient = helper.getBusApiClient()
 const table = 'Submission'
 
 /*
@@ -57,15 +59,43 @@ function * _getSubmission (submissionId) {
     }
   }
   const result = yield dbhelper.getRecord(filter)
-  return result.Item
+  const submission = result.Item
+  // Fetch associated reviews
+  const reviewFilter = {
+    TableName: 'Review',
+    IndexName: submissionIndex,
+    KeyConditionExpression: 'submissionId = :p_submissionId',
+    ExpressionAttributeValues: {
+      ':p_submissionId': submissionId
+    }
+  }
+  const review = yield dbhelper.queryRecords(reviewFilter)
+  if (review.Count !== 0) {
+    submission.review = review.Items
+  }
+  // Fetch associated review summations
+  const reviewSummationFilter = {
+    TableName: 'ReviewSummation',
+    IndexName: submissionIndex,
+    KeyConditionExpression: 'submissionId = :p_submissionId',
+    ExpressionAttributeValues: {
+      ':p_submissionId': submissionId
+    }
+  }
+  const reviewSummation = yield dbhelper.queryRecords(reviewSummationFilter)
+  if (reviewSummation.Count !== 0) {
+    submission.reviewSummation = reviewSummation.Items
+  }
+  return submission
 }
 
 /**
  * Function to get submission based on ID from ES
+ * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be retrieved
  * @return {Object} Data retrieved from database
  */
-function * getSubmission (submissionId) {
+function * getSubmission (authUser, submissionId) {
   const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
   let submissionRecord = null
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
@@ -73,7 +103,7 @@ function * getSubmission (submissionId) {
     logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
     submissionRecord = yield _getSubmission(submissionId)
 
-    if (!submissionRecord.id) {
+    if (!_.get(submissionRecord, 'id', null)) {
       logger.info(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
       submissionRecord = null
     }
@@ -86,12 +116,19 @@ function * getSubmission (submissionId) {
     logger.info(`getSubmission: submissionId not found in ES nor DB so throwing 404: ${submissionId}`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
+
+  logger.info('Check User access before returning the submission')
+  if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
+    yield helper.checkGetAccess(authUser, submissionRecord)
+  }
+
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
   return submissionRecord
 }
 
 getSubmission.schema = {
+  authUser: joi.object().required(),
   submissionId: joi.string().uuid().required()
 }
 
@@ -157,7 +194,7 @@ function * createSubmission (authUser, files, entity) {
       logger.info('Actual file type of the file does not match the file type attribute in the request')
       throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
     }
-    const file = yield _uploadToS3(files.submission, submissionId)
+    const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
     url = file.Location
   }
 
@@ -195,6 +232,11 @@ function * createSubmission (authUser, files, entity) {
     item['fileType'] = fileType
   }
 
+  logger.info('Check User access before creating the submission')
+  if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
+    yield helper.checkCreateAccess(authUser, item)
+  }
+
   // Prepare record to be inserted
   const record = {
     TableName: table,
@@ -224,8 +266,8 @@ function * createSubmission (authUser, files, entity) {
 
   logger.info('Prepared submission create event payload to pass to THE bus')
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
@@ -327,10 +369,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
     }, entity)
   }
 
-  logger.info('Prepared submission update event payload to pass to THE bus')
-
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -421,8 +461,8 @@ function * deleteSubmission (submissionId) {
     }
   }
 
-  // Post to Bus API using Helper function
-  yield helper.postToBusAPI(reqBody)
+  // Post to Bus API using Client
+  yield busApiClient.postEvent(reqBody)
 }
 
 deleteSubmission.schema = {
