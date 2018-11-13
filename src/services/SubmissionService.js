@@ -44,6 +44,32 @@ function * _uploadToS3 (file, name) {
   })
 }
 
+function * _getReviewsForSubmission (submissionId) {
+  const reviewFilter = {
+    TableName: 'Review',
+    IndexName: submissionIndex,
+    KeyConditionExpression: 'submissionId = :p_submissionId',
+    ExpressionAttributeValues: {
+      ':p_submissionId': submissionId
+    }
+  }
+
+  return yield dbhelper.queryRecords(reviewFilter)
+}
+
+function * _getReviewSummationsForSubmission (submissionId) {
+  const reviewSummationFilter = {
+    TableName: 'ReviewSummation',
+    IndexName: submissionIndex,
+    KeyConditionExpression: 'submissionId = :p_submissionId',
+    ExpressionAttributeValues: {
+      ':p_submissionId': submissionId
+    }
+  }
+
+  return yield dbhelper.queryRecords(reviewSummationFilter)
+}
+
 /**
  * Function to get submission based on ID from DynamoDB
  * This function will be used all by other functions to check existence of a submission
@@ -61,28 +87,14 @@ function * _getSubmission (submissionId) {
   const result = yield dbhelper.getRecord(filter)
   const submission = result.Item
   // Fetch associated reviews
-  const reviewFilter = {
-    TableName: 'Review',
-    IndexName: submissionIndex,
-    KeyConditionExpression: 'submissionId = :p_submissionId',
-    ExpressionAttributeValues: {
-      ':p_submissionId': submissionId
-    }
-  }
-  const review = yield dbhelper.queryRecords(reviewFilter)
+  const review = yield _getReviewsForSubmission(submissionId)
+
   if (review.Count !== 0) {
     submission.review = review.Items
   }
   // Fetch associated review summations
-  const reviewSummationFilter = {
-    TableName: 'ReviewSummation',
-    IndexName: submissionIndex,
-    KeyConditionExpression: 'submissionId = :p_submissionId',
-    ExpressionAttributeValues: {
-      ':p_submissionId': submissionId
-    }
-  }
-  const reviewSummation = yield dbhelper.queryRecords(reviewSummationFilter)
+  const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+
   if (reviewSummation.Count !== 0) {
     submission.reviewSummation = reviewSummation.Items
   }
@@ -110,6 +122,20 @@ function * getSubmission (authUser, submissionId) {
   } else {
     logger.info(`getSubmission: submissionId found in ES: ${submissionId}`)
     submissionRecord = response.rows[0]
+
+    if (!submissionRecord.review || submissionRecord.review.length < 1) {
+      logger.info(`submission ${submissionId} from ES has no reviews. Double checking the db`)
+      const review = yield _getReviewsForSubmission(submissionId)
+      logger.info(`${review}`)
+      submissionRecord.review = review.Items || []
+    }
+
+    if (!submissionRecord.reviewSummation || submissionRecord.reviewSummation.length < 1) {
+      logger.info(`submission ${submissionId} from ES has no reviewSummations. Double checking the db`)
+      const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+      logger.info(`${reviewSummation}`)
+      submissionRecord.reviewSummation = reviewSummation.Items || []
+    }
   }
 
   if (!submissionRecord) { // CWD-- couldn't find it in ES nor the DB
