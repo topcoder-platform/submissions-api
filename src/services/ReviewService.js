@@ -6,9 +6,13 @@ const errors = require('common-errors')
 const _ = require('lodash')
 const uuid = require('uuid/v4')
 const joi = require('joi')
+const logger = require('winston')
+
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
-const { originator, mimeType, events } = require('../../constants').busApiMeta
+const {
+  originator, mimeType, events
+} = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
 
 const busApiClient = helper.getBusApiClient()
@@ -38,8 +42,19 @@ function * _getReview (reviewId) {
  * @return {Object} Data found from database
  */
 function * getReview (reviewId) {
-  const response = yield helper.fetchFromES({id: reviewId}, helper.camelize(table))
+  const response = yield helper.fetchFromES({
+    id: reviewId
+  }, helper.camelize(table))
+
   if (response.total === 0) {
+    logger.info(`Couldn't find review ${reviewId} in ES. Checking db`)
+    const review = yield _getReview(reviewId)
+    logger.debug(`Review: ${review}`)
+
+    if (review) {
+      return review
+    }
+
     throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
   }
   // Return the retrieved review
@@ -87,7 +102,8 @@ function * createReview (authUser, entity) {
     'created': currDate,
     'updated': currDate,
     'createdBy': authUser.handle || authUser.sub,
-    'updatedBy': authUser.handle || authUser.sub }, entity)
+    'updatedBy': authUser.handle || authUser.sub
+  }, entity)
 
   // Prepare record to be inserted
   const record = {
@@ -104,7 +120,9 @@ function * createReview (authUser, entity) {
     'originator': originator,
     'timestamp': currDate, // time when submission was created
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table) }, item)
+    'payload': _.extend({
+      'resource': helper.camelize(table)
+    }, item)
   }
 
   // Post to Bus API using Client
@@ -181,10 +199,12 @@ function * _updateReview (authUser, reviewId, entity) {
     'originator': originator,
     'timestamp': currDate, // time when submission was updated
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table),
+    'payload': _.extend({
+      'resource': helper.camelize(table),
       'id': reviewId,
       'updated': currDate,
-      'updatedBy': authUser.handle || authUser.sub }, entity)
+      'updatedBy': authUser.handle || authUser.sub
+    }, entity)
   }
 
   // Post to Bus API using Client
@@ -192,7 +212,10 @@ function * _updateReview (authUser, reviewId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || authUser.sub })
+  return _.extend(exist, entity, {
+    'updated': currDate,
+    'updatedBy': authUser.handle || authUser.sub
+  })
 }
 
 /**
