@@ -10,7 +10,7 @@ const path = require('path')
 const logger = require('./common/logger')
 
 joi.id = () => joi.number().integer().min(1)
-joi.score = () => joi.number().min(0).max(100)
+joi.score = () => joi.number()
 joi.pageSize = () => joi.number().integer().min(1).max(config.get('MAX_PAGE_SIZE'))
 
 function buildServices (dir) {
