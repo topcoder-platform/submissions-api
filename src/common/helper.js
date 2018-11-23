@@ -332,6 +332,7 @@ function * checkCreateAccess (authUser, subEntity) {
 
   if (response) {
     // Get phases and winner detail from response
+    logger.info(response)
     const phases = response.body.result.content[0].allPhases
     const winner = response.body.result.content[0].winners
 
