@@ -16,7 +16,7 @@ module.exports = {
     S3_BUCKET: process.env.S3_BUCKET_TEST || 'tc-testing-submissions' // S3 Bucket to which submissions need to be uploaded
   },
   BUSAPI_EVENTS_URL: 'https://api.topcoder-dev.com/v5/bus/events',
-  CHALLENGEAPI_URL: 'https://api.topcoder-dev.com/v4/challenges',
+  CHALLENGEAPI_URL: 'https://api.topcoder-dev.com/v3/challenges',
   esConfig: {
     ES_INDEX: process.env.ES_INDEX_TEST || 'submission-test',
     ES_TYPE: process.env.ES_TYPE_TEST || '_doc' // ES 6.x accepts only 1 Type per index and it's mandatory to define it
