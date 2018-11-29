@@ -16,7 +16,7 @@ module.exports = {
       method: 'listSubmissions',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['create:submission', 'all:submission']
+      scopes: ['read:submission', 'all:submission']
     }
   },
   '/submissions/:submissionId': {
