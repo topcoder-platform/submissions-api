@@ -159,6 +159,18 @@ getSubmission.schema = {
 }
 
 /**
+ * Function to download submission from S3
+ * @param {Object} authUser Authenticated User
+ * @param {String} submissionId ID of the Submission which need to be retrieved
+ * @return {Object} Submission retrieved from S3
+ */
+function * downloadSubmission (authUser, submissionId) {
+  const record = yield getSubmission(authUser, submissionId)
+  const downloadedFile = yield helper.downloadFile(record.url)
+  return { submission: record, file: downloadedFile }
+}
+
+/**
  * Function to list submissions from Elastic Search
  * @param {Object} query Query filters passed in HTTP request
  * @return {Object} Data fetched from ES
@@ -498,6 +510,7 @@ deleteSubmission.schema = {
 module.exports = {
   getSubmission,
   _getSubmission,
+  downloadSubmission,
   listSubmissions,
   createSubmission,
   updateSubmission,

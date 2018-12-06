@@ -409,6 +409,31 @@ paths:
         500:
           $ref: '#/definitions/ServerError'
 
+  /submissions/{submissionId}/download:
+    get:
+      summary: Download the Submission from S3
+      description: |
+        Download the submission from S3 using id.
+
+        **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
+      tags:
+        - Submissions
+      operationId: downloadSubmission
+      parameters:
+        - $ref: '#/parameters/submissionIdParam'
+      responses:
+        200:
+          description: Submission downloaded successfully
+        400:
+          $ref: '#/definitions/BadRequest'
+        401:
+          $ref: '#/definitions/Unauthorized'
+        403:
+          $ref: '#/definitions/Forbidden'
+        404:
+          $ref: '#/definitions/NotFound'
+        500:
+          $ref: '#/definitions/ServerError'
   /reviewSummations:
     get:
       summary: Get all review summations.

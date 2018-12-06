@@ -20,6 +20,7 @@
     "cov-e2e": "nyc --reporter=html --reporter=text mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit"
   },
   "dependencies": {
+    "amazon-s3-uri": "0.0.3",
     "aws-sdk": "^2.265.1",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",

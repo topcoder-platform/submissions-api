@@ -5,6 +5,7 @@
 global.Promise = require('bluebird')
 const _ = require('lodash')
 const AWS = require('aws-sdk')
+const AmazonS3URI = require('amazon-s3-uri')
 const co = require('co')
 const config = require('config')
 const elasticsearch = require('elasticsearch')
@@ -18,6 +19,7 @@ const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_
 Promise.promisifyAll(request)
 
 AWS.config.region = config.get('aws.AWS_REGION')
+const s3 = new AWS.S3()
 // ES Client mapping
 const esClients = {}
 
@@ -454,6 +456,18 @@ function * checkGetAccess (authUser, submission) {
   }
 }
 
+/**
+ * Function to download file from given S3 URL
+ * @param{String} fileURL S3 URL of the file to be downloaded
+ * @returns {Buffer} Buffer of downloaded file
+ */
+function * downloadFile (fileURL) {
+  const { bucket, key } = AmazonS3URI(fileURL)
+  logger.info(`downloadFile(): file is on S3 ${bucket} / ${key}`)
+  const downloadedFile = yield s3.getObject({ Bucket: bucket, Key: key }).promise()
+  return downloadedFile.Body
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -464,5 +478,6 @@ module.exports = {
   setPaginationHeaders,
   getSubmissionPhaseId,
   checkCreateAccess,
-  checkGetAccess
+  checkGetAccess,
+  downloadFile
 }
