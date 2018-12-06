@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "36a71776-c802-4bdd-9fb1-6633caae2429",
+		"_postman_id": "1c4ee28f-c371-444e-9cc4-00aaab082194",
 		"name": "Submission API",
 		"description": "Topcoder Submission API Postman Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -8,7 +8,6 @@
 	"item": [
 		{
 			"name": "Review Type",
-			"description": "End points related to Review Type",
 			"item": [
 				{
 					"name": "Create Review type without all attributes",
@@ -125,7 +124,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21dec05",
@@ -168,7 +167,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21decff87",
@@ -211,7 +210,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
@@ -254,7 +253,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
@@ -297,7 +296,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes",
@@ -339,7 +338,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes?perPage=2&page=2",
@@ -391,7 +390,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes?name=Review",
@@ -439,7 +438,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes?file=Review",
@@ -487,7 +486,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes",
@@ -674,6 +673,7 @@
 					"response": []
 				}
 			],
+			"description": "End points related to Review Type",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -699,7 +699,6 @@
 		},
 		{
 			"name": "Review",
-			"description": "End points related to Review",
 			"item": [
 				{
 					"name": "Create Review without all attributes",
@@ -816,7 +815,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews/c56a4180-65aa-42ec-a945-5fd21dec05",
@@ -859,7 +858,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews/c56a4180-65aa-42ec-a945-5fd21decff87",
@@ -902,7 +901,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews/{{reviewID}}",
@@ -945,7 +944,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews/{{reviewID}}",
@@ -988,7 +987,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews",
@@ -1030,7 +1029,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews?perPage=1&page=3",
@@ -1082,7 +1081,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews?submissionId=a12a4180-65aa-42ec-a945-5fd21dec0502",
@@ -1130,7 +1129,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews?userId=a12a4180-65aa-42ec-a945-5fd21dec0502",
@@ -1178,7 +1177,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews",
@@ -1220,7 +1219,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviews/{{reviewID}}",
@@ -1408,6 +1407,7 @@
 					"response": []
 				}
 			],
+			"description": "End points related to Review",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -1433,7 +1433,6 @@
 		},
 		{
 			"name": "ReviewSummation",
-			"description": "End points related to Review Summation",
 			"item": [
 				{
 					"name": "Create Review Summation without all attributes",
@@ -1550,7 +1549,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/c56a4180-65aa-42ec-a945-5fd21dec05",
@@ -1593,7 +1592,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/c56a4180-65aa-42ec-a945-5fd21decff87",
@@ -1636,7 +1635,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
@@ -1679,7 +1678,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
@@ -1722,7 +1721,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations",
@@ -1764,7 +1763,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations?perPage=1",
@@ -1812,7 +1811,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations?aggregateScore=99",
@@ -1860,7 +1859,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations?score=99",
@@ -1908,7 +1907,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations",
@@ -1950,7 +1949,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"id\": 6,\n\t\"name\": \"testing\",\n\t\"isActive\": true\n}"
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
@@ -2138,6 +2137,7 @@
 					"response": []
 				}
 			],
+			"description": "End points related to Review Summation",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -2163,7 +2163,6 @@
 		},
 		{
 			"name": "Submission",
-			"description": "End points related to Submission",
 			"item": [
 				{
 					"name": "Create Submission by Uploading file",
@@ -2196,7 +2195,7 @@
 								{
 									"key": "submission",
 									"type": "file",
-									"value": ""
+									"src": ""
 								},
 								{
 									"key": "type",
@@ -2311,6 +2310,34 @@
 							"path": [
 								"submissions",
 								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Submission",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}/download",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}",
+								"download"
 							]
 						}
 					},
@@ -2728,6 +2755,7 @@
 					"response": []
 				}
 			],
+			"description": "End points related to Submission",
 			"event": [
 				{
 					"listen": "prerequest",

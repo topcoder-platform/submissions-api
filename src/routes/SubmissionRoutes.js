@@ -48,5 +48,14 @@ module.exports = {
       access: ['Administrator'],
       scopes: ['delete:submission', 'all:submission']
     }
+  },
+  '/submissions/:submissionId/download': {
+    get: {
+      controller: 'SubmissionController',
+      method: 'downloadSubmission',
+      auth: 'jwt',
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      scopes: ['read:submission', 'all:submission']
+    }
   }
 }
