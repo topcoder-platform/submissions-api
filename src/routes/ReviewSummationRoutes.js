@@ -16,7 +16,7 @@ module.exports = {
       method: 'listReviewSummations',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['create:review_summation', 'all:review_summation']
+      scopes: ['read:review_summation', 'all:review_summation']
     }
   },
   '/reviewSummations/:reviewSummationId': {

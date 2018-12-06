@@ -575,7 +575,7 @@ const testChallengeAPIResponse = {
       }
     ]
   },
-  'version': 'v3'
+  'version': 'v4'
 }
 
 module.exports = {

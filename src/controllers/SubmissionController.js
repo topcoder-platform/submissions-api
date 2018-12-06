@@ -15,6 +15,23 @@ function * getSubmission (req, res) {
 }
 
 /**
+ * Download Submission from S3
+ * @param req the http request
+ * @param res the http response
+ */
+function * downloadSubmission (req, res) {
+  const result = yield SubmissionService.downloadSubmission(req.authUser, req.params.submissionId)
+  let fileName
+  if (result.submission.legacySubmissionId) {
+    fileName = `submission-${result.submission.legacySubmissionId}-${result.submission.id}.zip`
+  } else {
+    fileName = `submission-${result.submission.id}.zip`
+  }
+  res.attachment(fileName)
+  res.send(result.file)
+}
+
+/**
  * List submissions from ES
  * @param req the http request
  * @param res the http response
@@ -63,6 +80,7 @@ function * deleteSubmission (req, res) {
 
 module.exports = {
   getSubmission,
+  downloadSubmission,
   listSubmissions,
   createSubmission,
   updateSubmission,

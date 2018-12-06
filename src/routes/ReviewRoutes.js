@@ -16,7 +16,7 @@ module.exports = {
       method: 'listReviews',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['create:review', 'all:review']
+      scopes: ['read:review', 'all:review']
     }
   },
   '/reviews/:reviewId': {
