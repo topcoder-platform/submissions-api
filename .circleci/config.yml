@@ -24,7 +24,7 @@ jobs:
           command: ./build.sh DEV
       - deploy:
           command: |
-            git clone --branch master https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+            git clone --branch v1.1 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
             cp ./../buildscript/master_deploy.sh .
             ./master_deploy.sh -d ECS -e DEV -t $CIRCLE_BUILD_NUM -s submission-processor-api
   
@@ -50,7 +50,7 @@ jobs:
           command: ./build.sh PROD
       - deploy:
           command: |
-            git clone --branch master https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+            git clone --branch v1.1 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
             cp ./../buildscript/master_deploy.sh .
             ./master_deploy.sh -d ECS -e PROD -t $CIRCLE_BUILD_NUM -s submission-processor-api
 workflows:
