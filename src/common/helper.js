@@ -195,8 +195,6 @@ function prepESFilter (query, actResource) {
     ]
   }
 
-  console.log(JSON.stringify(searchCriteria))
-
   return searchCriteria
 }
 
