@@ -187,6 +187,14 @@ function prepESFilter (query, actResource) {
       }
     }
   }
+
+  // Add sorting for submission
+  if (actResource === 'submission') {
+    searchCriteria.body.sort = [
+      { 'created': { 'order': 'asc' } }
+    ]
+  }
+
   return searchCriteria
 }
 
