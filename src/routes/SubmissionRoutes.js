@@ -57,5 +57,30 @@ module.exports = {
       access: ['Topcoder User', 'Administrator', 'Copilot'],
       scopes: ['read:submission', 'all:submission']
     }
+  },
+  '/submissions/:submissionId/artifacts': {
+    post: {
+      controller: 'ArtifactController',
+      method: 'createArtifact',
+      auth: 'jwt',
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      scopes: ['create:submission', 'all:submission']
+    },
+    get: {
+      controller: 'ArtifactController',
+      method: 'listArtifacts',
+      auth: 'jwt',
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      scopes: ['read:submission', 'all:submission']
+    }
+  },
+  '/submissions/:submissionId/artifacts/:file/download': {
+    get: {
+      controller: 'ArtifactController',
+      method: 'downloadArtifact',
+      auth: 'jwt',
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      scopes: ['read:submission', 'all:submission']
+    }
   }
 }

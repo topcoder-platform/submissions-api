@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1c4ee28f-c371-444e-9cc4-00aaab082194",
+		"_postman_id": "ff7cef98-25e0-4a50-b956-27bf55869441",
 		"name": "Submission API",
 		"description": "Topcoder Submission API Postman Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -2722,6 +2722,142 @@
 							"path": [
 								"submissions",
 								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Artifact",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "artifact",
+									"type": "file",
+									"src": ""
+								},
+								{
+									"key": "typeId",
+									"value": "{{artifactID}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}",
+								"artifacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Artifacts",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}",
+								"artifacts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Download Artifact",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
+								"exec": [
+									"if( responseCode.code === 200) {",
+									"    const response = JSON.parse(responseBody);",
+									"    pm.environment.set(\"submissionID\", response.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{USER_TOKEN}}"
+							}
+						],
+						"body": {},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts/{{artifactID}}/download",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}",
+								"artifacts",
+								"{{artifactID}}",
+								"download"
 							]
 						}
 					},
