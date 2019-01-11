@@ -456,9 +456,8 @@ paths:
         - in: formData
           name: typeId
           required: true
-          schema:
-           type: string
-           example: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
+          type: string
+          example: 'c56a4180-65aa-42ec-a945-5fd21dec0503'    
       responses:
         200:
           description: Artifact created successfully
