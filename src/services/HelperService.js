@@ -5,7 +5,7 @@
 const errors = require('common-errors')
 
 const ReviewTypeService = require('./ReviewTypeService')
-const dbhelper = require('../common/dbhelper')
+const SubmissionService = require('./SubmissionService')
 
 /**
  * Function to check references in the given entity
@@ -23,14 +23,9 @@ function * _checkRef (entity) {
   }
 
   if (entity.submissionId) {
-    const filter = {
-      TableName: 'Submission',
-      Key: {
-        'id': entity.submissionId
-      }
-    }
-    const existSubmission = yield dbhelper.getRecord(filter)
-    if (!existSubmission.Item) {
+    const existSubmission = yield SubmissionService._getSubmission(entity.submissionId, false)
+
+    if (!existSubmission) {
       throw new errors.HttpStatusError(400, `Submission with ID = ${entity.submissionId} does not exist`)
     }
   }

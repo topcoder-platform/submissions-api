@@ -2826,10 +2826,7 @@
 							"script": {
 								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
 								"exec": [
-									"if( responseCode.code === 200) {",
-									"    const response = JSON.parse(responseBody);",
-									"    pm.environment.set(\"submissionID\", response.id);",
-									"}"
+									""
 								],
 								"type": "text/javascript"
 							}

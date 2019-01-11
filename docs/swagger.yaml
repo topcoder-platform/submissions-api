@@ -444,14 +444,21 @@ paths:
       tags:
         - Submissions
       operationId: createArtifact
+      consumes:
+         - multipart/form-data
       parameters:
-         - $ref: '#/parameters/submissionIdParam'
-         - in: body
-           name: typeId
-           required: true
-           schema:
-            type: string
-            example: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
+        - $ref: '#/parameters/submissionIdParam'
+        - in: formData
+          name: artifact
+          type: file
+          required: true
+          description: Artifact to be uploaded
+        - in: formData
+          name: typeId
+          required: true
+          schema:
+           type: string
+           example: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
       responses:
         200:
           description: Artifact created successfully

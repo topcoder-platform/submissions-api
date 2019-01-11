@@ -40,6 +40,8 @@ function * _uploadToS3 (file, name) {
  * @return {Object} File downloaded from S3
  */
 function * downloadArtifact (submissionId, fileName) {
+  // Check the validness of Submission ID
+  yield HelperService._checkRef({submissionId})
   const artifacts = yield s3.listObjects({Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}`}).promise()
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
@@ -62,6 +64,8 @@ downloadArtifact.schema = {
  * @return {Object} List of files present in S3 bucket under submissionId directory
  */
 function * listArtifacts (submissionId) {
+  // Check the validness of Submission ID
+  yield HelperService._checkRef({submissionId})
   const artifacts = yield s3.listObjects({Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId}).promise()
   return { artifacts: _.map(artifacts.Contents, (at) => path.parse(at.Key).name) }
 }
