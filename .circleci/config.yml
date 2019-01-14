@@ -61,7 +61,7 @@ workflows:
       - "build-dev":
           filters:
             branches:
-              only: develop
+              only: ['develop', 'feature/auth0-proxy-server']
       - "build-prod":
           filters:
             branches:
