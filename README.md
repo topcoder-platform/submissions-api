@@ -51,6 +51,7 @@ e.g.
 ```
 export AWS_REGION="<AWS Region>"
 export S3_BUCKET="<S3 Bucket Name>"
+export ARTIFACT_BUCKET="<Artifact S3 Bucket Name>"
 export ES_HOST="<ES Endpoint>"
 export AUTH0_URL="<Auth0 URL>"
 export AUTH0_CLIENT_ID="<Auth0 Client ID>"
