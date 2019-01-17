@@ -1773,6 +1773,9 @@ definitions:
         type: boolean
         description: The review summation passing boolean flag.
         example: true
+      metadata:
+        type: object
+        description: Review summation metadata in JSON format
 
   UpdatableReviewSummation:
     description: The review summation entity fields that updates whole entity.
@@ -1831,6 +1834,9 @@ definitions:
         type: string
         description: The submission id.
         example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
+      metadata:
+        type: object
+        description: Review Metadata in JSON format
 
   UpdatableReview:
     description: The review entity fields that updates whole entity.
