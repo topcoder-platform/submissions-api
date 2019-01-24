@@ -434,6 +434,109 @@ paths:
           $ref: '#/definitions/NotFound'
         500:
           $ref: '#/definitions/ServerError'
+  /submissions/{submissionId}/artifacts:
+    post:
+      summary: Create artifact for the given submission ID
+      description: |
+        Create artifact in S3
+        
+        **Authorization:** Create artifact follows the same authorization rules as Create submission
+      tags:
+        - Submissions
+      operationId: createArtifact
+      consumes:
+         - multipart/form-data
+      parameters:
+        - $ref: '#/parameters/submissionIdParam'
+        - in: formData
+          name: artifact
+          type: file
+          required: true
+          description: Artifact to be uploaded
+        - in: formData
+          name: typeId
+          required: true
+          type: string
+          example: 'c56a4180-65aa-42ec-a945-5fd21dec0503'    
+      responses:
+        200:
+          description: Artifact created successfully
+          schema:
+            type: object
+            properties:
+              artifact:
+                type: string
+                description: Uploaded artifact name
+                example: c56a4180-65aa-42ec-a945-5fd21dec0503.json
+        400:
+          $ref: '#/definitions/BadRequest'
+        401:
+          $ref: '#/definitions/Unauthorized'
+        403:
+          $ref: '#/definitions/Forbidden'
+        404:
+          $ref: '#/definitions/NotFound'
+        500:
+          $ref: '#/definitions/ServerError'
+    get:
+      summary: List artifacts for the given Submission ID
+      description: |
+        List artifacts for given Submission ID from S3
+        
+        **Authorization:** List artifact follows the same authorization rules as Get submission
+      tags:
+        - Submissions
+      operationId: listArtifacts
+      parameters:
+         - $ref: '#/parameters/submissionIdParam'
+      responses:
+        200:
+          description: Artifacts from S3 listed successfully
+          schema:
+            type: object
+            properties:
+              artifacts:
+                type: array
+                description: Artifact IDs list
+                items:
+                  type: string
+                  example: c56a4180-65aa-42ec-a945-5fd21dec0503
+        400:
+          $ref: '#/definitions/BadRequest'
+        401:
+          $ref: '#/definitions/Unauthorized'
+        403:
+          $ref: '#/definitions/Forbidden'
+        404:
+          $ref: '#/definitions/NotFound'
+        500:
+          $ref: '#/definitions/ServerError'
+  /submissions/{submissionId}/artifacts/{file}/download:
+    get:
+      summary: Download artifact from S3
+      description: |
+        Download artifact from S3 using Submission ID and Artifact ID
+
+        **Authorization:** Download artifact follows same authorization rules as Download submission
+      tags:
+        - Submissions
+      operationId: downloadArtifact
+      parameters:
+        - $ref: '#/parameters/submissionIdParam'
+        - $ref: '#/parameters/fileParam'
+      responses:
+        200:
+          description: Artifact from S3 downloaded successfully
+        400:
+          $ref: '#/definitions/BadRequest'
+        401:
+          $ref: '#/definitions/Unauthorized'
+        403:
+          $ref: '#/definitions/Forbidden'
+        404:
+          $ref: '#/definitions/NotFound'
+        500:
+          $ref: '#/definitions/ServerError'
   /reviewSummations:
     get:
       summary: Get all review summations.
@@ -1537,6 +1640,13 @@ parameters:
     description: review type id
     required: true
     type: string
+    
+  fileParam:
+    name: file
+    in: path
+    description: artifact id
+    required: true
+    type: string
 
   submissionIdParam:
     name: submissionId
@@ -1663,6 +1773,9 @@ definitions:
         type: boolean
         description: The review summation passing boolean flag.
         example: true
+      metadata:
+        type: object
+        description: Review summation metadata in JSON format
 
   UpdatableReviewSummation:
     description: The review summation entity fields that updates whole entity.
@@ -1721,6 +1834,9 @@ definitions:
         type: string
         description: The submission id.
         example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
+      metadata:
+        type: object
+        description: Review Metadata in JSON format
 
   UpdatableReview:
     description: The review entity fields that updates whole entity.

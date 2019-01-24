@@ -23,7 +23,7 @@ function * _checkRef (entity) {
   }
 
   if (entity.submissionId) {
-    const existSubmission = yield SubmissionService._getSubmission(entity.submissionId)
+    const existSubmission = yield SubmissionService._getSubmission(entity.submissionId, false)
 
     if (!existSubmission) {
       throw new errors.HttpStatusError(400, `Submission with ID = ${entity.submissionId} does not exist`)

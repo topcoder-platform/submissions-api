@@ -74,9 +74,10 @@ function * _getReviewSummationsForSubmission (submissionId) {
  * Function to get submission based on ID from DynamoDB
  * This function will be used all by other functions to check existence of a submission
  * @param {String} submissionId submissionId which need to be retrieved
+ * @param {Boolean} fetchReview if True, associated reviews and review summations will be fetched
  * @return {Object} Data retrieved from database
  */
-function * _getSubmission (submissionId) {
+function * _getSubmission (submissionId, fetchReview = true) {
   // Construct filter to retrieve record from Database
   const filter = {
     TableName: table,
@@ -86,17 +87,19 @@ function * _getSubmission (submissionId) {
   }
   const result = yield dbhelper.getRecord(filter)
   const submission = result.Item
-  // Fetch associated reviews
-  const review = yield _getReviewsForSubmission(submissionId)
+  if (fetchReview) {
+    // Fetch associated reviews
+    const review = yield _getReviewsForSubmission(submissionId)
 
-  if (review.Count !== 0) {
-    submission.review = review.Items
-  }
-  // Fetch associated review summations
-  const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+    if (review.Count !== 0) {
+      submission.review = review.Items
+    }
+    // Fetch associated review summations
+    const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
 
-  if (reviewSummation.Count !== 0) {
-    submission.reviewSummation = reviewSummation.Items
+    if (reviewSummation.Count !== 0) {
+      submission.reviewSummation = reviewSummation.Items
+    }
   }
   return submission
 }
