@@ -14,6 +14,7 @@ const {
   originator, mimeType, events
 } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
+const SubmissionService = require('./SubmissionService')
 
 const busApiClient = helper.getBusApiClient()
 const table = 'Review'
@@ -38,30 +39,38 @@ function * _getReview (reviewId) {
 
 /**
  * Function to get review based on ID from ES
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be found
- * @return {Object} Data found from database
+ * @return {Object} Data found from database or ES
  */
-function * getReview (reviewId) {
+function * getReview (authUser, reviewId) {
+  let review
   const response = yield helper.fetchFromES({
     id: reviewId
   }, helper.camelize(table))
 
   if (response.total === 0) {
     logger.info(`Couldn't find review ${reviewId} in ES. Checking db`)
-    const review = yield _getReview(reviewId)
+    review = yield _getReview(reviewId)
     logger.debug(`Review: ${review}`)
 
-    if (review) {
-      return review
+    if (!review) {
+      throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
     }
-
-    throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
+  } else {
+    review = response.rows[0]
   }
-  // Return the retrieved review
-  return response.rows[0]
+
+  // Fetch submission without review and review summations
+  const submission = yield SubmissionService._getSubmission(review.submissionId, false)
+  logger.info('Check User access before returning the review')
+  yield helper.checkReviewGetAccess(authUser, submission)
+  // Return the review
+  return review
 }
 
 getReview.schema = {
+  authUser: joi.object().required(),
   reviewId: joi.string().uuid().required()
 }
 

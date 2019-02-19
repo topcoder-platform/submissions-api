@@ -464,6 +464,47 @@ function * checkGetAccess (authUser, submission) {
   }
 }
 
+/*
+ * Function to check user access to get a review
+ * @param authUser Authenticated user
+ * @param submission Submission Entity
+ * @returns {Promise}
+ */
+function * checkReviewGetAccess (authUser, submission) {
+  let challengeDetails
+  const token = yield getM2Mtoken()
+
+  try {
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    logger.error(ex)
+    return false
+  }
+
+  if (challengeDetails) {
+    const subTrack = challengeDetails.body.result.content[0].subTrack
+    const phases = challengeDetails.body.result.content[0].allPhases
+
+    // For Marathon Match, everyone can access review result
+    if (subTrack === 'DEVELOP_MARATHON_MATCH') {
+      logger.info('No access check for Marathon match')
+      return true
+    } else {
+      const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', 'phaseStatus': 'Closed' })
+
+      // Appeals Response is not closed yet
+      if (appealsResponse.length === 0) {
+        throw new errors.HttpStatusError(403, 'You cannot access the review before the end of the Appeals Response phase')
+      }
+
+      return true
+    }
+  }
+}
+
 /**
  * Function to download file from given S3 URL
  * @param{String} fileURL S3 URL of the file to be downloaded
@@ -487,5 +528,6 @@ module.exports = {
   getSubmissionPhaseId,
   checkCreateAccess,
   checkGetAccess,
+  checkReviewGetAccess,
   downloadFile
 }
