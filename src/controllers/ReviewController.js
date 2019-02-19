@@ -11,7 +11,7 @@ const helper = require('../common/helper')
  * @param res the http response
  */
 function * getReview (req, res) {
-  res.json(yield ReviewService.getReview(req.params.reviewId))
+  res.json(yield ReviewService.getReview(req.authUser, req.params.reviewId))
 }
 
 /**
