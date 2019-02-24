@@ -87,7 +87,7 @@ listReviews.schema = {
   query: joi.object().keys({
     score: joi.score(),
     typeId: joi.string().uuid(),
-    reviewerId: joi.string().uuid(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     page: joi.id(),
@@ -147,7 +147,7 @@ createReview.schema = {
   entity: joi.object().keys({
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
-    reviewerId: joi.string().uuid().required(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     metadata: joi.object()
@@ -244,7 +244,7 @@ updateReview.schema = {
   entity: joi.object().keys({
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
-    reviewerId: joi.string().uuid().required(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     metadata: joi.object()
@@ -268,7 +268,7 @@ patchReview.schema = {
   entity: joi.object().keys({
     score: joi.score(),
     typeId: joi.string().uuid(),
-    reviewerId: joi.string().uuid(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     metadata: joi.object()
