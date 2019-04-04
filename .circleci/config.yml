@@ -1,68 +1,77 @@
 version: 2
+defaults: &defaults
+  docker:
+    - image: circleci/python:2.7-stretch-browsers
+install_dependency: &install_dependency
+          name: Installation of build and deployment dependencies.
+          command: |
+            sudo apt install jq
+            sudo pip install awscli --upgrade
+            sudo pip install docker-compose
+            sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+            sudo chmod +x /usr/local/bin/ecs-cli
+
+install_deploysuite: &install_deploysuite
+          name: Installation of install_deploysuite.
+          command: |
+            git clone --branch v1.3 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+            cp ./../buildscript/master_deploy.sh .
+            cp ./../buildscript/buildenv.sh .
+            cp ./../buildscript/awsconfiguration.sh .
+run_build: &run_build
+          name: Installation of build dependencies.
+          command: ./build.sh
 
 jobs:
   # Build & Deploy against development backend
   "build-dev":
-    docker:
-      - image: docker:18.06.0-ce-git
+    <<: *defaults
     steps:
       # Initialization.
       - checkout
       - setup_remote_docker
-      - run:
-          name: Installation of build dependencies.
-          command: |
-            apk add --no-cache bash
-            apk add --no-cache jq py-pip sudo curl
-            pip install --upgrade pip
-            sudo pip install awscli --upgrade
-            sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
-            sudo pip install docker-compose
-            sudo chmod +x /usr/local/bin/ecs-cli
-      - run:
-          name: Installation of build dependencies.
-          command: ./build.sh DEV
+      - run: *install_dependency
+      - run: *install_deploysuite
+      - run: *run_build
       - deploy:
+          name: Running Masterscript for Dev deploy
           command: |
-            git clone --branch v1.1 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
-            cp ./../buildscript/master_deploy.sh .
-            ./master_deploy.sh -d ECS -e DEV -t $CIRCLE_BUILD_NUM -s submission-processor-api
-  
+            ./awsconfiguration.sh DEV
+            source awsenvconf
+            ./buildenv.sh -e DEV -b dev-submissions-api-deployvar
+            source buildenvvar
+            ./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-submissions-api-appvar -i submissions-api
+
   "build-prod":
-    docker:
-      - image: docker:18.06.0-ce-git
+    <<: *defaults
     steps:
       # Initialization.
       - checkout
       - setup_remote_docker
-      - run:
-          name: Installation of build dependencies.
-          command: |
-            apk add --no-cache bash
-            apk add --no-cache jq py-pip sudo curl
-            pip install --upgrade pip
-            sudo pip install awscli --upgrade
-            sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
-            sudo pip install docker-compose
-            sudo chmod +x /usr/local/bin/ecs-cli
-      - run:
-          name: Installation of build dependencies.
-          command: ./build.sh PROD
+      - run: *install_dependency
+      - run: *install_deploysuite
+      - run: *run_build
       - deploy:
+          name: Running Masterscript for Prod deploy
           command: |
-            git clone --branch v1.1 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
-            cp ./../buildscript/master_deploy.sh .
-            ./master_deploy.sh -d ECS -e PROD -t $CIRCLE_BUILD_NUM -s submission-processor-api
+            ./awsconfiguration.sh PROD
+            source awsenvconf
+            ./buildenv.sh -e PROD -b prod-submissions-api-deployvar
+            source buildenvvar
+            ./master_deploy.sh -d ECS -e PROD -t latest -s prod-global-appvar,prod-submissions-api-appvar -i submissions-api
+
 workflows:
   version: 2
   build:
     jobs:
       # Development builds are executed on "develop" branch only.
       - "build-dev":
+          context : org-global
           filters:
             branches:
-              only: develop
+              only: ['develop']
       - "build-prod":
+          context : org-global
           filters:
             branches:
               only: master

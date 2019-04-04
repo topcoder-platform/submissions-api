@@ -39,8 +39,8 @@
     "lodash": "^4.17.10",
     "superagent": "^3.8.3",
     "swagger-ui-express": "^3.0.10",
-    "tc-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git",
-    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.4.1",
+    "tc-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git#feature/auth0-proxy-server",
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6",
     "uuid": "^3.3.0",
     "winston": "^2.4.3",
     "yamljs": "^0.3.0"
