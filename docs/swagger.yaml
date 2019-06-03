@@ -1328,9 +1328,6 @@ paths:
       operationId: getReviewType
       parameters:
         - $ref: '#/parameters/reviewTypeIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - the request was successful and the review is returned.
@@ -1359,9 +1356,6 @@ paths:
       operationId: headReviewType
       parameters:
         - $ref: '#/parameters/reviewTypeIdParam'
-        # request headers
-        - $ref: '#/parameters/IfNoneMatchParamHeader'
-        - $ref: '#/parameters/IfModifiedSinceParamHeader'
       responses:
         200:
           description: OK - The request was successful.
@@ -1862,6 +1856,7 @@ definitions:
         properties:
           id:
             type: string
+            readOnly: true
             description: The review type id.
             example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
       - $ref: "#/definitions/PartiallyReviewType"
