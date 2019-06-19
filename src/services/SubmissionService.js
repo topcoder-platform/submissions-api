@@ -16,7 +16,6 @@ const { submissionIndex } = require('../../constants')
 const s3 = new AWS.S3()
 const logger = require('winston')
 
-const busApiClient = helper.getBusApiClient()
 const table = 'Submission'
 
 /*
@@ -308,7 +307,7 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Prepared submission create event payload to pass to THE bus')
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
@@ -411,7 +410,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -503,7 +502,7 @@ function * deleteSubmission (submissionId) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 }
 
 deleteSubmission.schema = {

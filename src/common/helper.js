@@ -517,11 +517,26 @@ function * downloadFile (fileURL) {
   return downloadedFile.Body
 }
 
+/**
+ * Wrapper function to post to bus api. Ensures that every event posted to bus api
+ * is duplicated and posted to bus api again, but to a different "aggregate" topic
+ * @param {Object} payload Data that needs to be posted to the bus api
+ */
+function * postToBusApi (payload) {
+  const busApiClient = getBusApiClient()
+
+  yield busApiClient.postEvent(payload)
+
+  // Post to aggregate topic
+  payload['topic'] = config.get('KAFKA_AGGREGATE_TOPIC')
+
+  yield busApiClient.postEvent(payload)
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
   getEsClient,
-  getBusApiClient,
   fetchFromES,
   camelize,
   setPaginationHeaders,
@@ -529,5 +544,6 @@ module.exports = {
   checkCreateAccess,
   checkGetAccess,
   checkReviewGetAccess,
-  downloadFile
+  downloadFile,
+  postToBusApi
 }

@@ -16,7 +16,6 @@ const {
 const HelperService = require('./HelperService')
 const SubmissionService = require('./SubmissionService')
 
-const busApiClient = helper.getBusApiClient()
 const table = 'Review'
 
 /**
@@ -135,7 +134,7 @@ function * createReview (authUser, entity) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
@@ -217,7 +216,7 @@ function * _updateReview (authUser, reviewId, entity) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -310,7 +309,7 @@ function * deleteReview (reviewId) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 }
 
 deleteReview.schema = {
