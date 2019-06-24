@@ -520,15 +520,20 @@ function * downloadFile (fileURL) {
 /**
  * Wrapper function to post to bus api. Ensures that every event posted to bus api
  * is duplicated and posted to bus api again, but to a different "aggregate" topic
+ * Also stores the original topic in the payload
  * @param {Object} payload Data that needs to be posted to the bus api
  */
 function * postToBusApi (payload) {
   const busApiClient = getBusApiClient()
+  const originalTopic = payload['topic']
 
   yield busApiClient.postEvent(payload)
 
   // Post to aggregate topic
   payload['topic'] = config.get('KAFKA_AGGREGATE_TOPIC')
+
+  // Store the original topic
+  payload['payload']['originalTopic'] = originalTopic
 
   yield busApiClient.postEvent(payload)
 }
