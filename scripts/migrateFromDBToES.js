@@ -22,9 +22,10 @@ function * migrateRecords (tableName) {
   let params = {
     TableName: tableName
   }
+  let span = require('../src/common/tracer').startSpans('Empty')
   // Process until all the records from DB is fetched
   while (true) {
-    let records = yield dbhelper.scanRecords(params)
+    let records = yield dbhelper.scanRecords(params, span)
     let totalRecords = records.Items.length
     logger.debug(`Number of ${tableName}s fetched from DB - ` + totalRecords)
     for (let i = 0; i < totalRecords; i++) {

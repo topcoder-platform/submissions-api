@@ -3,7 +3,8 @@
  */
 
 const ReviewService = require('../services/ReviewService')
-const helper = require('../common/helper')
+const { setPaginationHeaders, logResultOnSpan } = require('../common/helper')
+const httpStatus = require('http-status')
 
 /**
  * Get review
@@ -11,7 +12,11 @@ const helper = require('../common/helper')
  * @param res the http response
  */
 function * getReview (req, res) {
-  res.json(yield ReviewService.getReview(req.authUser, req.params.reviewId))
+  const result = yield ReviewService.getReview(req.authUser, req.params.reviewId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -20,8 +25,8 @@ function * getReview (req, res) {
  * @param res the http response
  */
 function * listReviews (req, res) {
-  const data = yield ReviewService.listReviews(req.query)
-  helper.setPaginationHeaders(req, res, data)
+  const data = yield ReviewService.listReviews(req.query, req.span)
+  setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -30,7 +35,11 @@ function * listReviews (req, res) {
  * @param res the http response
  */
 function * createReview (req, res) {
-  res.json(yield ReviewService.createReview(req.authUser, req.body))
+  const result = yield ReviewService.createReview(req.authUser, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -39,7 +48,11 @@ function * createReview (req, res) {
  * @param res the http response
  */
 function * updateReview (req, res) {
-  res.json(yield ReviewService.updateReview(req.authUser, req.params.reviewId, req.body))
+  const result = yield ReviewService.updateReview(req.authUser, req.params.reviewId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -48,7 +61,11 @@ function * updateReview (req, res) {
  * @param res the http response
  */
 function * patchReview (req, res) {
-  res.json(yield ReviewService.patchReview(req.authUser, req.params.reviewId, req.body))
+  const result = yield ReviewService.patchReview(req.authUser, req.params.reviewId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -57,7 +74,10 @@ function * patchReview (req, res) {
  * @param res the http response
  */
 function * deleteReview (req, res) {
-  yield ReviewService.deleteReview(req.params.reviewId)
+  yield ReviewService.deleteReview(req.params.reviewId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.NO_CONTENT)
+
   res.status(204).send()
 }
 

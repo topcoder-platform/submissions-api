@@ -15,58 +15,74 @@ const {
 } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
 const SubmissionService = require('./SubmissionService')
+const tracer = require('../common/tracer')
 
-const busApiClient = helper.getBusApiClient()
 const table = 'Review'
 
 /**
  * Function to get review based on ID from DynamoDB
  * This function will be used all by other functions to check existence of review
  * @param {Number} reviewId reviewId which need to be retrieved
+ * @param {Object} parentSpan the parent Span object
  * @return {Object} Data retrieved from database
  */
-function * _getReview (reviewId) {
-  // Construct filter to retrieve record from Database
-  const filter = {
-    TableName: table,
-    Key: {
-      'id': reviewId
+function * _getReview (reviewId, parentSpan) {
+  const getReviewSpan = tracer.startChildSpans('ReviewService._getReview', parentSpan)
+  getReviewSpan.setTag('reviewId', reviewId)
+
+  try {
+    // Construct filter to retrieve record from Database
+    const filter = {
+      TableName: table,
+      Key: {
+        'id': reviewId
+      }
     }
+    const result = yield dbhelper.getRecord(filter, getReviewSpan)
+    return result.Item
+  } finally {
+    getReviewSpan.finish()
   }
-  const result = yield dbhelper.getRecord(filter)
-  return result.Item
 }
 
 /**
  * Function to get review based on ID from ES
  * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be found
+ * @param {Object} span the Span object
  * @return {Object} Data found from database or ES
  */
-function * getReview (authUser, reviewId) {
-  let review
-  const response = yield helper.fetchFromES({
-    id: reviewId
-  }, helper.camelize(table))
+function * getReview (authUser, reviewId, span) {
+  const getReviewSpan = tracer.startChildSpans('ReviewService.getReview', span)
+  getReviewSpan.setTag('reviewId', reviewId)
 
-  if (response.total === 0) {
-    logger.info(`Couldn't find review ${reviewId} in ES. Checking db`)
-    review = yield _getReview(reviewId)
-    logger.debug(`Review: ${review}`)
+  try {
+    let review
+    const response = yield helper.fetchFromES({
+      id: reviewId
+    }, helper.camelize(table), getReviewSpan)
 
-    if (!review) {
-      throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
+    if (response.total === 0) {
+      logger.info(`Couldn't find review ${reviewId} in ES. Checking db`)
+      review = yield _getReview(reviewId, getReviewSpan)
+      logger.debug(`Review: ${review}`)
+
+      if (!review) {
+        throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
+      }
+    } else {
+      review = response.rows[0]
     }
-  } else {
-    review = response.rows[0]
-  }
 
-  // Fetch submission without review and review summations
-  const submission = yield SubmissionService._getSubmission(review.submissionId, false)
-  logger.info('Check User access before returning the review')
-  yield helper.checkReviewGetAccess(authUser, submission)
-  // Return the review
-  return review
+    // Fetch submission without review and review summations
+    const submission = yield SubmissionService._getSubmission(review.submissionId, getReviewSpan, false)
+    logger.info('Check User access before returning the review')
+    yield helper.checkReviewGetAccess(authUser, submission, getReviewSpan)
+    // Return the review
+    return review
+  } finally {
+    getReviewSpan.finish()
+  }
 }
 
 getReview.schema = {
@@ -77,10 +93,17 @@ getReview.schema = {
 /**
  * Function to list reviews from Elastic Search
  * @param {Object} query Query filters passed in HTTP request
+ * @param {Object} span the Span object
  * @return {Object} Data fetched from ES
  */
-function * listReviews (query) {
-  return yield helper.fetchFromES(query, helper.camelize(table))
+function * listReviews (query, span) {
+  const listReviewsSpan = tracer.startChildSpans('ReviewService.listReviews', span)
+
+  try {
+    return yield helper.fetchFromES(query, helper.camelize(table), listReviewsSpan)
+  } finally {
+    listReviewsSpan.finish()
+  }
 }
 
 listReviews.schema = {
@@ -97,49 +120,57 @@ listReviews.schema = {
 
 /**
  * Function to create review in database
+ * @param {Object} authUser Authenticated User
  * @param {Object} entity Data to be inserted
+ * @param {Object} span the Span object
  * @return {Promise}
  */
-function * createReview (authUser, entity) {
-  // Check the validness of references using Helper function
-  yield HelperService._checkRef(entity)
+function * createReview (authUser, entity, span) {
+  const createReviewSpan = tracer.startChildSpans('ReviewService.createReview', span)
 
-  const currDate = (new Date()).toISOString()
+  try {
+    // Check the validness of references using Helper function
+    yield HelperService._checkRef(entity, createReviewSpan)
 
-  const item = _.extend({
-    'id': uuid(),
-    'created': currDate,
-    'updated': currDate,
-    'createdBy': authUser.handle || authUser.sub,
-    'updatedBy': authUser.handle || authUser.sub
-  }, entity)
+    const currDate = (new Date()).toISOString()
 
-  // Prepare record to be inserted
-  const record = {
-    TableName: table,
-    Item: item
+    const item = _.extend({
+      'id': uuid(),
+      'created': currDate,
+      'updated': currDate,
+      'createdBy': authUser.handle || authUser.sub,
+      'updatedBy': authUser.handle || authUser.sub
+    }, entity)
+
+    // Prepare record to be inserted
+    const record = {
+      TableName: table,
+      Item: item
+    }
+
+    yield dbhelper.insertRecord(record, createReviewSpan)
+
+    // Push Review created event to Bus API
+    // Request body for Posting to Bus API
+    const reqBody = {
+      'topic': events.submission.create,
+      'originator': originator,
+      'timestamp': currDate, // time when submission was created
+      'mime-type': mimeType,
+      'payload': _.extend({
+        'resource': helper.camelize(table)
+      }, item)
+    }
+
+    // Post to Bus API using Client
+    yield helper.postEvent(reqBody, createReviewSpan)
+
+    // Inserting records in DynamoDB doesn't return any response
+    // Hence returning the same entity to be in compliance with Swagger
+    return item
+  } finally {
+    createReviewSpan.finish()
   }
-
-  yield dbhelper.insertRecord(record)
-
-  // Push Review created event to Bus API
-  // Request body for Posting to Bus API
-  const reqBody = {
-    'topic': events.submission.create,
-    'originator': originator,
-    'timestamp': currDate, // time when submission was created
-    'mime-type': mimeType,
-    'payload': _.extend({
-      'resource': helper.camelize(table)
-    }, item)
-  }
-
-  // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
-
-  // Inserting records in DynamoDB doesn't return any response
-  // Hence returning the same entity to be in compliance with Swagger
-  return item
 }
 
 createReview.schema = {
@@ -160,71 +191,79 @@ createReview.schema = {
  * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be updated
  * @param {Object} entity Data to be updated
+ * @param {Object} parentSpan the parent Span object
  * @return {Promise}
  **/
-function * _updateReview (authUser, reviewId, entity) {
-  const exist = yield _getReview(reviewId)
-  if (!exist) {
-    throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
-  }
+function * _updateReview (authUser, reviewId, entity, parentSpan) {
+  const updateReviewSpan = tracer.startChildSpans('ReviewService._updateReview', parentSpan)
+  updateReviewSpan.setTag('reviewId', reviewId)
 
-  // Check the validness of references using Helper function
-  yield HelperService._checkRef(entity)
-
-  const currDate = (new Date()).toISOString()
-
-  // Record used for updating in Database
-  const record = {
-    TableName: table,
-    Key: {
-      'id': reviewId
-    },
-    UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
-                        typeId = :t, reviewerId = :r,
-                        updated = :ua, updatedBy = :ub`,
-    ExpressionAttributeValues: {
-      ':s': entity.score || exist.score,
-      ':sc': entity.scoreCardId || exist.scoreCardId,
-      ':su': entity.submissionId || exist.submissionId,
-      ':t': entity.typeId || exist.typeId,
-      ':r': entity.reviewerId || exist.reviewerId,
-      ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub
+  try {
+    const exist = yield _getReview(reviewId, updateReviewSpan)
+    if (!exist) {
+      throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
     }
-  }
 
-  // If metadata exists, add it to the update expression
-  if (entity.metadata || exist.metadata) {
-    record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
-    record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
-  }
+    // Check the validness of references using Helper function
+    yield HelperService._checkRef(entity, updateReviewSpan)
 
-  yield dbhelper.updateRecord(record)
+    const currDate = (new Date()).toISOString()
 
-  // Push Review updated event to Bus API
-  // Request body for Posting to Bus API
-  const reqBody = {
-    'topic': events.submission.update,
-    'originator': originator,
-    'timestamp': currDate, // time when submission was updated
-    'mime-type': mimeType,
-    'payload': _.extend({
-      'resource': helper.camelize(table),
-      'id': reviewId,
+    // Record used for updating in Database
+    const record = {
+      TableName: table,
+      Key: {
+        'id': reviewId
+      },
+      UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
+                          typeId = :t, reviewerId = :r,
+                          updated = :ua, updatedBy = :ub`,
+      ExpressionAttributeValues: {
+        ':s': entity.score || exist.score,
+        ':sc': entity.scoreCardId || exist.scoreCardId,
+        ':su': entity.submissionId || exist.submissionId,
+        ':t': entity.typeId || exist.typeId,
+        ':r': entity.reviewerId || exist.reviewerId,
+        ':ua': currDate,
+        ':ub': authUser.handle || authUser.sub
+      }
+    }
+
+    // If metadata exists, add it to the update expression
+    if (entity.metadata || exist.metadata) {
+      record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
+      record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
+    }
+
+    yield dbhelper.updateRecord(record, updateReviewSpan)
+
+    // Push Review updated event to Bus API
+    // Request body for Posting to Bus API
+    const reqBody = {
+      'topic': events.submission.update,
+      'originator': originator,
+      'timestamp': currDate, // time when submission was updated
+      'mime-type': mimeType,
+      'payload': _.extend({
+        'resource': helper.camelize(table),
+        'id': reviewId,
+        'updated': currDate,
+        'updatedBy': authUser.handle || authUser.sub
+      }, entity)
+    }
+
+    // Post to Bus API using Client
+    yield helper.postEvent(reqBody, updateReviewSpan)
+
+    // Updating records in DynamoDB doesn't return any response
+    // Hence returning the response which will be in compliance with Swagger
+    return _.extend(exist, entity, {
       'updated': currDate,
       'updatedBy': authUser.handle || authUser.sub
-    }, entity)
+    })
+  } finally {
+    updateReviewSpan.finish()
   }
-
-  // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
-
-  // Updating records in DynamoDB doesn't return any response
-  // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, {
-    'updated': currDate,
-    'updatedBy': authUser.handle || authUser.sub
-  })
 }
 
 /**
@@ -232,10 +271,11 @@ function * _updateReview (authUser, reviewId, entity) {
  * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be updated
  * @param {Object} entity Data to be updated
+ * @param {Object} span the Span object
  * @return {Promise}
  */
-function * updateReview (authUser, reviewId, entity) {
-  return yield _updateReview(authUser, reviewId, entity)
+function * updateReview (authUser, reviewId, entity, span) {
+  return yield _updateReview(authUser, reviewId, entity, span)
 }
 
 updateReview.schema = {
@@ -256,10 +296,11 @@ updateReview.schema = {
  * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be patched
  * @param {Object} entity Data to be patched
+ * @param {Object} span the Span object
  * @return {Promise}
  */
-function * patchReview (authUser, reviewId, entity) {
-  return yield _updateReview(authUser, reviewId, entity)
+function * patchReview (authUser, reviewId, entity, span) {
+  return yield _updateReview(authUser, reviewId, entity, span)
 }
 
 patchReview.schema = {
@@ -278,39 +319,47 @@ patchReview.schema = {
 /**
  * Function to delete review from database
  * @param {Number} reviewId reviewId which need to be deleted
+ * @param {Object} span the Span object
  * @return {Promise}
  */
-function * deleteReview (reviewId) {
-  const exist = yield _getReview(reviewId)
-  if (!exist) {
-    throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
-  }
+function * deleteReview (reviewId, span) {
+  const deleteReviewSpan = tracer.startChildSpans('ReviewService.deleteReview', span)
+  deleteReviewSpan.setTag('reviewId', reviewId)
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      'id': reviewId
+  try {
+    const exist = yield _getReview(reviewId, deleteReviewSpan)
+    if (!exist) {
+      throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
     }
-  }
 
-  yield dbhelper.deleteRecord(filter)
-
-  // Push Review deleted event to Bus API
-  // Request body for Posting to Bus API
-  const reqBody = {
-    'topic': events.submission.delete,
-    'originator': originator,
-    'timestamp': (new Date()).toISOString(), // time when submission was deleted
-    'mime-type': mimeType,
-    'payload': {
-      'resource': helper.camelize(table),
-      'id': reviewId
+    // Filter used to delete the record
+    const filter = {
+      TableName: table,
+      Key: {
+        'id': reviewId
+      }
     }
-  }
 
-  // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+    yield dbhelper.deleteRecord(filter, deleteReviewSpan)
+
+    // Push Review deleted event to Bus API
+    // Request body for Posting to Bus API
+    const reqBody = {
+      'topic': events.submission.delete,
+      'originator': originator,
+      'timestamp': (new Date()).toISOString(), // time when submission was deleted
+      'mime-type': mimeType,
+      'payload': {
+        'resource': helper.camelize(table),
+        'id': reviewId
+      }
+    }
+
+    // Post to Bus API using Client
+    yield helper.postEvent(reqBody, deleteReviewSpan)
+  } finally {
+    deleteReviewSpan.finish()
+  }
 }
 
 deleteReview.schema = {

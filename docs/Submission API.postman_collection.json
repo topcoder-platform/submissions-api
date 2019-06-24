@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ff7cef98-25e0-4a50-b956-27bf55869441",
+		"_postman_id": "c6c43999-509d-4bae-bd58-8ddae68daf9a",
 		"name": "Submission API",
 		"description": "Topcoder Submission API Postman Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -122,10 +122,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21dec05",
 							"host": [
@@ -165,10 +161,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/c56a4180-65aa-42ec-a945-5fd21decff87",
 							"host": [
@@ -208,10 +200,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
 							"host": [
@@ -251,10 +239,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes/{{reviewTypeID}}",
 							"host": [
@@ -294,10 +278,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes",
 							"host": [
@@ -336,10 +316,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes?perPage=2&page=2",
 							"host": [
@@ -388,10 +364,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes?name=Review",
 							"host": [
@@ -436,10 +408,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes?file=Review",
 							"host": [
@@ -484,10 +452,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewTypes",
 							"host": [
@@ -813,10 +777,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews/c56a4180-65aa-42ec-a945-5fd21dec05",
 							"host": [
@@ -856,10 +816,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews/c56a4180-65aa-42ec-a945-5fd21decff87",
 							"host": [
@@ -899,10 +855,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews/{{reviewID}}",
 							"host": [
@@ -942,10 +894,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews/{{reviewID}}",
 							"host": [
@@ -985,10 +933,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews",
 							"host": [
@@ -1027,10 +971,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews?perPage=1&page=3",
 							"host": [
@@ -1079,10 +1019,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews?submissionId=a12a4180-65aa-42ec-a945-5fd21dec0502",
 							"host": [
@@ -1127,10 +1063,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews?userId=a12a4180-65aa-42ec-a945-5fd21dec0502",
 							"host": [
@@ -1175,10 +1107,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews",
 							"host": [
@@ -1217,10 +1145,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviews/{{reviewID}}",
 							"host": [
@@ -1547,10 +1471,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/c56a4180-65aa-42ec-a945-5fd21dec05",
 							"host": [
@@ -1590,10 +1510,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/c56a4180-65aa-42ec-a945-5fd21decff87",
 							"host": [
@@ -1633,10 +1549,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
 							"host": [
@@ -1676,10 +1588,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
 							"host": [
@@ -1719,10 +1627,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations",
 							"host": [
@@ -1761,10 +1665,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations?perPage=1",
 							"host": [
@@ -1809,10 +1709,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations?aggregateScore=99",
 							"host": [
@@ -1857,10 +1753,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations?score=99",
 							"host": [
@@ -1905,10 +1797,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations",
 							"host": [
@@ -1947,10 +1835,6 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
 							"host": [
@@ -2171,13 +2055,13 @@
 							"listen": "test",
 							"script": {
 								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
-								"type": "text/javascript",
 								"exec": [
 									"if( responseCode.code === 200) {",
 									"    const response = JSON.parse(responseBody);",
 									"    pm.environment.set(\"submissionID\", response.id);",
 									"}"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2195,7 +2079,7 @@
 								{
 									"key": "submission",
 									"type": "file",
-									"src": ""
+									"src": []
 								},
 								{
 									"key": "type",
@@ -2204,12 +2088,12 @@
 								},
 								{
 									"key": "memberId",
-									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"value": "40493050",
 									"type": "text"
 								},
 								{
 									"key": "challengeId",
-									"value": "c56a4180-65aa-42ec-a945-3f521dec0587",
+									"value": "30054692",
 									"type": "text"
 								}
 							]
@@ -2233,13 +2117,13 @@
 							"listen": "test",
 							"script": {
 								"id": "dc626f22-ee07-4a39-b0d5-a7e5fb88bc51",
-								"type": "text/javascript",
 								"exec": [
 									"if( responseCode.code === 200) {",
 									"    const response = JSON.parse(responseBody);",
 									"    pm.environment.set(\"submissionID\", response.id);",
 									"}"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2261,17 +2145,17 @@
 								},
 								{
 									"key": "memberId",
-									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"value": "40493050",
 									"type": "text"
 								},
 								{
 									"key": "challengeId",
-									"value": "c56a4180-65aa-42ec-a945-3f521dec0587",
+									"value": "30054692",
 									"type": "text"
 								},
 								{
 									"key": "url",
-									"value": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+									"value": "https://tc-test-submission-scan.s3.amazonaws.com/good.zip",
 									"type": "text"
 								}
 							]
@@ -2298,10 +2182,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions/{{submissionID}}",
 							"host": [
@@ -2325,10 +2205,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions/{{submissionID}}/download",
 							"host": [
@@ -2353,10 +2229,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions/974969cb-33fb-4fc9-83f8-39e15d",
 							"host": [
@@ -2380,10 +2252,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions/974969cb-33fb-4fc9-83f8-39e15d3fffff",
 							"host": [
@@ -2407,10 +2275,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions",
 							"host": [
@@ -2433,10 +2297,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions?perPage=2&page=3",
 							"host": [
@@ -2469,10 +2329,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions?type=ContestSubmission",
 							"host": [
@@ -2501,10 +2357,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions?name=test",
 							"host": [
@@ -2533,10 +2385,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions",
 							"host": [
@@ -2559,10 +2407,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
 						"url": {
 							"raw": "{{URL}}/submissions/{{submissionID}}",
 							"host": [
@@ -2666,12 +2510,12 @@
 								},
 								{
 									"key": "memberId",
-									"value": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+									"value": "40493050",
 									"type": "text"
 								},
 								{
 									"key": "challengeId",
-									"value": "c56a4180-65aa-42ec-a945-5fd21dec2543",
+									"value": "30054692",
 									"type": "text"
 								}
 							]
@@ -2755,7 +2599,7 @@
 								{
 									"key": "artifact",
 									"type": "file",
-									"src": ""
+									"src": []
 								},
 								{
 									"key": "typeId",
@@ -2792,9 +2636,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -2803,7 +2644,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {},
 						"url": {
 							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts",
 							"host": [
@@ -2832,9 +2672,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -2843,7 +2680,6 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {},
 						"url": {
 							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts/{{artifactID}}/download",
 							"host": [

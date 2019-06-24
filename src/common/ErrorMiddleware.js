@@ -15,19 +15,42 @@ const httpStatus = require('http-status')
  * @param  {Function}   next      the next middleware in the chain
  */
 function middleware (err, req, res, next) { // eslint-disable-line no-unused-vars
-  if (err.isJoi) {
-    res.status(httpStatus.BAD_REQUEST).json({
-      message: err.details[0].message
-    })
-  } else if (err.errors) {
-    res.status(httpStatus.BAD_REQUEST).json({ message: err.errors })
+  let statusCode
+  let message
+  if (err.isJoi || err.errors) {
+    statusCode = httpStatus.BAD_REQUEST
+    message = err.isJoi ? err.details[0].message : err.errors
   } else {
     const httpError = new errors.HttpStatusError(err)
     if (err.statusCode >= httpStatus.INTERNAL_SERVER_ERROR) {
+      // unknown server error
+      req.span.setTag('error', true)
       httpError.message = err.message || config.DEFAULT_MESSAGE
     }
-    res.status(httpError.statusCode).json({ message: httpError.message || config.DEFAULT_MESSAGE })
+    statusCode = httpError.statusCode
+    message = httpError.message || config.DEFAULT_MESSAGE
   }
+
+  req.span.setTag('statusCode', statusCode)
+  // log response
+  req.span.log({
+    event: 'info',
+    responseBody: { message }
+  })
+
+  if (err.statusCode >= httpStatus.INTERNAL_SERVER_ERROR) {
+    // log unknown server error
+    req.span.log({
+      event: 'error',
+      message: err.message,
+      stack: err.stack,
+      'error.object': err
+    })
+  }
+
+  req.span.finish()
+
+  res.status(statusCode).json({ message })
 }
 
 module.exports = () => middleware

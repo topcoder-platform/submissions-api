@@ -3,6 +3,8 @@
  */
 
 const HealthCheckService = require('../services/HealthCheckService')
+const { logResultOnSpan } = require('../common/helper')
+const httpStatus = require('http-status')
 
 /**
  * Get review
@@ -10,7 +12,11 @@ const HealthCheckService = require('../services/HealthCheckService')
  * @param res the http response
  */
 function * check (req, res) {
-  res.json(yield HealthCheckService.check())
+  const result = yield HealthCheckService.check(req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 module.exports = {

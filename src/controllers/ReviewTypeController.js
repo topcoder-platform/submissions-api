@@ -3,7 +3,8 @@
  */
 
 const ReviewTypeService = require('../services/ReviewTypeService')
-const helper = require('../common/helper')
+const { setPaginationHeaders, logResultOnSpan } = require('../common/helper')
+const httpStatus = require('http-status')
 
 /**
  * Get review type
@@ -11,7 +12,11 @@ const helper = require('../common/helper')
  * @param res the http response
  */
 function * getReviewType (req, res) {
-  res.json(yield ReviewTypeService.getReviewType(req.params.reviewTypeId))
+  const result = yield ReviewTypeService.getReviewType(req.params.reviewTypeId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -20,8 +25,8 @@ function * getReviewType (req, res) {
  * @param res the http response
  */
 function * listReviewTypes (req, res) {
-  const data = yield ReviewTypeService.listReviewTypes(req.query)
-  helper.setPaginationHeaders(req, res, data)
+  const data = yield ReviewTypeService.listReviewTypes(req.query, req.span)
+  setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -30,7 +35,11 @@ function * listReviewTypes (req, res) {
  * @param res the http response
  */
 function * createReviewType (req, res) {
-  res.json(yield ReviewTypeService.createReviewType(req.body))
+  const result = yield ReviewTypeService.createReviewType(req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -39,7 +48,11 @@ function * createReviewType (req, res) {
  * @param res the http response
  */
 function * updateReviewType (req, res) {
-  res.json(yield ReviewTypeService.updateReviewType(req.params.reviewTypeId, req.body))
+  const result = yield ReviewTypeService.updateReviewType(req.params.reviewTypeId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -48,7 +61,11 @@ function * updateReviewType (req, res) {
  * @param res the http response
  */
 function * patchReviewType (req, res) {
-  res.json(yield ReviewTypeService.patchReviewType(req.params.reviewTypeId, req.body))
+  const result = yield ReviewTypeService.patchReviewType(req.params.reviewTypeId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -57,7 +74,10 @@ function * patchReviewType (req, res) {
  * @param res the http response
  */
 function * deleteReviewType (req, res) {
-  yield ReviewTypeService.deleteReviewType(req.params.reviewTypeId)
+  yield ReviewTypeService.deleteReviewType(req.params.reviewTypeId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.NO_CONTENT)
+
   res.status(204).send()
 }
 
