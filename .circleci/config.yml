@@ -1,14 +1,19 @@
 version: 2
 defaults: &defaults
-  docker:
-    - image: circleci/python:2.7-stretch-browsers
+    docker:
+      - image: docker:18.06.0-ce-git
 install_dependency: &install_dependency
           name: Installation of build and deployment dependencies.
           command: |
-            sudo apt install jq
+            apk update
+            apk add --no-cache bash
+            apk add --no-cache jq py-pip sudo curl
+            apk upgrade
+            apk add py-pip python-dev libffi-dev openssl-dev gcc libc-dev make 
+            pip install --upgrade pip
             sudo pip install awscli --upgrade
-            sudo pip install docker-compose
             sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+            sudo pip install docker-compose
             sudo chmod +x /usr/local/bin/ecs-cli
 
 install_deploysuite: &install_deploysuite

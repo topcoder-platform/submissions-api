@@ -14,7 +14,7 @@ const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
 const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'AUTH0_PROXY_SERVER_URL']))
+const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
 
 Promise.promisifyAll(request)
 
@@ -466,6 +466,47 @@ function * checkGetAccess (authUser, submission) {
   }
 }
 
+/*
+ * Function to check user access to get a review
+ * @param authUser Authenticated user
+ * @param submission Submission Entity
+ * @returns {Promise}
+ */
+function * checkReviewGetAccess (authUser, submission) {
+  let challengeDetails
+  const token = yield getM2Mtoken()
+
+  try {
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    logger.error(ex)
+    return false
+  }
+
+  if (challengeDetails) {
+    const subTrack = challengeDetails.body.result.content[0].subTrack
+    const phases = challengeDetails.body.result.content[0].allPhases
+
+    // For Marathon Match, everyone can access review result
+    if (subTrack === 'DEVELOP_MARATHON_MATCH') {
+      logger.info('No access check for Marathon match')
+      return true
+    } else {
+      const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', 'phaseStatus': 'Closed' })
+
+      // Appeals Response is not closed yet
+      if (appealsResponse.length === 0) {
+        throw new errors.HttpStatusError(403, 'You cannot access the review before the end of the Appeals Response phase')
+      }
+
+      return true
+    }
+  }
+}
+
 /**
  * Function to download file from given S3 URL
  * @param{String} fileURL S3 URL of the file to be downloaded
@@ -478,16 +519,38 @@ function * downloadFile (fileURL) {
   return downloadedFile.Body
 }
 
+/**
+ * Wrapper function to post to bus api. Ensures that every event posted to bus api
+ * is duplicated and posted to bus api again, but to a different "aggregate" topic
+ * Also stores the original topic in the payload
+ * @param {Object} payload Data that needs to be posted to the bus api
+ */
+function * postToBusApi (payload) {
+  const busApiClient = getBusApiClient()
+  const originalTopic = payload['topic']
+
+  yield busApiClient.postEvent(payload)
+
+  // Post to aggregate topic
+  payload['topic'] = config.get('KAFKA_AGGREGATE_TOPIC')
+
+  // Store the original topic
+  payload['payload']['originalTopic'] = originalTopic
+
+  yield busApiClient.postEvent(payload)
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
   getEsClient,
-  getBusApiClient,
   fetchFromES,
   camelize,
   setPaginationHeaders,
   getSubmissionPhaseId,
   checkCreateAccess,
   checkGetAccess,
-  downloadFile
+  checkReviewGetAccess,
+  downloadFile,
+  postToBusApi
 }

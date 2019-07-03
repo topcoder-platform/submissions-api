@@ -14,8 +14,8 @@ const {
   originator, mimeType, events
 } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
+const SubmissionService = require('./SubmissionService')
 
-const busApiClient = helper.getBusApiClient()
 const table = 'Review'
 
 /**
@@ -38,30 +38,38 @@ function * _getReview (reviewId) {
 
 /**
  * Function to get review based on ID from ES
+ * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be found
- * @return {Object} Data found from database
+ * @return {Object} Data found from database or ES
  */
-function * getReview (reviewId) {
+function * getReview (authUser, reviewId) {
+  let review
   const response = yield helper.fetchFromES({
     id: reviewId
   }, helper.camelize(table))
 
   if (response.total === 0) {
     logger.info(`Couldn't find review ${reviewId} in ES. Checking db`)
-    const review = yield _getReview(reviewId)
+    review = yield _getReview(reviewId)
     logger.debug(`Review: ${review}`)
 
-    if (review) {
-      return review
+    if (!review) {
+      throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
     }
-
-    throw new errors.HttpStatusError(404, `Review with ID = ${reviewId} is not found`)
+  } else {
+    review = response.rows[0]
   }
-  // Return the retrieved review
-  return response.rows[0]
+
+  // Fetch submission without review and review summations
+  const submission = yield SubmissionService._getSubmission(review.submissionId, false)
+  logger.info('Check User access before returning the review')
+  yield helper.checkReviewGetAccess(authUser, submission)
+  // Return the review
+  return review
 }
 
 getReview.schema = {
+  authUser: joi.object().required(),
   reviewId: joi.string().uuid().required()
 }
 
@@ -78,7 +86,7 @@ listReviews.schema = {
   query: joi.object().keys({
     score: joi.score(),
     typeId: joi.string().uuid(),
-    reviewerId: joi.string().uuid(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     page: joi.id(),
@@ -126,7 +134,7 @@ function * createReview (authUser, entity) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
@@ -138,7 +146,7 @@ createReview.schema = {
   entity: joi.object().keys({
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
-    reviewerId: joi.string().uuid().required(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     metadata: joi.object()
@@ -208,7 +216,7 @@ function * _updateReview (authUser, reviewId, entity) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -235,7 +243,7 @@ updateReview.schema = {
   entity: joi.object().keys({
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
-    reviewerId: joi.string().uuid().required(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     submissionId: joi.string().uuid().required(),
     metadata: joi.object()
@@ -259,7 +267,7 @@ patchReview.schema = {
   entity: joi.object().keys({
     score: joi.score(),
     typeId: joi.string().uuid(),
-    reviewerId: joi.string().uuid(),
+    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     metadata: joi.object()
@@ -301,7 +309,7 @@ function * deleteReview (reviewId) {
   }
 
   // Post to Bus API using Client
-  yield busApiClient.postEvent(reqBody)
+  yield helper.postToBusApi(reqBody)
 }
 
 deleteReview.schema = {
