@@ -273,7 +273,7 @@ function * createSubmission (authUser, files, entity) {
   }
 
   logger.info('Check User access before creating the submission')
-  if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     yield helper.checkCreateAccess(authUser, item)
   }
 
@@ -304,8 +304,8 @@ function * createSubmission (authUser, files, entity) {
     reqBody['payload']['isFileSubmission'] = false
   }
 
-  logger.info('Prepared submission create event payload to pass to THE bus')
-
+  logger.info('Prepared submission create event payload to pass to the Bus')
+  logger.info(`Posting to bus ${reqBody}`)
   // Post to Bus API using Client
   yield helper.postToBusApi(reqBody)
 
