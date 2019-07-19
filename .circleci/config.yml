@@ -73,7 +73,7 @@ workflows:
           context : org-global
           filters:
             branches:
-              only: ['develop']
+              only: ['develop','apm-tracing']
       - "build-prod":
           context : org-global
           filters:
