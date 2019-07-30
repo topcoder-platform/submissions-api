@@ -236,6 +236,8 @@ function * createSubmission (authUser, files, entity) {
     }
     const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
     url = file.Location
+  } else if (files) {
+    throw new errors.HttpStatusError(400, `The file should be uploaded under the "submission" attribute`)
   }
 
   const currDate = (new Date()).toISOString()
