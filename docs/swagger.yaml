@@ -537,6 +537,32 @@ paths:
           $ref: '#/definitions/NotFound'
         500:
           $ref: '#/definitions/ServerError'
+  /submissions/{submissionId}/artifacts/{file}:
+    delete:
+      summary: Delete artifact from S3
+      description: |
+        Delete artifact from S3 using Submission ID and Artifact ID
+
+        **Authorization:** Delete artifact follows same authorization rules as Delete submission
+      tags:
+        - Submissions
+      operationId: deleteArtifact
+      parameters:
+        - $ref: '#/parameters/submissionIdParam'
+        - $ref: '#/parameters/fileParam'
+      responses:
+        204:
+          description: Artifact from S3 deleted successfully
+        400:
+          $ref: '#/definitions/BadRequest'
+        401:
+          $ref: '#/definitions/Unauthorized'
+        403:
+          $ref: '#/definitions/Forbidden'
+        404:
+          $ref: '#/definitions/NotFound'
+        500:
+          $ref: '#/definitions/ServerError'
   /reviewSummations:
     get:
       summary: Get all review summations.
