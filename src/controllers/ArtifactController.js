@@ -33,8 +33,19 @@ function * createArtifact (req, res) {
   res.json(yield ArtifactService.createArtifact(req.files, req.params.submissionId, req.body))
 }
 
+/**
+ * Delete artifact from S3
+ * @param req the http request
+ * @param res the http response
+ */
+function * deleteArtifact (req, res) {
+  yield ArtifactService.deleteArtifact(req.params.submissionId, req.params.file)
+  res.status(204).json()
+}
+
 module.exports = {
   downloadArtifact,
   listArtifacts,
-  createArtifact
+  createArtifact,
+  deleteArtifact
 }
