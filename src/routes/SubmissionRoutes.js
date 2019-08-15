@@ -74,6 +74,15 @@ module.exports = {
       scopes: ['read:submission', 'all:submission']
     }
   },
+  '/submissions/:submissionId/artifacts/:file': {
+    delete: {
+      controller: 'ArtifactController',
+      method: 'deleteArtifact',
+      auth: 'jwt',
+      access: ['Administrator'],
+      scopes: ['delete:submission', 'all:submission']
+    }
+  },
   '/submissions/:submissionId/artifacts/:file/download': {
     get: {
       controller: 'ArtifactController',

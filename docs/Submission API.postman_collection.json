@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ff7cef98-25e0-4a50-b956-27bf55869441",
+		"_postman_id": "9776607d-8485-4e67-bd2a-55e0b5100580",
 		"name": "Submission API",
 		"description": "Topcoder Submission API Postman Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -2171,13 +2171,13 @@
 							"listen": "test",
 							"script": {
 								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
-								"type": "text/javascript",
 								"exec": [
 									"if( responseCode.code === 200) {",
 									"    const response = JSON.parse(responseBody);",
 									"    pm.environment.set(\"submissionID\", response.id);",
 									"}"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2204,7 +2204,7 @@
 								},
 								{
 									"key": "memberId",
-									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"value": "40493050",
 									"type": "text"
 								},
 								{
@@ -2233,13 +2233,13 @@
 							"listen": "test",
 							"script": {
 								"id": "dc626f22-ee07-4a39-b0d5-a7e5fb88bc51",
-								"type": "text/javascript",
 								"exec": [
 									"if( responseCode.code === 200) {",
 									"    const response = JSON.parse(responseBody);",
 									"    pm.environment.set(\"submissionID\", response.id);",
 									"}"
-								]
+								],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -2261,7 +2261,7 @@
 								},
 								{
 									"key": "memberId",
-									"value": "c56a4180-65aa-42ec-a945-5fd21dec0537",
+									"value": "40493050",
 									"type": "text"
 								},
 								{
@@ -2792,9 +2792,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -2803,7 +2800,10 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts",
 							"host": [
@@ -2832,9 +2832,6 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [
@@ -2843,7 +2840,10 @@
 								"value": "Bearer {{USER_TOKEN}}"
 							}
 						],
-						"body": {},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts/{{artifactID}}/download",
 							"host": [
@@ -2855,6 +2855,47 @@
 								"artifacts",
 								"{{artifactID}}",
 								"download"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Artifact",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "1811a0ee-8f4f-47da-84ce-18492396e11b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ADMIN_TOKEN}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}/artifacts/{{artifactID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}",
+								"artifacts",
+								"{{artifactID}}"
 							]
 						}
 					},

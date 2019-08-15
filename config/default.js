@@ -34,7 +34,7 @@ module.exports = {
     ES_TYPE: process.env.ES_TYPE || '_doc' // ES 6.x accepts only 1 Type per index and it's mandatory to define it
   },
   PAGE_SIZE: process.env.PAGE_SIZE || 20,
-  MAX_PAGE_SIZE: process.env.MAX_PAGE_SIZE || 100,
+  MAX_PAGE_SIZE: parseInt(process.env.MAX_PAGE_SIZE) || 100,
   ES_BATCH_SIZE: process.env.ES_BATCH_SIZE || 250,
   AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL
 }

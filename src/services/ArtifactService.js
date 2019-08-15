@@ -118,8 +118,31 @@ createArtifact.schema = {
   }).required()
 }
 
+/**
+ * Function to delete Artifact from S3
+ * @param {String} submissionId Submission ID
+ * @param {String} fileName File name which need to be deleted from S3
+ */
+function * deleteArtifact (submissionId, fileName) {
+  // Check the validness of Submission ID
+  yield HelperService._checkRef({submissionId})
+  const artifacts = yield s3.listObjects({Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}`}).promise()
+  if (artifacts.Contents.length === 0) {
+    throw new errors.HttpStatusError(404, `Artifact ${fileName} doesn't exist for submission ID: ${submissionId}`)
+  }
+  // Delete the object from S3
+  yield s3.deleteObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: artifacts.Contents[0].Key }).promise()
+  logger.info(`deleteArtifact: deleted artifact ${fileName} of Submission ID: ${submissionId}`)
+}
+
+downloadArtifact.schema = {
+  submissionId: joi.string().uuid().required(),
+  fileName: joi.string().trim().required()
+}
+
 module.exports = {
   downloadArtifact,
   listArtifacts,
-  createArtifact
+  createArtifact,
+  deleteArtifact
 }
