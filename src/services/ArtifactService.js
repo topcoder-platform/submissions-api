@@ -89,7 +89,7 @@ function * createArtifact (files, submissionId, entity) {
   logger.info('Creating a new Artifact')
   if (files && files.artifact) {
     const uFileType = fileTypeFinder(files.artifact.data).ext // File type of uploaded file
-    fileName = `${submissionId}/${entity.filename}.${uFileType}`
+    fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
     let exist
     // Check the existence of file in S3 bucket
     try {
@@ -100,7 +100,7 @@ function * createArtifact (files, submissionId, entity) {
     }
 
     if (exist) {
-      throw new errors.HttpStatusError(409, `Artifact ${entity.filename}.${uFileType} already exists for Submission ${submissionId}`)
+      throw new errors.HttpStatusError(409, `Artifact ${files.artifact.name}.${uFileType} already exists for Submission ${submissionId}`)
     }
     // Upload the artifact to S3
     yield _uploadToS3(files.artifact, fileName)
@@ -113,10 +113,7 @@ function * createArtifact (files, submissionId, entity) {
 createArtifact.schema = {
   files: joi.any().required(),
   submissionId: joi.string().guid().required(),
-  entity: joi.object().keys({
-    typeId: joi.string().uuid().required(),
-    filename: joi.string().required()
-  }).required()
+  entity: joi.object()
 }
 
 /**

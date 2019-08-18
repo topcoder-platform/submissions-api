@@ -67,7 +67,7 @@ const listReviewTypesQuerySchema = {
 
 listReviewTypesQuerySchema.sortBy = joi.string().valid(_.difference(
   Object.keys(listReviewTypesQuerySchema),
-  ['page', 'perPage', 'orderBy']
+  ['page', 'perPage', 'orderBy', 'name']
 ))
 
 listReviewTypes.schema = {

@@ -469,17 +469,7 @@ paths:
           name: artifact
           type: file
           required: true
-          description: Artifact to be uploaded
-        - in: formData
-          name: typeId
-          required: true
-          type: string
-          example: 'c56a4180-65aa-42ec-a945-5fd21dec0503'    
-        - in: formData
-          name: filename
-          required: true
-          type: string
-          example: 'genericFilename'
+          description: Artifact to be uploaded. Pass the name of the artifact along with the data
       responses:
         200:
           description: Artifact created successfully
@@ -1781,7 +1771,7 @@ parameters:
   fileParam:
     name: file
     in: path
-    description: artifact id
+    description: artifact id (its filename)
     required: true
     type: string
 
