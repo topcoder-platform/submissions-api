@@ -82,16 +82,24 @@ function * listReviews (query) {
   return yield helper.fetchFromES(query, helper.camelize(table))
 }
 
+const listReviewsQuerySchema = {
+  score: joi.score(),
+  typeId: joi.string().uuid(),
+  reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  scoreCardId: joi.id(),
+  submissionId: joi.string().uuid(),
+  page: joi.id(),
+  perPage: joi.pageSize(),
+  orderBy: joi.sortOrder()
+}
+
+listReviewsQuerySchema.sortBy = joi.string().valid(_.difference(
+  Object.keys(listReviewsQuerySchema),
+  ['page', 'perPage', 'orderBy']
+))
+
 listReviews.schema = {
-  query: joi.object().keys({
-    score: joi.score(),
-    typeId: joi.string().uuid(),
-    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionId: joi.string().uuid(),
-    page: joi.id(),
-    perPage: joi.pageSize()
-  })
+  query: joi.object().keys(listReviewsQuerySchema).with('orderBy', 'sortBy')
 }
 
 /**
@@ -146,8 +154,10 @@ createReview.schema = {
   entity: joi.object().keys({
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
-    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    reviewerId: joi.alternatives()
+      .try(joi.id(), joi.string().uuid()).required()
+      .error(errors => ({message: '"reviewerId" must be a number or a string'})),
+    scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
     metadata: joi.object()
   }).required()
@@ -244,7 +254,7 @@ updateReview.schema = {
     score: joi.score().required(),
     typeId: joi.string().uuid().required(),
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
     metadata: joi.object()
   }).required()
@@ -268,7 +278,7 @@ patchReview.schema = {
     score: joi.score(),
     typeId: joi.string().uuid(),
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
     metadata: joi.object()
   })

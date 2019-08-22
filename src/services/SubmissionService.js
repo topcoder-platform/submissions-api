@@ -181,27 +181,35 @@ function * listSubmissions (query) {
   return yield helper.fetchFromES(query, helper.camelize(table))
 }
 
+const listSubmissionsQuerySchema = {
+  type: joi.string(),
+  url: joi.string().uri().trim(),
+  memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  page: joi.id(),
+  perPage: joi.pageSize(),
+  orderBy: joi.sortOrder(),
+  'review.score': joi.score(),
+  'review.typeId': joi.string().uuid(),
+  'review.reviewerId': joi.string().uuid(),
+  'review.scoreCardId': joi.id(),
+  'review.submissionId': joi.string().uuid(),
+  'reviewSummation.scoreCardId': joi.id(),
+  'reviewSummation.submissionId': joi.string().uuid(),
+  'reviewSummation.aggregateScore': joi.score(),
+  'reviewSummation.isPassing': joi.boolean()
+}
+
+listSubmissionsQuerySchema.sortBy = joi.string().valid(_.difference(
+  Object.keys(listSubmissionsQuerySchema),
+  ['page', 'perPage', 'orderBy']
+))
+
 listSubmissions.schema = {
-  query: joi.object().keys({
-    type: joi.string(),
-    url: joi.string().uri().trim(),
-    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    page: joi.id(),
-    perPage: joi.pageSize(),
-    'review.score': joi.score(),
-    'review.typeId': joi.string().uuid(),
-    'review.reviewerId': joi.string().uuid(),
-    'review.scoreCardId': joi.string().uuid(),
-    'review.submissionId': joi.string().uuid(),
-    'reviewSummation.scoreCardId': joi.string().uuid(),
-    'reviewSummation.submissionId': joi.string().uuid(),
-    'reviewSummation.aggregateScore': joi.score(),
-    'reviewSummation.isPassing': joi.boolean()
-  })
+  query: joi.object().keys(listSubmissionsQuerySchema).with('orderBy', 'sortBy')
 }
 
 /**

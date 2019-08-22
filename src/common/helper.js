@@ -125,8 +125,10 @@ function camelize (str) {
 function prepESFilter (query, actResource) {
   const pageSize = query.perPage || config.get('PAGE_SIZE')
   const page = query.page || 1
-  const filters = _.omit(query, ['perPage', 'page'])
-  // Add match phrase filters for all query filters except page and perPage
+  const { sortBy, orderBy } = query
+  const filters = _.omit(query, ['perPage', 'page', 'sortBy', 'orderBy'])
+  // Add match phrase filters for all query filters
+  // except page, perPage, sortBy & orderBy
   const boolQuery = []
   const reviewFilters = []
   const reviewSummationFilters = []
@@ -190,11 +192,23 @@ function prepESFilter (query, actResource) {
     }
   }
 
-  // Add sorting for submission
-  if (actResource === 'submission') {
-    searchCriteria.body.sort = [
-      { 'created': { 'order': 'asc' } }
-    ]
+  const esQuerySortArray = []
+
+  if (sortBy) {
+    const obj = {}
+    obj[sortBy] = { 'order': orderBy || 'asc' }
+    esQuerySortArray.push(obj)
+  }
+
+  // Internal sorting by 'updated' timestamp
+  if (actResource !== 'reviewType') {
+    esQuerySortArray.push({
+      updated: { 'order': 'desc' }
+    })
+  }
+
+  if (esQuerySortArray.length > 0) {
+    searchCriteria.body.sort = esQuerySortArray
   }
 
   return searchCriteria

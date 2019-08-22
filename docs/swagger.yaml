@@ -59,6 +59,8 @@ paths:
       parameters:
         - $ref: '#/parameters/page'
         - $ref: '#/parameters/perPage'
+        - $ref: '#/parameters/orderBy'
+        - $ref: '#/parameters/sortBy'
         # filter parameters
         - $ref: '#/parameters/filterSubmissionType'
         - $ref: '#/parameters/filterSubmissionUrl'
@@ -67,6 +69,15 @@ paths:
         - $ref: '#/parameters/filterSubmissionLegacySubmissionId'
         - $ref: '#/parameters/filterSubmissionLegacyUploadId'
         - $ref: '#/parameters/filterSubmissionSubmissionPhaseId'
+        - $ref: '#/parameters/filterSubmissionReviewScore'
+        - $ref: '#/parameters/filterSubmissionReviewTypeId'
+        - $ref: '#/parameters/filterSubmissionReviewReviewerId'
+        - $ref: '#/parameters/filterSubmissionReviewScoreCardId'
+        - $ref: '#/parameters/filterSubmissionReviewSubmissionId'
+        - $ref: '#/parameters/filterSubmissionReviewSummationScoreCardId'
+        - $ref: '#/parameters/filterSubmissionReviewSummationSubmissionId'
+        - $ref: '#/parameters/filterSubmissionReviewSummationAggregateScore'
+        - $ref: '#/parameters/filterSubmissionReviewSummationIsPassing'
       responses:
         200:
           description: OK - the request was successful, the submissions resource are returned.
@@ -80,6 +91,9 @@ paths:
                 url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456'
                 memberId: 'a12a4180-65aa-42ec-a945-5fd21dec0501'
                 challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                submissionPhaseId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'topcoder user'
@@ -89,6 +103,9 @@ paths:
                 url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457'
                 memberId: 'a12a4180-65aa-42ec-a945-5fd21dec0552'
                 challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                submissionPhaseId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 created: '2018-05-20T08:00:30.000Z'
                 updated: '2018-06-01T09:23:00.178Z'
                 createdBy: 'topcoder user'
@@ -452,12 +469,7 @@ paths:
           name: artifact
           type: file
           required: true
-          description: Artifact to be uploaded
-        - in: formData
-          name: typeId
-          required: true
-          type: string
-          example: 'c56a4180-65aa-42ec-a945-5fd21dec0503'    
+          description: Artifact to be uploaded. Pass the name of the artifact along with the data
       responses:
         200:
           description: Artifact created successfully
@@ -578,11 +590,14 @@ paths:
       parameters:
         - $ref: '#/parameters/page'
         - $ref: '#/parameters/perPage'
+        - $ref: '#/parameters/orderBy'
+        - $ref: '#/parameters/sortBy'
         # filter parameters
         - $ref: '#/parameters/filterReviewSummationSubmissionId'
         - $ref: '#/parameters/filterReviewSummationAaggregateScore'
         - $ref: '#/parameters/filterReviewSummationScoreCardId'
         - $ref: '#/parameters/filterReviewSummationIsPassing'
+        - $ref: '#/parameters/filterReviewSummationIsFinal'
       responses:
         200:
           description: OK - the request was successful, the resource are returned.
@@ -595,8 +610,9 @@ paths:
               - id: 'a12a4180-65aa-42ec-a945-5fd21dec1503'
                 submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec1567'
                 aggregateScore: 17.8
-                scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587'
+                scoreCardId: 123456789
                 isPassing: false
+                isFinal: false
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: copilot
@@ -604,8 +620,9 @@ paths:
               - id: 'a12a4180-65aa-42ec-a945-5fd21dec1504'
                 submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec1568'
                 aggregateScore: 97.8
-                scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587'
+                scoreCardId: 123456789
                 isPassing: true
+                isFinal: true
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: copilot
@@ -661,6 +678,7 @@ paths:
         - $ref: '#/parameters/filterReviewSummationAaggregateScore'
         - $ref: '#/parameters/filterReviewSummationScoreCardId'
         - $ref: '#/parameters/filterReviewSummationIsPassing'
+        - $ref: '#/parameters/filterReviewSummationIsFinal'
       responses:
         200:
           description: OK - The request was successful.
@@ -889,6 +907,8 @@ paths:
       parameters:
         - $ref: '#/parameters/page'
         - $ref: '#/parameters/perPage'
+        - $ref: '#/parameters/orderBy'
+        - $ref: '#/parameters/sortBy'
         # filter parameters
         - $ref: '#/parameters/filterReviewScore'
         - $ref: '#/parameters/filterReviewTypeId'
@@ -908,7 +928,7 @@ paths:
                 score: 95.5
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
-                scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503'
+                scoreCardId: 123456789
                 submissionId: 'd67a4180-65aa-42ec-a945-5fd21dec0503'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
@@ -918,7 +938,7 @@ paths:
                 score: 73.2
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
-                scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503'
+                scoreCardId: 123456789
                 submissionId: 'd23a4180-65aa-42ec-a945-5fd21dec0503'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
@@ -1025,8 +1045,8 @@ paths:
           schema:
             $ref: '#/definitions/Review'
       responses:
-        201:
-          description: Created - The request was successful and the resource is returned.
+        200:
+          description: The request was successful and the resource is returned.
 
           schema:
             $ref: '#/definitions/Review'
@@ -1203,6 +1223,8 @@ paths:
       parameters:
         - $ref: '#/parameters/page'
         - $ref: '#/parameters/perPage'
+        - $ref: '#/parameters/orderBy'
+        - $ref: '#/parameters/sortBy'
         # filter parameters
         - $ref: '#/parameters/filterReviewTypeName'
         - $ref: '#/parameters/filterReviewTypeIsActive'
@@ -1319,7 +1341,7 @@ paths:
           name: body
           required: true
           schema:
-            $ref: '#/definitions/ReviewType'
+            $ref: '#/definitions/UpdatableReviewType'
       responses:
         201:
           description: Created - The request was successful and the resource is returned.
@@ -1502,6 +1524,21 @@ parameters:
     default: 20
     maximum: 100
 
+  orderBy:
+    name: orderBy
+    in: query
+    description: The sorting order (asc/desc).
+    required: false
+    type: string
+    enum: [asc,desc,ASC,DESC]
+
+  sortBy:
+    name: sortBy
+    in: query
+    description: The field to sort the result by.
+    required: false
+    type: string
+
   filterSubmissionType:
     in: query
     name: type
@@ -1561,6 +1598,69 @@ parameters:
       - type: string
       - type: integer
 
+  filterSubmissionReviewScore:
+    in: query
+    name: review.score
+    description: The score filter of the reviews associated with the submission.
+    required: false
+    type: integer
+
+  filterSubmissionReviewTypeId:
+    in: query
+    name: review.typeId
+    description: The typeId filter of the reviews associated with the submission.
+    required: false
+    type: string
+
+  filterSubmissionReviewReviewerId:
+    in: query
+    name: review.reviewerId
+    description: The reviewerId filter of the reviews associated with the submission.
+    required: false
+    type: string
+
+  filterSubmissionReviewScoreCardId:
+    in: query
+    name: review.scoreCardId
+    description: The scoreCardId filter of the reviews associated with the submission.
+    required: false
+    type: integer
+
+  filterSubmissionReviewSubmissionId:
+    in: query
+    name: review.submissionId
+    description: The submissionId filter of the reviews associated with the submission.
+    required: false
+    type: string
+
+  filterSubmissionReviewSummationScoreCardId:
+    in: query
+    name: reviewSummation.scoreCardId
+    description: The scoreCardId filter of the review summaions associated with the submission.
+    required: false
+    type: integer
+
+  filterSubmissionReviewSummationSubmissionId:
+    in: query
+    name: reviewSummation.submissionId
+    description: The submissionId filter of the review summaions associated with the submission.
+    required: false
+    type: string
+
+  filterSubmissionReviewSummationAggregateScore:
+    in: query
+    name: reviewSummation.aggregateScore
+    description: The aggregateScore filter of the review summaions associated with the submission.
+    required: false
+    type: integer
+
+  filterSubmissionReviewSummationIsPassing:
+    in: query
+    name: reviewSummation.isPassing
+    description: The isPassing filter of the review summaions associated with the submission.
+    required: false
+    type: string
+
   filterReviewSummationSubmissionId:
     in: query
     name: submissionId
@@ -1581,12 +1681,19 @@ parameters:
     name: scoreCardId
     description: The score card id filter for review summations.
     required: false
-    type: string
+    type: integer
 
   filterReviewSummationIsPassing:
     in: query
     name: isPassing
     description: The passing boolean flag filter for review summations.
+    required: false
+    type: boolean
+
+  filterReviewSummationIsFinal:
+    in: query
+    name: isFinal
+    description: The final boolean flag filter for review summations.
     required: false
     type: boolean
 
@@ -1617,7 +1724,7 @@ parameters:
     name: scoreCardId
     description: The score card id filter for reviews.
     required: false
-    type: string
+    type: integer
 
   filterReviewSubmissionId:
     in: query
@@ -1664,7 +1771,7 @@ parameters:
   fileParam:
     name: file
     in: path
-    description: artifact id
+    description: artifact id (its filename)
     required: true
     type: string
 
@@ -1740,12 +1847,29 @@ definitions:
           - type: integer
         description:  The submission challenge id.
         example: 'a12bc180-65aa-42ec-a945-5fd21dec1567'
+      legacySubmissionId:
+        oneOf:
+          - type: string
+          - type: integer
+        description: The legacy submission id.
+        example: '70b0e2e7-f824-4248-8398-54ee10ff0db9'
+      legacyUploadId:
+        oneOf:
+          - type: string
+          - type: integer
+        description: The legacy upload id.
+        example: '5da27562-eaec-4c9f-ad1c-ddfbed6ffdbc'
+      submissionPhaseId:
+        oneOf:
+          - type: string
+          - type: integer
+        description: The submission phase id.
+        example: '5dea6d9e-161a-4c7a-b316-597c73a7b8f4'
 
   UpdatableSubmission:
     description: The submission entity fields that updates whole entity.
     type: object
     required:
-      - type
       - url
       - memberId
       - challengeId
@@ -1786,12 +1910,16 @@ definitions:
         description: The review summation aggregate score.
         example: 97.8
       scoreCardId:
-        type: string
+        type: integer
         description: The review summation score card id.
-        example: 'a12bc180-65aa-42aa-a945-5fd21dec1567'
+        example: 123456789
       isPassing:
         type: boolean
         description: The review summation passing boolean flag.
+        example: true
+      isFinal:
+        type: boolean
+        description: The review summation final boolean flag.
         example: true
       metadata:
         type: object
@@ -1847,9 +1975,9 @@ definitions:
         example: 'a12bc280-65ab-42ec-a945-5fd21dec1567'
         description: The review reviewer id.
       scoreCardId:
-        type: string
+        type: integer
         description: The review score card id.
-        example: 'a12bd180-65ab-42ec-a945-5fd21dec1567'
+        example: 123456789
       submissionId:
         type: string
         description: The submission id.
