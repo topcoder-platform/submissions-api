@@ -74,6 +74,7 @@ paths:
         - $ref: '#/parameters/filterSubmissionReviewReviewerId'
         - $ref: '#/parameters/filterSubmissionReviewScoreCardId'
         - $ref: '#/parameters/filterSubmissionReviewSubmissionId'
+        - $ref: '#/parameters/filterSubmissionReviewStatus'
         - $ref: '#/parameters/filterSubmissionReviewSummationScoreCardId'
         - $ref: '#/parameters/filterSubmissionReviewSummationSubmissionId'
         - $ref: '#/parameters/filterSubmissionReviewSummationAggregateScore'
@@ -1636,6 +1637,14 @@ parameters:
     description: The submissionId filter of the reviews associated with the submission.
     required: false
     type: string
+  
+  filterSubmissionReviewStatus:
+    in: query
+    name: review.status
+    description: The status of the reviews associated with the submission.
+    required: false
+    type: string
+    enum: [queued, completed]
 
   filterSubmissionReviewSummationScoreCardId:
     in: query
