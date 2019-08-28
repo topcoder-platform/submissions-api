@@ -88,6 +88,7 @@ const listReviewsQuerySchema = {
   reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   scoreCardId: joi.id(),
   submissionId: joi.string().uuid(),
+  status: joi.reviewStatus(),
   page: joi.id(),
   perPage: joi.pageSize(),
   orderBy: joi.sortOrder()
@@ -159,6 +160,7 @@ createReview.schema = {
       .error(errors => ({message: '"reviewerId" must be a number or a string'})),
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
+    status: joi.reviewStatus().required(),
     metadata: joi.object()
   }).required()
 }
@@ -256,6 +258,7 @@ updateReview.schema = {
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
+    status: joi.reviewStatus().required(),
     metadata: joi.object()
   }).required()
 }
@@ -280,6 +283,7 @@ patchReview.schema = {
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
+    status: joi.reviewStatus(),
     metadata: joi.object()
   })
 }
