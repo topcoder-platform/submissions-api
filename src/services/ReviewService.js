@@ -191,7 +191,7 @@ function * _updateReview (authUser, reviewId, entity) {
       'id': reviewId
     },
     UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
-                        typeId = :t, reviewerId = :r,
+                        typeId = :t, reviewerId = :r, status = :st
                         updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
       ':s': entity.score || exist.score,
@@ -199,6 +199,7 @@ function * _updateReview (authUser, reviewId, entity) {
       ':su': entity.submissionId || exist.submissionId,
       ':t': entity.typeId || exist.typeId,
       ':r': entity.reviewerId || exist.reviewerId,
+      ':st': entity.status || exist.status,
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub
     }
