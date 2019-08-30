@@ -182,7 +182,7 @@ function * listSubmissions (authUser, query) {
   const data = yield helper.fetchFromES(query, helper.camelize(table))
   data.rows = _.map(data.rows, (submission) => {
     if (submission.review) {
-      submission.review = helper.cleanseReviews(submission.review, authUser.roles)
+      submission.review = helper.cleanseReviews(submission.review, authUser)
     }
     return submission
   })

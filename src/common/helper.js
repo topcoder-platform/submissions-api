@@ -556,24 +556,29 @@ function * postToBusApi (payload) {
 
 /**
  * Function to remove metadata details from reviews for members who shouldn't see them
- * @param  {Array} reviews
- * @param  {Array} roles
+ * @param  {Array} reviews The reviews to remove metadata from
+ * @param  {Object} authUser The authenticated user details
  */
-function cleanseReviews (reviews, roles) {
+function cleanseReviews (reviews, authUser) {
   const cleansedReviews = []
 
-  _.forEach(reviews, (review) => {
-    const admin = _.filter(roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
-    const copilot = _.filter(roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
+  if (!authUser.scopes) {
+    _.forEach(reviews, (review) => {
+      const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
+      const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
 
-    // User is neither admin nor copilot
-    if (admin.length === 0 && copilot.length === 0) {
-      _.unset(review, 'metadata')
-    }
+      // User is neither admin nor copilot
+      if (admin.length === 0 && copilot.length === 0) {
+        _.unset(review, 'metadata')
+      }
 
-    cleansedReviews.push(review)
-  })
-  return cleansedReviews
+      cleansedReviews.push(review)
+    })
+
+    return cleansedReviews
+  } else {
+    return reviews
+  }
 }
 
 module.exports = {
