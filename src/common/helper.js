@@ -563,8 +563,8 @@ function cleanseReviews (reviews, roles) {
   const cleansedReviews = []
 
   _.forEach(reviews, (review) => {
-    const admin = _.filter(roles, role => role === 'Administrator')
-    const copilot = _.filter(roles, role => role === 'Copilot')
+    const admin = _.filter(roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
+    const copilot = _.filter(roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
 
     // User is neither admin nor copilot
     if (admin.length === 0 && copilot.length === 0) {
