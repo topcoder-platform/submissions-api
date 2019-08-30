@@ -150,6 +150,8 @@ function * getSubmission (authUser, submissionId) {
     yield helper.checkGetAccess(authUser, submissionRecord)
   }
 
+  submissionRecord.review = helper.cleanseReviews(submissionRecord.review, authUser)
+
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
   return submissionRecord
