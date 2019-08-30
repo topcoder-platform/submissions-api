@@ -150,6 +150,8 @@ function * getSubmission (authUser, submissionId) {
     yield helper.checkGetAccess(authUser, submissionRecord)
   }
 
+  submissionRecord.review = helper.cleanseReviews(submissionRecord.review, authUser)
+
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
   return submissionRecord
@@ -174,11 +176,19 @@ function * downloadSubmission (authUser, submissionId) {
 
 /**
  * Function to list submissions from Elastic Search
+ * @param {Object} authUser Authenticated User
  * @param {Object} query Query filters passed in HTTP request
  * @return {Object} Data fetched from ES
  */
-function * listSubmissions (query) {
-  return yield helper.fetchFromES(query, helper.camelize(table))
+function * listSubmissions (authUser, query) {
+  const data = yield helper.fetchFromES(query, helper.camelize(table))
+  data.rows = _.map(data.rows, (submission) => {
+    if (submission.review) {
+      submission.review = helper.cleanseReviews(submission.review, authUser)
+    }
+    return submission
+  })
+  return data
 }
 
 const listSubmissionsQuerySchema = {
@@ -209,6 +219,7 @@ listSubmissionsQuerySchema.sortBy = joi.string().valid(_.difference(
 ))
 
 listSubmissions.schema = {
+  authUser: joi.object().required(),
   query: joi.object().keys(listSubmissionsQuerySchema).with('orderBy', 'sortBy')
 }
 
