@@ -2,6 +2,7 @@
  * Submission Controller
  */
 
+const _ = require('lodash')
 const SubmissionService = require('../services/SubmissionService')
 const helper = require('../common/helper')
 
@@ -38,6 +39,12 @@ function * downloadSubmission (req, res) {
  */
 function * listSubmissions (req, res) {
   const data = yield SubmissionService.listSubmissions(req.query)
+  data.rows = _.map(data.rows, (submission) => {
+    if (submission.review) {
+      submission.review = helper.cleanseReviews(submission.review, req.authUser.roles)
+    }
+    return submission
+  })
   helper.setPaginationHeaders(req, res, data)
 }
 

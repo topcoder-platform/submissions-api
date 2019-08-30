@@ -554,6 +554,28 @@ function * postToBusApi (payload) {
   yield busApiClient.postEvent(payload)
 }
 
+/**
+ * Function to remove metadata details from reviews for members who shouldn't see them
+ * @param  {Array} reviews
+ * @param  {Array} roles
+ */
+function cleanseReviews (reviews, roles) {
+  const cleansedReviews = []
+
+  _.forEach(reviews, (review) => {
+    const admin = _.filter(roles, role => role === 'Administrator')
+    const copilot = _.filter(roles, role => role === 'Copilot')
+
+    // User is neither admin nor copilot
+    if (admin.length === 0 && copilot.length === 0) {
+      _.unset(review, 'metadata')
+    }
+
+    cleansedReviews.push(review)
+  })
+  return cleansedReviews
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -566,5 +588,6 @@ module.exports = {
   checkGetAccess,
   checkReviewGetAccess,
   downloadFile,
-  postToBusApi
+  postToBusApi,
+  cleanseReviews
 }
