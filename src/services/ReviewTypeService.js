@@ -57,13 +57,21 @@ function * listReviewTypes (query) {
   return yield helper.fetchFromES(query, helper.camelize(table))
 }
 
+const listReviewTypesQuerySchema = {
+  name: joi.string(),
+  isActive: joi.boolean(),
+  page: joi.id(),
+  perPage: joi.pageSize(),
+  orderBy: joi.sortOrder()
+}
+
+listReviewTypesQuerySchema.sortBy = joi.string().valid(_.difference(
+  Object.keys(listReviewTypesQuerySchema),
+  ['page', 'perPage', 'orderBy', 'name']
+))
+
 listReviewTypes.schema = {
-  query: joi.object().keys({
-    name: joi.string(),
-    isActive: joi.boolean(),
-    page: joi.id(),
-    perPage: joi.pageSize()
-  })
+  query: joi.object().keys(listReviewTypesQuerySchema).with('orderBy', 'sortBy')
 }
 
 /**

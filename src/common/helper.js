@@ -125,8 +125,10 @@ function camelize (str) {
 function prepESFilter (query, actResource) {
   const pageSize = query.perPage || config.get('PAGE_SIZE')
   const page = query.page || 1
-  const filters = _.omit(query, ['perPage', 'page'])
-  // Add match phrase filters for all query filters except page and perPage
+  const { sortBy, orderBy } = query
+  const filters = _.omit(query, ['perPage', 'page', 'sortBy', 'orderBy'])
+  // Add match phrase filters for all query filters
+  // except page, perPage, sortBy & orderBy
   const boolQuery = []
   const reviewFilters = []
   const reviewSummationFilters = []
@@ -190,11 +192,23 @@ function prepESFilter (query, actResource) {
     }
   }
 
-  // Add sorting for submission
-  if (actResource === 'submission') {
-    searchCriteria.body.sort = [
-      { 'created': { 'order': 'asc' } }
-    ]
+  const esQuerySortArray = []
+
+  if (sortBy) {
+    const obj = {}
+    obj[sortBy] = { 'order': orderBy || 'asc' }
+    esQuerySortArray.push(obj)
+  }
+
+  // Internal sorting by 'updated' timestamp
+  if (actResource !== 'reviewType') {
+    esQuerySortArray.push({
+      updated: { 'order': 'desc' }
+    })
+  }
+
+  if (esQuerySortArray.length > 0) {
+    searchCriteria.body.sort = esQuerySortArray
   }
 
   return searchCriteria
@@ -540,6 +554,33 @@ function * postToBusApi (payload) {
   yield busApiClient.postEvent(payload)
 }
 
+/**
+ * Function to remove metadata details from reviews for members who shouldn't see them
+ * @param  {Array} reviews The reviews to remove metadata from
+ * @param  {Object} authUser The authenticated user details
+ */
+function cleanseReviews (reviews, authUser) {
+  // Not a machine user
+  if (!authUser.scopes) {
+    const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
+    const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
+
+    // User is neither admin nor copilot
+    if (admin.length === 0 && copilot.length === 0) {
+      const cleansedReviews = []
+
+      _.forEach(reviews, (review) => {
+        _.unset(review, 'metadata')
+        cleansedReviews.push(review)
+      })
+
+      return cleansedReviews
+    }
+  }
+
+  return reviews
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -552,5 +593,6 @@ module.exports = {
   checkGetAccess,
   checkReviewGetAccess,
   downloadFile,
-  postToBusApi
+  postToBusApi,
+  cleanseReviews
 }

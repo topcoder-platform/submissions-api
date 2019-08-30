@@ -37,7 +37,7 @@ function * downloadSubmission (req, res) {
  * @param res the http response
  */
 function * listSubmissions (req, res) {
-  const data = yield SubmissionService.listSubmissions(req.query)
+  const data = yield SubmissionService.listSubmissions(req.authUser, req.query)
   helper.setPaginationHeaders(req, res, data)
 }
 

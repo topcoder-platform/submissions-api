@@ -425,6 +425,17 @@ describe('Review Summation Service tests', () => {
         })
     })
 
+    it('Getting reviewSummations with orderBy without sortBy filter should throw 400', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/reviewSummations?orderBy=asc`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"orderBy" missing required peer "sortBy"')
+          done()
+        })
+    })
+
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
      */

@@ -58,16 +58,24 @@ function * listReviewSummations (query) {
   return yield helper.fetchFromES(query, helper.camelize(table))
 }
 
+const listReviewSummationsQuerySchema = {
+  scoreCardId: joi.id(),
+  submissionId: joi.string().uuid(),
+  aggregateScore: joi.score(),
+  isPassing: joi.boolean(),
+  isFinal: joi.boolean(),
+  page: joi.id(),
+  perPage: joi.pageSize(),
+  orderBy: joi.sortOrder()
+}
+
+listReviewSummationsQuerySchema.sortBy = joi.string().valid(_.difference(
+  Object.keys(listReviewSummationsQuerySchema),
+  ['page', 'perPage', 'orderBy']
+))
+
 listReviewSummations.schema = {
-  query: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionId: joi.string().uuid(),
-    aggregateScore: joi.score(),
-    isPassing: joi.boolean(),
-    isFinal: joi.boolean(),
-    page: joi.id(),
-    perPage: joi.pageSize()
-  })
+  query: joi.object().keys(listReviewSummationsQuerySchema).with('orderBy', 'sortBy')
 }
 
 /**
@@ -121,7 +129,7 @@ function * createReviewSummation (authUser, entity) {
 createReviewSummation.schema = {
   authUser: joi.object().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
@@ -233,7 +241,7 @@ updateReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
@@ -257,7 +265,7 @@ patchReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
