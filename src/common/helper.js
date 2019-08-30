@@ -560,25 +560,25 @@ function * postToBusApi (payload) {
  * @param  {Object} authUser The authenticated user details
  */
 function cleanseReviews (reviews, authUser) {
-  const cleansedReviews = []
-
+  // Not a machine user
   if (!authUser.scopes) {
-    _.forEach(reviews, (review) => {
-      const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
-      const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
+    const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
+    const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
 
-      // User is neither admin nor copilot
-      if (admin.length === 0 && copilot.length === 0) {
+    // User is neither admin nor copilot
+    if (admin.length === 0 && copilot.length === 0) {
+      const cleansedReviews = []
+
+      _.forEach(reviews, (review) => {
         _.unset(review, 'metadata')
-      }
+        cleansedReviews.push(review)
+      })
 
-      cleansedReviews.push(review)
-    })
-
-    return cleansedReviews
-  } else {
-    return reviews
+      return cleansedReviews
+    }
   }
+
+  return reviews
 }
 
 module.exports = {
