@@ -88,6 +88,7 @@ const listReviewsQuerySchema = {
   reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   scoreCardId: joi.id(),
   submissionId: joi.string().uuid(),
+  status: joi.reviewStatus(),
   page: joi.id(),
   perPage: joi.pageSize(),
   orderBy: joi.sortOrder()
@@ -159,6 +160,7 @@ createReview.schema = {
       .error(errors => ({message: '"reviewerId" must be a number or a string'})),
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
+    status: joi.reviewStatus().required(),
     metadata: joi.object()
   }).required()
 }
@@ -189,7 +191,7 @@ function * _updateReview (authUser, reviewId, entity) {
       'id': reviewId
     },
     UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
-                        typeId = :t, reviewerId = :r,
+                        typeId = :t, reviewerId = :r, #st = :st,
                         updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
       ':s': entity.score || exist.score,
@@ -197,8 +199,12 @@ function * _updateReview (authUser, reviewId, entity) {
       ':su': entity.submissionId || exist.submissionId,
       ':t': entity.typeId || exist.typeId,
       ':r': entity.reviewerId || exist.reviewerId,
+      ':st': entity.status || exist.status,
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub
+    },
+    ExpressionAttributeNames: {
+      '#st': 'status'
     }
   }
 
@@ -256,6 +262,7 @@ updateReview.schema = {
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
+    status: joi.reviewStatus().required(),
     metadata: joi.object()
   }).required()
 }
@@ -280,6 +287,7 @@ patchReview.schema = {
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
+    status: joi.reviewStatus(),
     metadata: joi.object()
   })
 }

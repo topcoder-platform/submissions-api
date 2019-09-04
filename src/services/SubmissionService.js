@@ -207,6 +207,7 @@ const listSubmissionsQuerySchema = {
   'review.reviewerId': joi.string().uuid(),
   'review.scoreCardId': joi.id(),
   'review.submissionId': joi.string().uuid(),
+  'review.status': joi.reviewStatus(),
   'reviewSummation.scoreCardId': joi.id(),
   'reviewSummation.submissionId': joi.string().uuid(),
   'reviewSummation.aggregateScore': joi.score(),
