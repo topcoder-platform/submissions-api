@@ -25,8 +25,8 @@ const http = require('http').Server(app)
 
 app.set('port', config.WEB_SERVER_PORT)
 
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 app.use(cors())
 app.use(fileUpload())
 
