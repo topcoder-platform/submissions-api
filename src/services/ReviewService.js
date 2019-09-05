@@ -119,7 +119,8 @@ function * createReview (authUser, entity) {
     'created': currDate,
     'updated': currDate,
     'createdBy': authUser.handle || authUser.sub,
-    'updatedBy': authUser.handle || authUser.sub
+    'updatedBy': authUser.handle || authUser.sub,
+    'status': entity.status || 'completed'
   }, entity)
 
   // Prepare record to be inserted
@@ -160,7 +161,7 @@ createReview.schema = {
       .error(errors => ({message: '"reviewerId" must be a number or a string'})),
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
-    status: joi.reviewStatus().required(),
+    status: joi.reviewStatus(),
     metadata: joi.object()
   }).required()
 }
@@ -262,7 +263,7 @@ updateReview.schema = {
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
-    status: joi.reviewStatus().required(),
+    status: joi.reviewStatus(),
     metadata: joi.object()
   }).required()
 }
