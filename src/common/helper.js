@@ -570,7 +570,14 @@ function cleanseReviews (reviews, authUser) {
       const cleansedReviews = []
 
       _.forEach(reviews, (review) => {
-        _.unset(review, 'metadata')
+        if (review && review.metadata && review.metadata.private) {
+          _.unset(review.metadata, 'private')
+        } else {
+          // For backward compatibility, we remove metadata object entirely
+          // from reviews where metadata does not have an explicit
+          // "private" attribute
+          _.unset(review, 'metadata')
+        }
         cleansedReviews.push(review)
       })
 
