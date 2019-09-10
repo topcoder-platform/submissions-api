@@ -136,6 +136,27 @@ describe('Review Service tests', () => {
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
           res.body.typeId.should.be.eql(reviewTypeId)
+          res.body.status.should.be.eql(testReview.Item.status)
+          done()
+        })
+    }).timeout(20000)
+
+    it('Creating review without status should be created with status "completed"', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/reviews`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend({ typeId: reviewTypeId, submissionId: submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'status', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.all.keys(Object.keys(testReview.Item))
+          res.body.id.should.not.be.eql(null)
+          reviewId = res.body.id
+          res.body.score.should.be.eql(testReview.Item.score)
+          res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
+          res.body.submissionId.should.be.eql(submissionId)
+          res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
+          res.body.typeId.should.be.eql(reviewTypeId)
+          res.body.status.should.be.eql('completed')
           done()
         })
     }).timeout(20000)
