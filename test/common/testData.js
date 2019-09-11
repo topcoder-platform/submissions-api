@@ -338,10 +338,6 @@ const testReview = {
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
     status: 'queued',
-    metadata: {
-      public: 'public data',
-      private: 'private data'
-    },
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
