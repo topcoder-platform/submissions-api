@@ -567,8 +567,8 @@ describe('Submission Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.nested.property('[0].review[0].metdata.public')
-          res.body.should.have.nested.property('[0].review[0].metdata.private')
+          res.body.should.have.nested.property('[0].review[0].metadata.public')
+          res.body.should.have.nested.property('[0].review[0].metadata.private')
           done()
         })
     })
@@ -579,8 +579,8 @@ describe('Submission Service tests', () => {
         .set('Authorization', `Bearer ${config.COPILOT_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.nested.property('[0].review[0].metdata.public')
-          res.body.should.have.nested.property('[0].review[0].metdata.private')
+          res.body.should.have.nested.property('[0].review[0].metadata.public')
+          res.body.should.have.nested.property('[0].review[0].metadata.private')
           done()
         })
     })
@@ -591,8 +591,8 @@ describe('Submission Service tests', () => {
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.nested.property('[0].review[0].metdata.public')
-          res.body.should.not.have.nested.property('[0].review[0].metdata.private')
+          res.body.should.have.nested.property('[0].review[0].metadata.public')
+          res.body.should.not.have.nested.property('[0].review[0].metadata.private')
           done()
         })
     })
