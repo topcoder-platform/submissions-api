@@ -74,6 +74,7 @@ paths:
         - $ref: '#/parameters/filterSubmissionReviewReviewerId'
         - $ref: '#/parameters/filterSubmissionReviewScoreCardId'
         - $ref: '#/parameters/filterSubmissionReviewSubmissionId'
+        - $ref: '#/parameters/filterSubmissionReviewStatus'
         - $ref: '#/parameters/filterSubmissionReviewSummationScoreCardId'
         - $ref: '#/parameters/filterSubmissionReviewSummationSubmissionId'
         - $ref: '#/parameters/filterSubmissionReviewSummationAggregateScore'
@@ -898,7 +899,7 @@ paths:
       description: |
         Get all reviews. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
 
-        Resulted collection of reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId` (all filter parameters are optional and combined by the logical operation `AND`).
+        Resulted collection of reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
@@ -915,6 +916,7 @@ paths:
         - $ref: '#/parameters/filterReviewReviewerId'
         - $ref: '#/parameters/filterReviewScoreCardId'
         - $ref: '#/parameters/filterReviewSubmissionId'
+        - $ref: '#/parameters/filterReviewStatus'
       responses:
         200:
           description: OK - the request was successful, the resource are returned.
@@ -930,6 +932,7 @@ paths:
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
                 scoreCardId: 123456789
                 submissionId: 'd67a4180-65aa-42ec-a945-5fd21dec0503'
+                status: 'queued'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'admin'
@@ -940,6 +943,7 @@ paths:
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
                 scoreCardId: 123456789
                 submissionId: 'd23a4180-65aa-42ec-a945-5fd21dec0503'
+                status: 'completed'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'admin'
@@ -981,7 +985,7 @@ paths:
       description: |
         Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
 
-        Requested reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId` (all filter parameters are optional and combined by the logical operation `AND`).
+        Requested reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
@@ -995,6 +999,7 @@ paths:
         - $ref: '#/parameters/filterReviewTypeId'
         - $ref: '#/parameters/filterReviewReviewerId'
         - $ref: '#/parameters/filterReviewScoreCardId'
+        - $ref: '#/parameters/filterReviewStatus'
       responses:
         200:
           description: OK - The request was successful.
@@ -1632,6 +1637,14 @@ parameters:
     description: The submissionId filter of the reviews associated with the submission.
     required: false
     type: string
+  
+  filterSubmissionReviewStatus:
+    in: query
+    name: review.status
+    description: The status of the reviews associated with the submission.
+    required: false
+    type: string
+    enum: [queued, completed]
 
   filterSubmissionReviewSummationScoreCardId:
     in: query
@@ -1732,6 +1745,14 @@ parameters:
     description: The submission id filter for reviews.
     required: false
     type: string
+  
+  filterReviewStatus:
+    in: query
+    name: status
+    description: The status of the review, whether it queued or has been completed.
+    required: false
+    type: string
+    enum: [queued, completed]
   
   filterReviewTypeName:
     in: query
@@ -1946,6 +1967,7 @@ definitions:
       - reviewerId
       - scoreCardId
       - submissionId
+      - status
     allOf:
       - type: object
         properties:
@@ -1982,6 +2004,11 @@ definitions:
         type: string
         description: The submission id.
         example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
+      status:
+        type: string
+        enum: [queued, completed]
+        description: The status of the review, whether it is queued or has been completed.
+        example: 'queued'
       metadata:
         type: object
         description: Review Metadata in JSON format
@@ -1995,6 +2022,7 @@ definitions:
       - reviewerId
       - scoreCardId
       - submissionId
+      - status
     allOf:
       - $ref: '#/definitions/PartiallyReview'
 

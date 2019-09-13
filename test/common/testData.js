@@ -182,6 +182,23 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123458',
+       review: [ {
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       } ],
        memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0503' } },
      { _index: 'submission',
        _type: '_doc',
@@ -196,6 +213,23 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
+       review: [ {
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       } ],
        memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501' } },
      { _index: 'submission',
        _type: '_doc',
@@ -210,6 +244,23 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457',
+       review: [ {
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       } ],
        memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0502' } },
      { _index: 'submission',
        _type: '_doc',
@@ -224,6 +275,23 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460',
+       review: [ {
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       } ],
        memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0505' } },
      { _index: 'submission',
        _type: '_doc',
@@ -238,6 +306,23 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123459',
+       review: [ {
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       } ],
        memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0504' } } ]
 
    }
@@ -252,6 +337,7 @@ const testReview = {
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
+    status: 'queued',
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
@@ -267,6 +353,7 @@ const testReviewPatch = {
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
+    status: 'queued',
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
@@ -289,6 +376,7 @@ const testReviewES = {
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
+         status: 'queued',
          typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
          created: '2018-05-20T07:00:30.123Z',
          updated: '2018-06-01T07:36:28.178Z',
@@ -311,6 +399,7 @@ const testReviewsES = {
      { score: 95.5,
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+       status: 'queued',
        updatedBy: 'admin',
        createdBy: 'admin',
        scoreCardId: 123456789,
@@ -329,6 +418,7 @@ const testReviewsES = {
        updatedBy: 'admin',
        createdBy: 'admin',
        scoreCardId: 123456789,
+       status: 'queued',
        created: '2018-05-20T07:00:30.123Z',
        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
        id: 'd24d4180-65aa-42ec-a945-5fd21dec0504',
@@ -344,6 +434,7 @@ const testReviewsES = {
        updatedBy: 'admin',
        createdBy: 'admin',
        scoreCardId: 123456789,
+       status: 'queued',
        created: '2018-05-20T07:00:30.123Z',
        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
        id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
@@ -359,6 +450,7 @@ const testReviewsES = {
        updatedBy: 'admin',
        createdBy: 'admin',
        scoreCardId: 123456789,
+       status: 'queued',
        created: '2018-05-20T07:00:30.123Z',
        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
        id: 'd24d4180-65aa-42ec-a945-5fd21dec0503',

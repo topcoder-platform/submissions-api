@@ -182,6 +182,8 @@ function * downloadSubmission (authUser, submissionId) {
  */
 function * listSubmissions (authUser, query) {
   const data = yield helper.fetchFromES(query, helper.camelize(table))
+  logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
+
   data.rows = _.map(data.rows, (submission) => {
     if (submission.review) {
       submission.review = helper.cleanseReviews(submission.review, authUser)
@@ -207,6 +209,7 @@ const listSubmissionsQuerySchema = {
   'review.reviewerId': joi.string().uuid(),
   'review.scoreCardId': joi.id(),
   'review.submissionId': joi.string().uuid(),
+  'review.status': joi.reviewStatus(),
   'reviewSummation.scoreCardId': joi.id(),
   'reviewSummation.submissionId': joi.string().uuid(),
   'reviewSummation.aggregateScore': joi.score(),
