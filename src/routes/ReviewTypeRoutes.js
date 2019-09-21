@@ -15,7 +15,7 @@ module.exports = {
       controller: 'ReviewTypeController',
       method: 'listReviewTypes',
       auth: 'jwt',
-      access: ['Administrator', 'Copilot'],
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
       scopes: ['read:review_type', 'all:review_type']
     }
   },
@@ -24,7 +24,7 @@ module.exports = {
       controller: 'ReviewTypeController',
       method: 'getReviewType',
       auth: 'jwt',
-      access: ['Administrator', 'Copilot'],
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
       scopes: ['read:review_type', 'all:review_type']
     },
     put: {

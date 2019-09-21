@@ -57,13 +57,16 @@ describe('ReviewType Service tests', () => {
         })
     })
 
-    it('Getting existing review type with user token should throw 403', (done) => {
+    it('Getting existing review type with user token should return the record', (done) => {
       chai.request(app)
         .get(`${config.API_VERSION}/reviewTypes/${testReviewType.Item.id}`)
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
-          res.should.have.status(403)
-          res.body.message.should.be.eql('You are not allowed to perform this action!')
+          res.should.have.status(200)
+          res.body.should.have.all.keys(Object.keys(testReviewType.Item))
+          res.body.id.should.be.eql(testReviewType.Item.id)
+          res.body.name.should.be.eql(testReviewType.Item.name)
+          res.body.isActive.should.be.eql(testReviewType.Item.isActive)
           done()
         })
     })
@@ -427,13 +430,13 @@ describe('ReviewType Service tests', () => {
         })
     })
 
-    it('Getting review types with user token should throw 403', (done) => {
+    it('Getting review types with user token should return the record', (done) => {
       chai.request(app)
         .get(`${config.API_VERSION}/reviewTypes`)
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
-          res.should.have.status(403)
-          res.body.message.should.be.eql('You are not allowed to perform this action!')
+          res.should.have.status(200)
+          res.body.length.should.be.eql(6)
           done()
         })
     })
