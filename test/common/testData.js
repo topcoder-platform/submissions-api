@@ -334,6 +334,7 @@ const testReview = {
   Item: {
     id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
     score: 92,
+    legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
@@ -350,6 +351,7 @@ const testReviewPatch = {
   Item: {
     id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
     score: 90,
+    legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
@@ -373,6 +375,7 @@ const testReviewES = {
        _source: {
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
+         legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c3',
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
@@ -397,6 +400,7 @@ const testReviewsES = {
        _score: 0,
        _source:
      { score: 95.5,
+       legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
        status: 'queued',
@@ -413,6 +417,7 @@ const testReviewsES = {
        _score: 0,
        _source:
      { score: 65,
+       legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c2',
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0504',
        updatedBy: 'admin',
@@ -429,6 +434,7 @@ const testReviewsES = {
        _score: 0,
        _source:
      { score: 92,
+       legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c3',
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
        updatedBy: 'admin',
@@ -445,6 +451,7 @@ const testReviewsES = {
        _score: 0,
        _source:
      { score: 80.83,
+       legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c4',
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
        updatedBy: 'admin',

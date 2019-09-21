@@ -2,6 +2,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0501",
     "score": 95.5,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c1",
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,
@@ -14,6 +15,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0502",
     "score": 92.0,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c2",
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0501",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,
@@ -26,6 +28,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0503",
     "score": 80.83,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c3",
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,
@@ -38,6 +41,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0504",
     "score": 85.62,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c4",
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0502",
     "scoreCardId": 123456789,
@@ -50,6 +54,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0505",
     "score": 100,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c5",
     "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,
@@ -62,6 +67,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0506",
     "score": 65.0,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c6",
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,
@@ -74,6 +80,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0507",
     "score": 68.0,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c7",
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0502",
     "scoreCardId": 123456789,
@@ -86,6 +93,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0508",
     "score": 100,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c8",
     "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,
@@ -98,6 +106,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
     "score": 92.5,
+    "legacyReviewId": "6b4faff1-7685-4866-a2e3-24afabf5c2c9",
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,

@@ -94,6 +94,7 @@ function* listReviews(query) {
 
 const listReviewsQuerySchema = {
   score: joi.score(),
+  legacyReviewId: joi.string().uuid(),
   typeId: joi.string().uuid(),
   reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   scoreCardId: joi.id(),
@@ -181,6 +182,9 @@ createReview.schema = {
     .object()
     .keys({
       score: joi.score().required(),
+      legacyReviewId: joi
+        .string()
+        .uuid(),
       typeId: joi
         .string()
         .uuid()
@@ -231,11 +235,12 @@ function* _updateReview(authUser, reviewId, entity) {
     Key: {
       id: reviewId
     },
-    UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
-                        typeId = :t, reviewerId = :r, #st = :st,
+    UpdateExpression: `set score = :s, legacyReviewId = :lr, scoreCardId = :sc,
+                        submissionId = :su, typeId = :t, reviewerId = :r, #st = :st,
                         updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
       ':s': entity.score || exist.score,
+      ':lr': entity.legacyReviewId || exist.legacyReviewId,
       ':sc': entity.scoreCardId || exist.scoreCardId,
       ':su': entity.submissionId || exist.submissionId,
       ':t': entity.typeId || exist.typeId,
@@ -312,6 +317,9 @@ updateReview.schema = {
     .object()
     .keys({
       score: joi.score().required(),
+      legacyReviewId: joi
+        .string()
+        .uuid(),
       typeId: joi
         .string()
         .uuid()
@@ -350,6 +358,7 @@ patchReview.schema = {
     .required(),
   entity: joi.object().keys({
     score: joi.score(),
+    legacyReviewId: joi.string().uuid(),
     typeId: joi.string().uuid(),
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.id(),
