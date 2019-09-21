@@ -70,6 +70,7 @@ paths:
         - $ref: '#/parameters/filterSubmissionLegacyUploadId'
         - $ref: '#/parameters/filterSubmissionSubmissionPhaseId'
         - $ref: '#/parameters/filterSubmissionReviewScore'
+        - $ref: '#/parameters/filterSubmissionReviewLegacyReviewId'
         - $ref: '#/parameters/filterSubmissionReviewTypeId'
         - $ref: '#/parameters/filterSubmissionReviewReviewerId'
         - $ref: '#/parameters/filterSubmissionReviewScoreCardId'
@@ -1613,6 +1614,13 @@ parameters:
     description: The score filter of the reviews associated with the submission.
     required: false
     type: integer
+
+  filterSubmissionReviewLegacyReviewId:
+    in: query
+    name: review.legacyReviewId
+    description: The legacy review id filter of the reviews associated with the submission.
+    required: false
+    type: string
 
   filterSubmissionReviewTypeId:
     in: query

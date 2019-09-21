@@ -205,6 +205,7 @@ const listSubmissionsQuerySchema = {
   perPage: joi.pageSize(),
   orderBy: joi.sortOrder(),
   'review.score': joi.score(),
+  'review.legacyReviewId': joi.string().uuid(),
   'review.typeId': joi.string().uuid(),
   'review.reviewerId': joi.string().uuid(),
   'review.scoreCardId': joi.id(),

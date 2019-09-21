@@ -185,6 +185,7 @@ const testSubmissionsES = {
        review: [ {
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
+         legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
@@ -216,6 +217,7 @@ const testSubmissionsES = {
        review: [ {
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
+         legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
@@ -247,6 +249,7 @@ const testSubmissionsES = {
        review: [ {
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
+         legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
@@ -278,6 +281,7 @@ const testSubmissionsES = {
        review: [ {
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
+         legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
@@ -309,6 +313,7 @@ const testSubmissionsES = {
        review: [ {
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
+         legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1',
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
