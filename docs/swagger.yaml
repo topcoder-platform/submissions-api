@@ -930,7 +930,7 @@ paths:
             example:
               - id: 'a12a4180-65aa-42ec-a945-5fd21dec0503'
                 score: 95.5
-                legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c1'
+                legacyReviewId: 1234567891
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
                 scoreCardId: 123456789
@@ -942,7 +942,7 @@ paths:
                 updatedBy: 'admin'
               - id: 'a23c4180-65aa-42ec-a945-5fd21dec0503'
                 score: 73.2
-                legacyReviewId: '6b4faff1-7685-4866-a2e3-24afabf5c2c4'
+                legacyReviewId: 1234567892
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
                 scoreCardId: 123456789
@@ -1620,7 +1620,7 @@ parameters:
     name: review.legacyReviewId
     description: The legacy review id filter of the reviews associated with the submission.
     required: false
-    type: string
+    type: integer
 
   filterSubmissionReviewTypeId:
     in: query
@@ -1735,7 +1735,7 @@ parameters:
     name: legacyReviewId
     description: The legacy review id filter for reviews.
     required: false
-    type: string
+    type: integer
 
   filterReviewTypeId:
     in: query
@@ -2009,9 +2009,9 @@ definitions:
         description: The review score.
         example: 95.5
       legacyReviewId:
-        type: string
+        type: integer
         description: The legacy review id.
-        example: 'a12bc180-65ab-42ec-a945-5fd21dec1567'
+        example: 123456789
       typeId:
         type: string
         description: The review type id.

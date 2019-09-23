@@ -94,7 +94,7 @@ function* listReviews(query) {
 
 const listReviewsQuerySchema = {
   score: joi.score(),
-  legacyReviewId: joi.string().uuid(),
+  legacyReviewId: joi.id(),
   typeId: joi.string().uuid(),
   reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   scoreCardId: joi.id(),
@@ -182,9 +182,7 @@ createReview.schema = {
     .object()
     .keys({
       score: joi.score().required(),
-      legacyReviewId: joi
-        .string()
-        .uuid(),
+      legacyReviewId: joi.id(),
       typeId: joi
         .string()
         .uuid()
@@ -317,9 +315,7 @@ updateReview.schema = {
     .object()
     .keys({
       score: joi.score().required(),
-      legacyReviewId: joi
-        .string()
-        .uuid(),
+      legacyReviewId: joi.id(),
       typeId: joi
         .string()
         .uuid()
@@ -358,7 +354,7 @@ patchReview.schema = {
     .required(),
   entity: joi.object().keys({
     score: joi.score(),
-    legacyReviewId: joi.string().uuid(),
+    legacyReviewId: joi.id(),
     typeId: joi.string().uuid(),
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     scoreCardId: joi.id(),
