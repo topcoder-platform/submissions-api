@@ -15,8 +15,10 @@ const mocha = require('mocha')
 const coMocha = require('co-mocha')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExSubmissionId, testSubmission, testSubmissionWoLegacy,
-  testSubmissionPatch } = require('../common/testData')
+const {
+  nonExSubmissionId, testSubmission, testSubmissionWoLegacy,
+  testSubmissionPatch
+} = require('../common/testData')
 const { loadSubmissions } = require('../../scripts/ESloadHelper')
 
 coMocha(mocha)
@@ -111,7 +113,7 @@ describe('Submission Service tests', () => {
         .attach('submission', './test/common/fileToUpload.zip', 'fileToUpload.zip')
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql(`fileType parameter doesn't match the type of the uploaded file`)
+          res.body.message.should.be.eql('fileType parameter doesn\'t match the type of the uploaded file')
           done()
         })
     })

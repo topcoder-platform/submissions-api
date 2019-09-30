@@ -15,7 +15,7 @@ co(function * loadData () {
   logger.info('Data import started!')
   const promises = []
   reviewTypes.forEach((reviewType) => {
-    let record = {
+    const record = {
       TableName: 'ReviewType',
       Item: reviewType
     }
@@ -23,7 +23,7 @@ co(function * loadData () {
   })
 
   submissions.forEach((submission) => {
-    let record = {
+    const record = {
       TableName: 'Submission',
       Item: submission
     }
@@ -31,7 +31,7 @@ co(function * loadData () {
   })
 
   reviews.forEach((review) => {
-    let record = {
+    const record = {
       TableName: 'Review',
       Item: review
     }
@@ -39,7 +39,7 @@ co(function * loadData () {
   })
 
   reviewSummations.forEach((reviewSummation) => {
-    let record = {
+    const record = {
       TableName: 'ReviewSummation',
       Item: reviewSummation
     }

@@ -41,8 +41,8 @@ function * _uploadToS3 (file, name) {
  */
 function * downloadArtifact (submissionId, fileName) {
   // Check the validness of Submission ID
-  yield HelperService._checkRef({submissionId})
-  const artifacts = yield s3.listObjects({Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}`}).promise()
+  yield HelperService._checkRef({ submissionId })
+  const artifacts = yield s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
@@ -65,8 +65,8 @@ downloadArtifact.schema = {
  */
 function * listArtifacts (submissionId) {
   // Check the validness of Submission ID
-  yield HelperService._checkRef({submissionId})
-  const artifacts = yield s3.listObjects({Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId}).promise()
+  yield HelperService._checkRef({ submissionId })
+  const artifacts = yield s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId }).promise()
   return { artifacts: _.map(artifacts.Contents, (at) => path.parse(at.Key).name) }
 }
 
@@ -93,8 +93,10 @@ function * createArtifact (files, submissionId, entity) {
     let exist
     // Check the existence of file in S3 bucket
     try {
-      exist = yield s3.headObject({ Bucket: config.aws.ARTIFACT_BUCKET,
-        Key: fileName}).promise()
+      exist = yield s3.headObject({
+        Bucket: config.aws.ARTIFACT_BUCKET,
+        Key: fileName
+      }).promise()
     } catch (err) {
       if (err.statusCode !== 404) throw err
     }
@@ -123,8 +125,8 @@ createArtifact.schema = {
  */
 function * deleteArtifact (submissionId, fileName) {
   // Check the validness of Submission ID
-  yield HelperService._checkRef({submissionId})
-  const artifacts = yield s3.listObjects({Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}`}).promise()
+  yield HelperService._checkRef({ submissionId })
+  const artifacts = yield s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(404, `Artifact ${fileName} doesn't exist for submission ID: ${submissionId}`)
   }

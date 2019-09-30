@@ -13,8 +13,10 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewId, testReview, nonExSubmissionId,
-  nonExReviewTypeId, testReviewPatch } = require('../common/testData')
+const {
+  nonExReviewId, testReview, nonExSubmissionId,
+  nonExReviewTypeId, testReviewPatch
+} = require('../common/testData')
 
 chai.use(chaiHttp)
 

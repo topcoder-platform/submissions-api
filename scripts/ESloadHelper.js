@@ -33,11 +33,11 @@ function deleteDatafromES () {
 function * loadReviewTypes () {
   const promises = []
   reviewTypes.forEach((reviewType) => {
-    let record = {
+    const record = {
       index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: reviewType.id,
-      body: _.extend({'resource': 'reviewType'}, reviewType)
+      body: _.extend({ resource: 'reviewType' }, reviewType)
     }
     promises.push(esClient.create(record))
   })
@@ -50,11 +50,11 @@ function * loadReviewTypes () {
 function * loadSubmissions () {
   const promises = []
   submissions.forEach((submission) => {
-    let record = {
+    const record = {
       index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: submission.id,
-      body: _.extend({'resource': 'submission'}, submission)
+      body: _.extend({ resource: 'submission' }, submission)
     }
     promises.push(esClient.create(record))
   })
@@ -67,11 +67,11 @@ function * loadSubmissions () {
 function * loadReviews () {
   const promises = []
   reviews.forEach((review) => {
-    let record = {
+    const record = {
       index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: review.id,
-      body: _.extend({'resource': 'review'}, review)
+      body: _.extend({ resource: 'review' }, review)
     }
     promises.push(esClient.create(record))
   })
@@ -84,11 +84,11 @@ function * loadReviews () {
 function * loadReviewSummations () {
   const promises = []
   reviewSummations.forEach((reviewSummation) => {
-    let record = {
+    const record = {
       index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: reviewSummation.id,
-      body: _.extend({'resource': 'reviewSummation'}, reviewSummation)
+      body: _.extend({ resource: 'reviewSummation' }, reviewSummation)
     }
     promises.push(esClient.create(record))
   })

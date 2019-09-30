@@ -15,8 +15,10 @@ const mocha = require('mocha')
 const coMocha = require('co-mocha')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewTypeId, testReviewType,
-  testReviewTypePatch } = require('../common/testData')
+const {
+  nonExReviewTypeId, testReviewType,
+  testReviewTypePatch
+} = require('../common/testData')
 const { loadReviewTypes } = require('../../scripts/ESloadHelper')
 
 coMocha(mocha)
@@ -331,7 +333,7 @@ describe('ReviewType Service tests', () => {
       chai.request(app)
         .patch(`${config.API_VERSION}/reviewTypes/${reviewTypeId}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send({isActive: false})
+        .send({ isActive: false })
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewTypePatch.Item))

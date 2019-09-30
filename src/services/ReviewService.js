@@ -180,7 +180,11 @@ createReview.schema = {
   entity: joi
     .object()
     .keys({
-      score: joi.score().required(),
+      score: joi.score().when('$status', {
+        is: joi.reviewStatus().valid('completed'),
+        then: joi.required(),
+        otherwise: joi.optional()
+      }),
       typeId: joi
         .string()
         .uuid()
@@ -251,9 +255,9 @@ function * _updateReview (authUser, reviewId, entity) {
 
   // If metadata exists, add it to the update expression
   if (entity.metadata || exist.metadata) {
-    record['UpdateExpression'] =
-      record['UpdateExpression'] + `, metadata = :ma`
-    record['ExpressionAttributeValues'][':ma'] = _.merge(
+    record.UpdateExpression =
+      record.UpdateExpression + ', metadata = :ma'
+    record.ExpressionAttributeValues[':ma'] = _.merge(
       {},
       exist.metadata,
       entity.metadata
