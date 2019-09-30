@@ -81,7 +81,7 @@ function * _getSubmission (submissionId, fetchReview = true) {
   const filter = {
     TableName: table,
     Key: {
-      'id': submissionId
+      id: submissionId
     }
   }
   const result = yield dbhelper.getRecord(filter)
@@ -110,7 +110,7 @@ function * _getSubmission (submissionId, fetchReview = true) {
  * @return {Object} Data retrieved from database
  */
 function * getSubmission (authUser, submissionId) {
-  const response = yield helper.fetchFromES({id: submissionId}, helper.camelize(table))
+  const response = yield helper.fetchFromES({ id: submissionId }, helper.camelize(table))
   let submissionRecord = null
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
   if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
@@ -237,12 +237,12 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Creating a new submission')
   if (files && entity.url) {
     logger.info('Cannot create submission. Neither file nor url to upload has been passed')
-    throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
+    throw new errors.HttpStatusError(400, 'Either file to be uploaded or URL should be present')
   }
 
   if (!files && !entity.url) {
     logger.info('Cannot create submission. Ambiguous parameters. Both file and url have been provided. Unsure which to use')
-    throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
+    throw new errors.HttpStatusError(400, 'Either file to be uploaded or URL should be present')
   }
 
   let url = entity.url
@@ -254,46 +254,46 @@ function * createSubmission (authUser, files, entity) {
     const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
     if (pFileType !== uFileType) {
       logger.info('Actual file type of the file does not match the file type attribute in the request')
-      throw new errors.HttpStatusError(400, `fileType parameter doesn't match the type of the uploaded file`)
+      throw new errors.HttpStatusError(400, 'fileType parameter doesn\'t match the type of the uploaded file')
     }
     const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
     url = file.Location
   } else if (files) {
-    throw new errors.HttpStatusError(400, `The file should be uploaded under the "submission" attribute`)
+    throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
   }
 
   const currDate = (new Date()).toISOString()
 
   const item = {
-    'id': submissionId,
-    'type': entity.type,
-    'url': url,
-    'memberId': entity.memberId,
-    'challengeId': entity.challengeId,
-    'created': currDate,
-    'updated': currDate,
-    'createdBy': authUser.handle || authUser.sub,
-    'updatedBy': authUser.handle || authUser.sub
+    id: submissionId,
+    type: entity.type,
+    url: url,
+    memberId: entity.memberId,
+    challengeId: entity.challengeId,
+    created: currDate,
+    updated: currDate,
+    createdBy: authUser.handle || authUser.sub,
+    updatedBy: authUser.handle || authUser.sub
   }
 
   if (entity.legacySubmissionId) {
-    item['legacySubmissionId'] = entity.legacySubmissionId
+    item.legacySubmissionId = entity.legacySubmissionId
   }
 
   if (entity.legacyUploadId) {
-    item['legacyUploadId'] = entity.legacyUploadId
+    item.legacyUploadId = entity.legacyUploadId
   }
 
   if (entity.submissionPhaseId) {
-    item['submissionPhaseId'] = entity.submissionPhaseId
+    item.submissionPhaseId = entity.submissionPhaseId
   } else {
-    item['submissionPhaseId'] = yield helper.getSubmissionPhaseId(entity.challengeId)
+    item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
   }
 
   if (entity.fileType) {
-    item['fileType'] = entity.fileType
+    item.fileType = entity.fileType
   } else {
-    item['fileType'] = fileType
+    item.fileType = fileType
   }
 
   logger.info('Check User access before creating the submission')
@@ -313,19 +313,19 @@ function * createSubmission (authUser, files, entity) {
   // Push Submission created event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.create,
-    'originator': originator,
-    'timestamp': currDate, // time when submission was created
+    topic: events.submission.create,
+    originator: originator,
+    timestamp: currDate, // time when submission was created
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table) }, item)
+    payload: _.extend({ resource: helper.camelize(table) }, item)
   }
 
   // If the file is uploaded, set properties accordingly
   if (files && files.submission) {
-    reqBody['payload']['isFileSubmission'] = true
-    reqBody['payload']['filename'] = files.submission.name
+    reqBody.payload.isFileSubmission = true
+    reqBody.payload.filename = files.submission.name
   } else { // If the file URL is provided, handle accordingly
-    reqBody['payload']['isFileSubmission'] = false
+    reqBody.payload.isFileSubmission = false
   }
 
   logger.info('Prepared submission create event payload to pass to the Bus')
@@ -375,7 +375,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   const record = {
     TableName: table,
     Key: {
-      'id': submissionId
+      id: submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
                         updated = :ua, updatedBy = :ub`,
@@ -395,20 +395,20 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   // If legacy submission ID exists, add it to the update expression
   if (entity.legacySubmissionId || exist.legacySubmissionId) {
-    record['UpdateExpression'] = record['UpdateExpression'] + `, legacySubmissionId = :ls`
-    record['ExpressionAttributeValues'][':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
+    record.UpdateExpression = record.UpdateExpression + ', legacySubmissionId = :ls'
+    record.ExpressionAttributeValues[':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
   }
 
   // If legacy upload ID exists, add it to the update expression
   if (entity.legacyUploadId || exist.legacyUploadId) {
-    record['UpdateExpression'] = record['UpdateExpression'] + `, legacyUploadId = :lu`
-    record['ExpressionAttributeValues'][':lu'] = entity.legacyUploadId || exist.legacyUploadId
+    record.UpdateExpression = record.UpdateExpression + ', legacyUploadId = :lu'
+    record.ExpressionAttributeValues[':lu'] = entity.legacyUploadId || exist.legacyUploadId
   }
 
   // If submissionPhaseId exists, add it to the update expression
   if (entity.submissionPhaseId || exist.submissionPhaseId) {
-    record['UpdateExpression'] = record['UpdateExpression'] + `, submissionPhaseId = :sp`
-    record['ExpressionAttributeValues'][':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
+    record.UpdateExpression = record.UpdateExpression + ', submissionPhaseId = :sp'
+    record.ExpressionAttributeValues[':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
   }
 
   logger.info('Prepared submission item to update in Dynamodb. Updating...')
@@ -419,17 +419,17 @@ function * _updateSubmission (authUser, submissionId, entity) {
   // Push Submission updated event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.update,
-    'originator': originator,
-    'timestamp': currDate, // time when submission was updated
+    topic: events.submission.update,
+    originator: originator,
+    timestamp: currDate, // time when submission was updated
     'mime-type': mimeType,
-    'payload': _.extend({
-      'resource': helper.camelize(table),
-      'id': submissionId,
-      'challengeId': updatedSub.challengeId,
-      'memberId': updatedSub.memberId,
-      'submissionPhaseId': updatedSub.submissionPhaseId,
-      'type': updatedSub.type
+    payload: _.extend({
+      resource: helper.camelize(table),
+      id: submissionId,
+      challengeId: updatedSub.challengeId,
+      memberId: updatedSub.memberId,
+      submissionPhaseId: updatedSub.submissionPhaseId,
+      type: updatedSub.type
     }, entity)
   }
 
@@ -438,7 +438,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || authUser.sub })
+  return _.extend(exist, entity, { updated: currDate, updatedBy: authUser.handle || authUser.sub })
 }
 
 /**
@@ -506,7 +506,7 @@ function * deleteSubmission (submissionId) {
   const filter = {
     TableName: table,
     Key: {
-      'id': submissionId
+      id: submissionId
     }
   }
 
@@ -515,13 +515,13 @@ function * deleteSubmission (submissionId) {
   // Push Submission deleted event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.delete,
-    'originator': originator,
-    'timestamp': (new Date()).toISOString(), // time when submission was deleted
+    topic: events.submission.delete,
+    originator: originator,
+    timestamp: (new Date()).toISOString(), // time when submission was deleted
     'mime-type': mimeType,
-    'payload': {
-      'resource': helper.camelize(table),
-      'id': submissionId
+    payload: {
+      resource: helper.camelize(table),
+      id: submissionId
     }
   }
 

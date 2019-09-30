@@ -82,10 +82,10 @@ function getBusApiClient () {
  */
 function getEsClient () {
   const esHost = config.get('esConfig.HOST')
-  if (!esClients['client']) {
+  if (!esClients.client) {
     // AWS ES configuration is different from other providers
     if (/.*amazonaws.*/.test(esHost)) {
-      esClients['client'] = elasticsearch.Client({
+      esClients.client = elasticsearch.Client({
         apiVersion: config.get('esConfig.API_VERSION'),
         hosts: esHost,
         connectionClass: require('http-aws-es'), // eslint-disable-line global-require
@@ -95,13 +95,13 @@ function getEsClient () {
         }
       })
     } else {
-      esClients['client'] = new elasticsearch.Client({
+      esClients.client = new elasticsearch.Client({
         apiVersion: config.get('esConfig.API_VERSION'),
         hosts: esHost
       })
     }
   }
-  return esClients['client']
+  return esClients.client
 }
 
 /*
@@ -135,7 +135,7 @@ function prepESFilter (query, actResource) {
   // Adding resource filter
   boolQuery.push({ match_phrase: { resource: actResource } })
   _.map(filters, (value, key) => {
-    let pair = {}
+    const pair = {}
     pair[key] = value
     if (key.indexOf('.') > -1) {
       const resKey = key.split('.')[0]
@@ -182,7 +182,7 @@ function prepESFilter (query, actResource) {
     from: (page - 1) * pageSize, // Es Index starts from 0
     body: {
       _source: {
-        exclude: [ 'resource' ] // Remove the resource field which is not required
+        exclude: ['resource'] // Remove the resource field which is not required
       },
       query: {
         bool: {
@@ -196,14 +196,14 @@ function prepESFilter (query, actResource) {
 
   if (sortBy) {
     const obj = {}
-    obj[sortBy] = { 'order': orderBy || 'asc' }
+    obj[sortBy] = { order: orderBy || 'asc' }
     esQuerySortArray.push(obj)
   }
 
   // Internal sorting by 'updated' timestamp
   if (actResource !== 'reviewType') {
     esQuerySortArray.push({
-      updated: { 'order': 'desc' }
+      updated: { order: 'desc' }
     })
   }
 
@@ -229,10 +229,12 @@ function * fetchFromES (query, resource) {
   // Extract data from hits
   const rows = _.map(docs.hits.hits, single => single._source)
 
-  const response = { 'total': docs.hits.total,
-    'pageSize': filter.size,
-    'page': query.page || 1,
-    'rows': rows }
+  const response = {
+    total: docs.hits.total,
+    pageSize: filter.size,
+    page: query.page || 1,
+    rows: rows
+  }
   return response
 }
 
@@ -283,7 +285,7 @@ function setPaginationHeaders (req, res, data) {
       'X-Per-Page': data.pageSize,
       'X-Total': data.total,
       'X-Total-Pages': totalPages,
-      'Link': link
+      Link: link
     })
   }
   // Return the data after setting pagination headers
@@ -317,9 +319,9 @@ function * getSubmissionPhaseId (challengeId) {
   }
   if (response) {
     const phases = _.get(response.body, 'result.content', [])
-    const checkPoint = _.filter(phases, {phaseType: 'Checkpoint Submission', phaseStatus: 'Open'})
-    const submissionPh = _.filter(phases, {phaseType: 'Submission', phaseStatus: 'Open'})
-    const finalFixPh = _.filter(phases, {phaseType: 'Final Fix', phaseStatus: 'Open'})
+    const checkPoint = _.filter(phases, { phaseType: 'Checkpoint Submission', phaseStatus: 'Open' })
+    const submissionPh = _.filter(phases, { phaseType: 'Submission', phaseStatus: 'Open' })
+    const finalFixPh = _.filter(phases, { phaseType: 'Final Fix', phaseStatus: 'Open' })
     if (checkPoint.length !== 0) {
       phaseId = checkPoint[0].id
     } else if (submissionPh.length !== 0) {
@@ -367,7 +369,7 @@ function * checkCreateAccess (authUser, subEntity) {
       throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
     }
 
-    const currPhase = _.filter(phases, {id: submissionPhaseId})
+    const currPhase = _.filter(phases, { id: submissionPhaseId })
 
     if (currPhase[0].phaseType === 'Final Fix') {
       if (!authUser.handle.equals(winner[0].handle)) {
@@ -442,25 +444,27 @@ function * checkGetAccess (authUser, submission) {
 
       // User is either a Reviewer or Screener
       if (screener.length !== 0 || reviewer.length !== 0) {
-        const screeningPhase = _.filter(phases, { phaseType: 'Screening', 'phaseStatus': 'Scheduled' })
-        const reviewPhase = _.filter(phases, { phaseType: 'Review', 'phaseStatus': 'Scheduled' })
+        const screeningPhase = _.filter(phases, { phaseType: 'Screening', phaseStatus: 'Scheduled' })
+        const reviewPhase = _.filter(phases, { phaseType: 'Review', phaseStatus: 'Scheduled' })
 
         // Neither Screening Nor Review is Opened / Closed
         if (screeningPhase.length !== 0 && reviewPhase.length !== 0) {
           throw new errors.HttpStatusError(403, 'You can access the submission only when Screening / Review is open')
         }
       } else {
-        const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', 'phaseStatus': 'Closed' })
+        const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', phaseStatus: 'Closed' })
 
         // Appeals Response is not closed yet
         if (appealsResponse.length === 0) {
           throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
         } else {
-          const userSubmission = yield fetchFromES({ challengeId: submission.challengeId,
-            memberId: authUser.userId }, camelize('Submission'))
+          const userSubmission = yield fetchFromES({
+            challengeId: submission.challengeId,
+            memberId: authUser.userId
+          }, camelize('Submission'))
           // User requesting submission haven't made any submission
           if (userSubmission.total === 0) {
-            throw new errors.HttpStatusError(403, `You did not submit to the challenge!`)
+            throw new errors.HttpStatusError(403, 'You did not submit to the challenge!')
           }
 
           const reqSubmission = userSubmission.rows[0]
@@ -468,7 +472,7 @@ function * checkGetAccess (authUser, submission) {
           if (reqSubmission.reviewSummation && reqSubmission.reviewSummation[0].isPassing) {
             return true
           } else {
-            throw new errors.HttpStatusError(403, `You should have passed the review to access other member submissions!`)
+            throw new errors.HttpStatusError(403, 'You should have passed the review to access other member submissions!')
           }
         }
       }
@@ -509,7 +513,7 @@ function * checkReviewGetAccess (authUser, submission) {
       logger.info('No access check for Marathon match')
       return true
     } else {
-      const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', 'phaseStatus': 'Closed' })
+      const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', phaseStatus: 'Closed' })
 
       // Appeals Response is not closed yet
       if (appealsResponse.length === 0) {
@@ -541,15 +545,15 @@ function * downloadFile (fileURL) {
  */
 function * postToBusApi (payload) {
   const busApiClient = getBusApiClient()
-  const originalTopic = payload['topic']
+  const originalTopic = payload.topic
 
   yield busApiClient.postEvent(payload)
 
   // Post to aggregate topic
-  payload['topic'] = config.get('KAFKA_AGGREGATE_TOPIC')
+  payload.topic = config.get('KAFKA_AGGREGATE_TOPIC')
 
   // Store the original topic
-  payload['payload']['originalTopic'] = originalTopic
+  payload.payload.originalTopic = originalTopic
 
   yield busApiClient.postEvent(payload)
 }

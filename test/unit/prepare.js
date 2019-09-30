@@ -47,11 +47,11 @@ prepare(function (done) {
   })
 
   AWS.mock('DynamoDB', 'createTable', (params, callback) => {
-    callback(null, {message: 'Table created'})
+    callback(null, { message: 'Table created' })
   })
 
   AWS.mock('DynamoDB', 'deleteTable', (params, callback) => {
-    callback(null, {message: 'Table deleted'})
+    callback(null, { message: 'Table deleted' })
   })
 
   // Mock AWS S3 interactions
@@ -110,7 +110,7 @@ prepare(function (done) {
     .reply(200, testData.testReviewSummationsES)
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'nonExistent')
     .query(true)
-    .reply(200, {hits: {total: 0, hits: []}})
+    .reply(200, { hits: { total: 0, hits: [] } })
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'c56a4180-65aa-42ec-a945-5fd21dec0501')
     .query(true)
     .reply(200, testData.testReviewTypeES)

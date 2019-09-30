@@ -23,7 +23,7 @@ function * _getReviewType (reviewTypeId) {
   const filter = {
     TableName: table,
     Key: {
-      'id': reviewTypeId
+      id: reviewTypeId
     }
   }
   const result = yield dbhelper.getRecord(filter)
@@ -36,7 +36,7 @@ function * _getReviewType (reviewTypeId) {
  * @return {Object} Data found from database
  */
 function * getReviewType (reviewTypeId) {
-  const response = yield helper.fetchFromES({id: reviewTypeId}, helper.camelize(table))
+  const response = yield helper.fetchFromES({ id: reviewTypeId }, helper.camelize(table))
   if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Review type with ID = ${reviewTypeId} is not found`)
   }
@@ -80,7 +80,7 @@ listReviewTypes.schema = {
  * @return {Promise}
  */
 function * createReviewType (entity) {
-  const item = _.extend({ 'id': uuid() }, entity)
+  const item = _.extend({ id: uuid() }, entity)
   // Prepare record to be inserted
   const record = {
     TableName: table,
@@ -92,11 +92,11 @@ function * createReviewType (entity) {
   // Push Review Type created event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.create,
-    'originator': originator,
-    'timestamp': (new Date()).toISOString(), // time when submission was created
+    topic: events.submission.create,
+    originator: originator,
+    timestamp: (new Date()).toISOString(), // time when submission was created
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table) }, item)
+    payload: _.extend({ resource: helper.camelize(table) }, item)
   }
 
   // Post to Bus API using Client
@@ -139,7 +139,7 @@ function * _updateReviewType (reviewTypeId, entity) {
   const record = {
     TableName: table,
     Key: {
-      'id': reviewTypeId
+      id: reviewTypeId
     },
     UpdateExpression: 'set #name = :n, isActive = :a',
     ExpressionAttributeValues: {
@@ -155,12 +155,14 @@ function * _updateReviewType (reviewTypeId, entity) {
   // Push Review Type updated event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.update,
-    'originator': originator,
-    'timestamp': (new Date()).toISOString(), // time when submission was updated
+    topic: events.submission.update,
+    originator: originator,
+    timestamp: (new Date()).toISOString(), // time when submission was updated
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table),
-      'id': reviewTypeId }, entity)
+    payload: _.extend({
+      resource: helper.camelize(table),
+      id: reviewTypeId
+    }, entity)
   }
 
   // Post to Bus API using Client
@@ -222,7 +224,7 @@ function * deleteReviewType (reviewTypeId) {
   const filter = {
     TableName: table,
     Key: {
-      'id': reviewTypeId
+      id: reviewTypeId
     }
   }
 
@@ -231,13 +233,13 @@ function * deleteReviewType (reviewTypeId) {
   // Push Review Type deleted event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.delete,
-    'originator': originator,
-    'timestamp': (new Date()).toISOString(), // time when submission was deleted
+    topic: events.submission.delete,
+    originator: originator,
+    timestamp: (new Date()).toISOString(), // time when submission was deleted
     'mime-type': mimeType,
-    'payload': {
-      'resource': helper.camelize(table),
-      'id': reviewTypeId
+    payload: {
+      resource: helper.camelize(table),
+      id: reviewTypeId
     }
   }
 
