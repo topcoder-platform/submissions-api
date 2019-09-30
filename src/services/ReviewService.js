@@ -180,8 +180,8 @@ createReview.schema = {
   entity: joi
     .object()
     .keys({
-      score: joi.score().when('$status', {
-        is: joi.reviewStatus().valid('completed'),
+      score: joi.when('status', {
+        is: joi.string().valid('completed'),
         then: joi.required(),
         otherwise: joi.optional()
       }),
