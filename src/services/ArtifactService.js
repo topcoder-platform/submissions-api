@@ -90,20 +90,7 @@ function * createArtifact (files, submissionId, entity) {
   if (files && files.artifact) {
     const uFileType = fileTypeFinder(files.artifact.data).ext // File type of uploaded file
     fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
-    let exist
-    // Check the existence of file in S3 bucket
-    try {
-      exist = yield s3.headObject({
-        Bucket: config.aws.ARTIFACT_BUCKET,
-        Key: fileName
-      }).promise()
-    } catch (err) {
-      if (err.statusCode !== 404) throw err
-    }
 
-    if (exist) {
-      throw new errors.HttpStatusError(409, `Artifact ${files.artifact.name}.${uFileType} already exists for Submission ${submissionId}`)
-    }
     // Upload the artifact to S3
     yield _uploadToS3(files.artifact, fileName)
   } else {
