@@ -19,10 +19,10 @@ AWS.config.update({
  * @return {Object} DynamoDB Connection Instance
  */
 function getDb () {
-  if (!dbs['conn']) {
-    dbs['conn'] = new AWS.DynamoDB()
+  if (!dbs.conn) {
+    dbs.conn = new AWS.DynamoDB()
   }
-  return dbs['conn']
+  return dbs.conn
 }
 
 /**
@@ -30,10 +30,10 @@ function getDb () {
  * @return {Object} DynamoDB Document Client Instance
  */
 function getDbClient () {
-  if (!dbClients['client']) {
-    dbClients['client'] = new AWS.DynamoDB.DocumentClient()
+  if (!dbClients.client) {
+    dbClients.client = new AWS.DynamoDB.DocumentClient()
   }
-  return dbClients['client']
+  return dbClients.client
 }
 
 /**

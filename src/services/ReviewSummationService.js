@@ -24,7 +24,7 @@ function * _getReviewSummation (reviewSummationId) {
   const filter = {
     TableName: table,
     Key: {
-      'id': reviewSummationId
+      id: reviewSummationId
     }
   }
   const result = yield dbhelper.getRecord(filter)
@@ -37,7 +37,7 @@ function * _getReviewSummation (reviewSummationId) {
  * @return {Object} Data found from database
  */
 function * getReviewSummation (reviewSummationId) {
-  const response = yield helper.fetchFromES({id: reviewSummationId}, helper.camelize(table))
+  const response = yield helper.fetchFromES({ id: reviewSummationId }, helper.camelize(table))
   if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Review summation with ID = ${reviewSummationId} is not found`)
   }
@@ -91,14 +91,15 @@ function * createReviewSummation (authUser, entity) {
   const currDate = (new Date()).toISOString()
 
   const item = _.extend({
-    'id': uuid(),
-    'created': currDate,
-    'updated': currDate,
-    'createdBy': authUser.handle || authUser.sub,
-    'updatedBy': authUser.handle || authUser.sub }, entity)
+    id: uuid(),
+    created: currDate,
+    updated: currDate,
+    createdBy: authUser.handle || authUser.sub,
+    updatedBy: authUser.handle || authUser.sub
+  }, entity)
 
   if (entity.isFinal) {
-    item['isFinal'] = entity.isFinal
+    item.isFinal = entity.isFinal
   }
 
   const record = {
@@ -111,11 +112,11 @@ function * createReviewSummation (authUser, entity) {
   // Push Review Summation created event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.create,
-    'originator': originator,
-    'timestamp': currDate, // time when submission was created
+    topic: events.submission.create,
+    originator: originator,
+    timestamp: currDate, // time when submission was created
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table) }, item)
+    payload: _.extend({ resource: helper.camelize(table) }, item)
   }
 
   // Post to Bus API using Client
@@ -169,7 +170,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
   const record = {
     TableName: table,
     Key: {
-      'id': reviewSummationId
+      id: reviewSummationId
     },
     UpdateExpression: `set aggregateScore = :s, scoreCardId = :sc, submissionId = :su, 
                         isPassing = :ip, updated = :ua, updatedBy = :ub`,
@@ -185,8 +186,8 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
 
   // If metadata exists, add it to the update expression
   if (entity.metadata || exist.metadata) {
-    record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
-    record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
+    record.UpdateExpression = record.UpdateExpression + ', metadata = :ma'
+    record.ExpressionAttributeValues[':ma'] = _.merge({}, exist.metadata, entity.metadata)
   }
 
   // If legacy submission ID exists, add it to the update expression
@@ -199,8 +200,8 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       isFinal = entity.isFinal
     }
 
-    record['UpdateExpression'] = record['UpdateExpression'] + `, isFinal = :ls`
-    record['ExpressionAttributeValues'][':ls'] = isFinal
+    record.UpdateExpression = record.UpdateExpression + ', isFinal = :ls'
+    record.ExpressionAttributeValues[':ls'] = isFinal
   }
 
   yield dbhelper.updateRecord(record)
@@ -208,14 +209,16 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
   // Push Review Summation updated event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.update,
-    'originator': originator,
-    'timestamp': currDate, // time when submission was updated
+    topic: events.submission.update,
+    originator: originator,
+    timestamp: currDate, // time when submission was updated
     'mime-type': mimeType,
-    'payload': _.extend({ 'resource': helper.camelize(table),
-      'id': reviewSummationId,
-      'updated': currDate,
-      'updatedBy': authUser.handle || authUser.sub }, entity)
+    payload: _.extend({
+      resource: helper.camelize(table),
+      id: reviewSummationId,
+      updated: currDate,
+      updatedBy: authUser.handle || authUser.sub
+    }, entity)
   }
 
   // Post to Bus API using Client
@@ -223,7 +226,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { 'updated': currDate, 'updatedBy': authUser.handle || authUser.sub })
+  return _.extend(exist, entity, { updated: currDate, updatedBy: authUser.handle || authUser.sub })
 }
 
 /**
@@ -289,7 +292,7 @@ function * deleteReviewSummation (reviewSummationId) {
   const filter = {
     TableName: table,
     Key: {
-      'id': reviewSummationId
+      id: reviewSummationId
     }
   }
 
@@ -298,13 +301,13 @@ function * deleteReviewSummation (reviewSummationId) {
   // Push Review Summation deleted event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
-    'topic': events.submission.delete,
-    'originator': originator,
-    'timestamp': (new Date()).toISOString(), // time when submission was deleted
+    topic: events.submission.delete,
+    originator: originator,
+    timestamp: (new Date()).toISOString(), // time when submission was deleted
     'mime-type': mimeType,
-    'payload': {
-      'resource': helper.camelize(table),
-      'id': reviewSummationId
+    payload: {
+      resource: helper.camelize(table),
+      id: reviewSummationId
     }
   }
 

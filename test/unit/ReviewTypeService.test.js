@@ -13,8 +13,10 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewTypeId, testReviewType,
-  testReviewTypePatch } = require('../common/testData')
+const {
+  nonExReviewTypeId, testReviewType,
+  testReviewTypePatch
+} = require('../common/testData')
 
 chai.use(chaiHttp)
 
@@ -318,7 +320,7 @@ describe('ReviewType Service tests', () => {
       chai.request(app)
         .patch(`${config.API_VERSION}/reviewTypes/${testReviewTypePatch.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send({isActive: false})
+        .send({ isActive: false })
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewTypePatch.Item))

@@ -15,8 +15,10 @@ const mocha = require('mocha')
 const coMocha = require('co-mocha')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewSummationId, testReviewSummation,
-  testReviewSummationPatch, testSubmission } = require('../common/testData')
+const {
+  nonExReviewSummationId, testReviewSummation,
+  testReviewSummationPatch, testSubmission
+} = require('../common/testData')
 const { loadReviewSummations } = require('../../scripts/ESloadHelper')
 
 coMocha(mocha)
