@@ -2351,7 +2351,7 @@
 								},
 								{
 									"key": "type",
-									"value": "challengesubmission",
+									"value": "Contest Submission",
 									"type": "text"
 								},
 								{
@@ -2408,7 +2408,7 @@
 							"formdata": [
 								{
 									"key": "type",
-									"value": "challengesubmission",
+									"value": "Contest Submission",
 									"type": "text"
 								},
 								{
