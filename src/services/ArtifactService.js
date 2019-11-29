@@ -46,7 +46,12 @@ function * downloadArtifact (submissionId, fileName) {
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
-  const key = fileName + '.zip'
+
+  const key = submissionId + '/' + fileName + '.zip'
+  if (!_.includes(_.map(artifacts.Contents, 'Key'), key)) {
+    throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
+  }
+
   const downloadedFile = yield s3.getObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: key }).promise()
   // Return the retrieved Artifact
   logger.info(`downloadArtifact: returning artifact ${fileName} for Submission ID: ${submissionId}`)
