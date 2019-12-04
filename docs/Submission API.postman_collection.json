@@ -825,7 +825,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"score\": 92.5,\n\t\"scoreCardId\": 123456789,\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"status\": \"queued\",\n\t\"typeId\": \"c56a4180-65aa-42ec-a945-5fd21dec0503\",\n\t\"reviewerId\": \"c56a4180-65aa-42ec-a945-5fd21d3d26f8\"\n}"
+							"raw": "{\n\t\"score\": 92.5,\n\t\"legacyReviewId\": 123456788,\n\t\"scoreCardId\": 123456789,\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"status\": \"queued\",\n\t\"typeId\": \"c56a4180-65aa-42ec-a945-5fd21dec0503\",\n\t\"reviewerId\": \"c56a4180-65aa-42ec-a945-5fd21d3d26f8\"\n}"
 						},
 						"url": {
 							"raw": "{{URL}}/reviews",
@@ -1405,7 +1405,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"score\": 90.5,\n\t\"scoreCardId\": 123456789,\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"status\": \"completed\",\n\t\"typeId\": \"c56a4180-65aa-42ec-a945-5fd21dec0503\",\n\t\"reviewerId\": \"c56a4180-65aa-42ec-a945-5fd21d3d26f8\"\n}"
+							"raw": "{\n\t\"score\": 90.5,\n\t\"legacyReviewId\": 123456789,\n\t\"scoreCardId\": 123456789,\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"status\": \"completed\",\n\t\"typeId\": \"c56a4180-65aa-42ec-a945-5fd21dec0503\",\n\t\"reviewerId\": \"c56a4180-65aa-42ec-a945-5fd21d3d26f8\"\n}"
 						},
 						"url": {
 							"raw": "{{URL}}/reviews/{{reviewID}}",

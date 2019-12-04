@@ -70,6 +70,7 @@ paths:
         - $ref: '#/parameters/filterSubmissionLegacyUploadId'
         - $ref: '#/parameters/filterSubmissionSubmissionPhaseId'
         - $ref: '#/parameters/filterSubmissionReviewScore'
+        - $ref: '#/parameters/filterSubmissionReviewLegacyReviewId'
         - $ref: '#/parameters/filterSubmissionReviewTypeId'
         - $ref: '#/parameters/filterSubmissionReviewReviewerId'
         - $ref: '#/parameters/filterSubmissionReviewScoreCardId'
@@ -899,7 +900,7 @@ paths:
       description: |
         Get all reviews. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
 
-        Resulted collection of reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
+        Resulted collection of reviews can be filtered using filter parameters `score`, `legacyReviewId`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
@@ -912,6 +913,7 @@ paths:
         - $ref: '#/parameters/sortBy'
         # filter parameters
         - $ref: '#/parameters/filterReviewScore'
+        - $ref: '#/parameters/filterReviewLegacyReviewId'
         - $ref: '#/parameters/filterReviewTypeId'
         - $ref: '#/parameters/filterReviewReviewerId'
         - $ref: '#/parameters/filterReviewScoreCardId'
@@ -928,6 +930,7 @@ paths:
             example:
               - id: 'a12a4180-65aa-42ec-a945-5fd21dec0503'
                 score: 95.5
+                legacyReviewId: 1234567891
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
                 scoreCardId: 123456789
@@ -939,6 +942,7 @@ paths:
                 updatedBy: 'admin'
               - id: 'a23c4180-65aa-42ec-a945-5fd21dec0503'
                 score: 73.2
+                legacyReviewId: 1234567892
                 typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
                 reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
                 scoreCardId: 123456789
@@ -985,7 +989,7 @@ paths:
       description: |
         Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
 
-        Requested reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
+        Requested reviews can be filtered using filter parameters `score`, `legacyReviewId`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
@@ -996,6 +1000,7 @@ paths:
         - $ref: '#/parameters/perPage'
         # filter parameters
         - $ref: '#/parameters/filterReviewScore'
+        - $ref: '#/parameters/filterReviewLegacyReviewId'
         - $ref: '#/parameters/filterReviewTypeId'
         - $ref: '#/parameters/filterReviewReviewerId'
         - $ref: '#/parameters/filterReviewScoreCardId'
@@ -1610,6 +1615,13 @@ parameters:
     required: false
     type: integer
 
+  filterSubmissionReviewLegacyReviewId:
+    in: query
+    name: review.legacyReviewId
+    description: The legacy review id filter of the reviews associated with the submission.
+    required: false
+    type: integer
+
   filterSubmissionReviewTypeId:
     in: query
     name: review.typeId
@@ -1717,6 +1729,13 @@ parameters:
     required: false
     type: number
     format: double
+
+  filterReviewLegacyReviewId:
+    in: query
+    name: legacyReviewId
+    description: The legacy review id filter for reviews.
+    required: false
+    type: integer
 
   filterReviewTypeId:
     in: query
@@ -1963,6 +1982,7 @@ definitions:
     required:
       - id
       - score
+      - legacyReviewId
       - typeId
       - reviewerId
       - scoreCardId
@@ -1988,6 +2008,10 @@ definitions:
         format: double
         description: The review score.
         example: 95.5
+      legacyReviewId:
+        type: integer
+        description: The legacy review id.
+        example: 123456789
       typeId:
         type: string
         description: The review type id.
@@ -2018,6 +2042,7 @@ definitions:
     type: object
     required:
       - score
+      - legacyReviewId
       - typeId
       - reviewerId
       - scoreCardId

@@ -134,6 +134,7 @@ describe('Review Service tests', () => {
           res.body.id.should.not.be.eql(null)
           reviewId = res.body.id
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
@@ -154,6 +155,7 @@ describe('Review Service tests', () => {
           res.body.id.should.not.be.eql(null)
           reviewId = res.body.id
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
@@ -222,6 +224,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(testReview.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
@@ -318,6 +321,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.be.eql(reviewId)
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
