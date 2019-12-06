@@ -300,6 +300,8 @@ function * createSubmission (authUser, files, entity) {
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
     yield helper.checkCreateAccess(authUser, item)
+  } else {
+    logger.info(`No need to call checkCreateAccess for ${JSON.stringify(authUser)}`)
   }
 
   // Prepare record to be inserted
