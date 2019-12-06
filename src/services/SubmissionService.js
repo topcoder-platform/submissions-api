@@ -329,12 +329,13 @@ function * createSubmission (authUser, files, entity) {
   }
 
   logger.info('Prepared submission create event payload to pass to the Bus')
-  logger.info(`Posting to bus ${reqBody}`)
+  logger.info(`Posting to bus ${JSON.stringify(reqBody)}`)
   // Post to Bus API using Client
   yield helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
+  logger.info(`done creating submission. Returning: ${JSON.stringify(item)}`)
   return item
 }
 
