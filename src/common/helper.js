@@ -307,11 +307,14 @@ function * getM2Mtoken () {
 function * getSubmissionPhaseId (challengeId) {
   let phaseId = null
   let response
+
   try {
+    logger.info(`Calling to challenge API to find submission phase Id for ${challengeId}`)
     const token = yield getM2Mtoken()
     response = yield request.get(`${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
+    logger.info(`returned from finding submission phase Id for ${challengeId}`)
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
     logger.debug('Setting submissionPhaseId to Null')
@@ -349,9 +352,11 @@ function * checkCreateAccess (authUser, subEntity) {
 
   try {
     const token = yield getM2Mtoken()
+    logger.info(`Calling to challenge API for fetch phases and winners for ${subEntity.challengeId}`)
     response = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
+    logger.info(`returned for ${subEntity.challengeId} with ${JSON.stringify(response)}`)
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
     logger.error(ex)
