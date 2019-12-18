@@ -30,7 +30,7 @@ function * _getReviewSummation (reviewSummationId, parentSpan) {
     const filter = {
       TableName: table,
       Key: {
-        'id': reviewSummationId
+        id: reviewSummationId
       }
     }
     const result = yield dbhelper.getRecord(filter, getReviewSummationSpan)
@@ -81,17 +81,24 @@ function * listReviewSummations (query, span) {
     listReviewSummationsSpan.finish()
   }
 }
+const listReviewSummationsQuerySchema = {
+  scoreCardId: joi.id(),
+  submissionId: joi.string().uuid(),
+  aggregateScore: joi.score(),
+  isPassing: joi.boolean(),
+  isFinal: joi.boolean(),
+  page: joi.id(),
+  perPage: joi.pageSize(),
+  orderBy: joi.sortOrder()
+}
+
+listReviewSummationsQuerySchema.sortBy = joi.string().valid(_.difference(
+  Object.keys(listReviewSummationsQuerySchema),
+  ['page', 'perPage', 'orderBy']
+))
 
 listReviewSummations.schema = {
-  query: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionId: joi.string().uuid(),
-    aggregateScore: joi.score(),
-    isPassing: joi.boolean(),
-    isFinal: joi.boolean(),
-    page: joi.id(),
-    perPage: joi.pageSize()
-  })
+  query: joi.object().keys(listReviewSummationsQuerySchema).with('orderBy', 'sortBy')
 }
 
 /**
@@ -111,14 +118,14 @@ function * createReviewSummation (authUser, entity, span) {
     const currDate = (new Date()).toISOString()
 
     const item = _.extend({
-      'id': uuid(),
-      'created': currDate,
-      'updated': currDate,
-      'createdBy': authUser.handle || authUser.sub,
-      'updatedBy': authUser.handle || authUser.sub }, entity)
+      id: uuid(),
+      created: currDate,
+      updated: currDate,
+      createdBy: authUser.handle || authUser.sub,
+      updatedBy: authUser.handle || authUser.sub }, entity)
 
     if (entity.isFinal) {
-      item['isFinal'] = entity.isFinal
+      item.isFinal = entity.isFinal
     }
 
     const record = {
@@ -131,11 +138,11 @@ function * createReviewSummation (authUser, entity, span) {
     // Push Review Summation created event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.create,
-      'originator': originator,
-      'timestamp': currDate, // time when submission was created
+      topic: events.submission.create,
+      originator: originator,
+      timestamp: currDate, // time when submission was created
       'mime-type': mimeType,
-      'payload': _.extend({ 'resource': helper.camelize(table) }, item)
+      payload: _.extend({ 'resource': helper.camelize(table) }, item)
     }
 
     // Post to Bus API using Client
@@ -152,7 +159,7 @@ function * createReviewSummation (authUser, entity, span) {
 createReviewSummation.schema = {
   authUser: joi.object().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
@@ -197,7 +204,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity, parentSp
     const record = {
       TableName: table,
       Key: {
-        'id': reviewSummationId
+        id: reviewSummationId
       },
       UpdateExpression: `set aggregateScore = :s, scoreCardId = :sc, submissionId = :su,
                           isPassing = :ip, updated = :ua, updatedBy = :ub`,
@@ -213,8 +220,8 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity, parentSp
 
     // If metadata exists, add it to the update expression
     if (entity.metadata || exist.metadata) {
-      record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
-      record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
+      record.UpdateExpression = record.UpdateExpression + ', metadata = :ma'
+      record.ExpressionAttributeValues[':ma'] = _.merge({}, exist.metadata, entity.metadata)
     }
 
     // If legacy submission ID exists, add it to the update expression
@@ -227,8 +234,8 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity, parentSp
         isFinal = entity.isFinal
       }
 
-      record['UpdateExpression'] = record['UpdateExpression'] + `, isFinal = :ls`
-      record['ExpressionAttributeValues'][':ls'] = isFinal
+      record.UpdateExpression = record.UpdateExpression + ', isFinal = :ls'
+      record.ExpressionAttributeValues[':ls'] = isFinal
     }
 
     yield dbhelper.updateRecord(record, updateReviewSummationSpan)
@@ -236,14 +243,14 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity, parentSp
     // Push Review Summation updated event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.update,
-      'originator': originator,
-      'timestamp': currDate, // time when submission was updated
+      topic: events.submission.update,
+      originator: originator,
+      timestamp: currDate, // time when submission was updated
       'mime-type': mimeType,
-      'payload': _.extend({ 'resource': helper.camelize(table),
-        'id': reviewSummationId,
-        'updated': currDate,
-        'updatedBy': authUser.handle || authUser.sub }, entity)
+      payload: _.extend({ 'resource': helper.camelize(table),
+        id: reviewSummationId,
+        updated: currDate,
+        updatedBy: authUser.handle || authUser.sub }, entity)
     }
 
     // Post to Bus API using Client
@@ -273,7 +280,7 @@ updateReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
+    scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
@@ -298,7 +305,7 @@ patchReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
@@ -327,7 +334,7 @@ function * deleteReviewSummation (reviewSummationId, span) {
     const filter = {
       TableName: table,
       Key: {
-        'id': reviewSummationId
+        id: reviewSummationId
       }
     }
 
@@ -336,13 +343,13 @@ function * deleteReviewSummation (reviewSummationId, span) {
     // Push Review Summation deleted event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.delete,
-      'originator': originator,
-      'timestamp': (new Date()).toISOString(), // time when submission was deleted
+      topic: events.submission.delete,
+      originator: originator,
+      timestamp: new Date().toISOString(), // time when submission was deleted
       'mime-type': mimeType,
-      'payload': {
-        'resource': helper.camelize(table),
-        'id': reviewSummationId
+      payload: {
+        resource: helper.camelize(table),
+        id: reviewSummationId
       }
     }
 

@@ -64,7 +64,11 @@ function * downloadArtifact (submissionId, fileName, span) {
       listObjectsSpan.finish()
     }
 
-    const key = artifacts.Contents[0].Key
+    const key = submissionId + '/' + fileName + '.zip'
+
+    if (!_.includes(_.map(artifacts.Contents, 'Key'), key)) {
+      throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
+    }
 
     const getObjectsSpan = tracer.startChildSpans('S3.getObject', downloadArtifactSpan)
     getObjectsSpan.setTag('Bucket', config.aws.ARTIFACT_BUCKET)
@@ -146,26 +150,11 @@ function * createArtifact (files, submissionId, entity, span) {
     logger.info('Creating a new Artifact')
     if (files && files.artifact) {
       const uFileType = fileTypeFinder(files.artifact.data).ext // File type of uploaded file
-      fileName = `${submissionId}/${entity.typeId}.${uFileType}`
+      fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
 
       const headObjectSpan = tracer.startChildSpans('S3.headObject', createArtifactSpan)
       headObjectSpan.setTag('Bucket', config.aws.ARTIFACT_BUCKET)
       headObjectSpan.setTag('Key', fileName)
-
-      // Check the existence of file in S3 bucket
-      let exist
-      try {
-        exist = yield s3.headObject({ Bucket: config.aws.ARTIFACT_BUCKET,
-          Key: fileName}).promise()
-      } catch (err) {
-        if (err.statusCode !== 404) throw err
-      } finally {
-        headObjectSpan.finish()
-      }
-
-      if (exist) {
-        throw new errors.HttpStatusError(409, `Artifact ${entity.typeId}.${uFileType} already exists for Submission ${submissionId}`)
-      }
 
       const uploadToS3Span = tracer.startChildSpans('S3.upload', createArtifactSpan)
       uploadToS3Span.setTag('Key', fileName)
@@ -187,13 +176,44 @@ function * createArtifact (files, submissionId, entity, span) {
 createArtifact.schema = {
   files: joi.any().required(),
   submissionId: joi.string().guid().required(),
-  entity: joi.object().keys({
-    typeId: joi.string().uuid().required()
-  }).required()
+  entity: joi.object()
+}
+
+/**
+ * Function to delete Artifact from S3
+ * @param {String} submissionId Submission ID
+ * @param {String} fileName File name which need to be deleted from S3
+ * @param {Object} span the Span object
+ * @return {Promise}
+ */
+function * deleteArtifact (submissionId, fileName, span) {
+  const deleteArtifactSpan = tracer.startChildSpans('ArtifactService.deleteArtifact', span)
+  deleteArtifactSpan.setTag('submissionId', submissionId)
+  deleteArtifactSpan.setTag('artifactId', fileName)
+
+  try {
+    // Check the validness of Submission ID
+    yield HelperService._checkRef({ submissionId }, deleteArtifactSpan)
+    const artifacts = yield s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
+    if (artifacts.Contents.length === 0) {
+      throw new errors.HttpStatusError(404, `Artifact ${fileName} doesn't exist for submission ID: ${submissionId}`)
+    }
+    // Delete the object from S3
+    yield s3.deleteObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: artifacts.Contents[0].Key }).promise()
+    logger.info(`deleteArtifact: deleted artifact ${fileName} of Submission ID: ${submissionId}`)
+  } finally {
+    deleteArtifactSpan.finish()
+  }
+}
+
+downloadArtifact.schema = {
+  submissionId: joi.string().uuid().required(),
+  fileName: joi.string().trim().required()
 }
 
 module.exports = {
   downloadArtifact,
   listArtifacts,
-  createArtifact
+  createArtifact,
+  deleteArtifact
 }

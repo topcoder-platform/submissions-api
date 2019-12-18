@@ -15,8 +15,10 @@ const mocha = require('mocha')
 const coMocha = require('co-mocha')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewSummationId, testReviewSummation,
-  testReviewSummationPatch, testSubmission } = require('../common/testData')
+const {
+  nonExReviewSummationId, testReviewSummation,
+  testReviewSummationPatch, testSubmission
+} = require('../common/testData')
 const { loadReviewSummations } = require('../../scripts/ESloadHelper')
 
 coMocha(mocha)
@@ -421,6 +423,17 @@ describe('Review Summation Service tests', () => {
         .end((err, res) => {
           res.should.have.status(400)
           res.body.message.should.be.eql('"test" is not allowed')
+          done()
+        })
+    })
+
+    it('Getting reviewSummations with orderBy without sortBy filter should throw 400', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/reviewSummations?orderBy=asc`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"orderBy" missing required peer "sortBy"')
           done()
         })
     })

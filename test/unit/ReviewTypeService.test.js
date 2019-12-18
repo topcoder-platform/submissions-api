@@ -13,8 +13,10 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewTypeId, testReviewType,
-  testReviewTypePatch } = require('../common/testData')
+const {
+  nonExReviewTypeId, testReviewType,
+  testReviewTypePatch
+} = require('../common/testData')
 
 chai.use(chaiHttp)
 
@@ -57,13 +59,16 @@ describe('ReviewType Service tests', () => {
         })
     })
 
-    it('Getting existing review type with user token should throw 403', (done) => {
+    it('Getting existing review type with user token should return the record', (done) => {
       chai.request(app)
         .get(`${config.API_VERSION}/reviewTypes/${testReviewType.Item.id}`)
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
-          res.should.have.status(403)
-          res.body.message.should.be.eql('You are not allowed to perform this action!')
+          res.should.have.status(200)
+          res.body.should.have.all.keys(Object.keys(testReviewType.Item))
+          res.body.id.should.be.eql(testReviewType.Item.id)
+          res.body.name.should.be.eql(testReviewType.Item.name)
+          res.body.isActive.should.be.eql(testReviewType.Item.isActive)
           done()
         })
     })
@@ -318,7 +323,7 @@ describe('ReviewType Service tests', () => {
       chai.request(app)
         .patch(`${config.API_VERSION}/reviewTypes/${testReviewTypePatch.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send({isActive: false})
+        .send({ isActive: false })
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewTypePatch.Item))
@@ -404,6 +409,17 @@ describe('ReviewType Service tests', () => {
         })
     })
 
+    it('Getting review types with orderBy without sortBy filter should throw 400', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/reviewTypes?orderBy=asc`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"orderBy" missing required peer "sortBy"')
+          done()
+        })
+    })
+
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
      */
@@ -416,13 +432,13 @@ describe('ReviewType Service tests', () => {
         })
     })
 
-    it('Getting review types with user token should throw 403', (done) => {
+    it('Getting review types with user token should return the record', (done) => {
       chai.request(app)
         .get(`${config.API_VERSION}/reviewTypes`)
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
-          res.should.have.status(403)
-          res.body.message.should.be.eql('You are not allowed to perform this action!')
+          res.should.have.status(200)
+          res.body.length.should.be.eql(6)
           done()
         })
     })

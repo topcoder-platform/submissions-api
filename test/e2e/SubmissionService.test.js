@@ -15,8 +15,10 @@ const mocha = require('mocha')
 const coMocha = require('co-mocha')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExSubmissionId, testSubmission, testSubmissionWoLegacy,
-  testSubmissionPatch } = require('../common/testData')
+const {
+  nonExSubmissionId, testSubmission, testSubmissionWoLegacy,
+  testSubmissionPatch
+} = require('../common/testData')
 const { loadSubmissions } = require('../../scripts/ESloadHelper')
 
 coMocha(mocha)
@@ -111,7 +113,7 @@ describe('Submission Service tests', () => {
         .attach('submission', './test/common/fileToUpload.zip', 'fileToUpload.zip')
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql(`fileType parameter doesn't match the type of the uploaded file`)
+          res.body.message.should.be.eql('fileType parameter doesn\'t match the type of the uploaded file')
           done()
         })
     })
@@ -515,6 +517,17 @@ describe('Submission Service tests', () => {
         })
     })
 
+    it('Getting submissions with orderBy without sortBy filter should throw 400', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions?orderBy=asc`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"orderBy" missing required peer "sortBy"')
+          done()
+        })
+    })
+
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
      */
@@ -545,6 +558,42 @@ describe('Submission Service tests', () => {
         .end((err, res) => {
           res.should.have.status(200)
           res.body.length.should.be.eql(5)
+          done()
+        })
+    }).timeout(20000)
+
+    it('Getting submissions with Admin token should include review.metadata.public and review.metadata.private', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.nested.property('[0].review[0].metadata.public')
+          res.body.should.have.nested.property('[0].review[0].metadata.private')
+          done()
+        })
+    }).timeout(20000)
+
+    it('Getting submissions with Copilot token should include review.metadata.public and review.metadata.private', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions`)
+        .set('Authorization', `Bearer ${config.COPILOT_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.nested.property('[0].review[0].metadata.public')
+          res.body.should.have.nested.property('[0].review[0].metadata.private')
+          done()
+        })
+    }).timeout(20000)
+
+    it('Getting submissions with User token should include review.metadata.public but not review.metadata.private', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions`)
+        .set('Authorization', `Bearer ${config.USER_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.nested.property('[0].review[0].metadata.public')
+          res.body.should.not.have.nested.property('[0].review[0].metadata.private')
           done()
         })
     }).timeout(20000)

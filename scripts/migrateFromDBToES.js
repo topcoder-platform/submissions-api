@@ -19,22 +19,24 @@ const esClient = helper.getEsClient()
 function * migrateRecords (tableName) {
   let promises = []
   let batchCounter = 1
-  let params = {
+  const params = {
     TableName: tableName
   }
   let span = require('../src/common/tracer').startSpans('Empty')
   // Process until all the records from DB is fetched
   while (true) {
-    let records = yield dbhelper.scanRecords(params, span)
-    let totalRecords = records.Items.length
+    const records = yield dbhelper.scanRecords(params, span)
+    const totalRecords = records.Items.length
     logger.debug(`Number of ${tableName}s fetched from DB - ` + totalRecords)
     for (let i = 0; i < totalRecords; i++) {
-      let record = {
+      const record = {
         index: config.get('esConfig.ES_INDEX'),
         type: config.get('esConfig.ES_TYPE'),
         id: records.Items[i].id,
-        body: { doc: _.extend({ resource: helper.camelize(tableName) }, records.Items[i]),
-          doc_as_upsert: true }
+        body: {
+          doc: _.extend({ resource: helper.camelize(tableName) }, records.Items[i]),
+          doc_as_upsert: true
+        }
       }
       promises.push(esClient.update(record))
 

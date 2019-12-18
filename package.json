@@ -38,7 +38,7 @@
     "http-status": "^1.2.0",
     "joi": "^13.4.0",
     "lightstep-tracer": "^0.22.0",
-    "lodash": "^4.17.10",
+    "lodash": "^4.17.15",
     "signalfx-tracing": "^0.1.0",
     "superagent": "^3.8.3",
     "swagger-ui-express": "^3.0.10",
@@ -53,6 +53,7 @@
     "chai": "^4.1.2",
     "chai-http": "^4.0.0",
     "co-mocha": "^1.2.2",
+    "husky": "^3.0.5",
     "mocha": "^5.2.0",
     "mocha-prepare": "^0.1.0",
     "nock": "^9.4.3",
@@ -67,5 +68,10 @@
     "env": [
       "mocha"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
   }
 }

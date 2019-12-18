@@ -236,41 +236,64 @@ function * downloadSubmission (authUser, submissionId, span) {
 
 /**
  * Function to list submissions from Elastic Search
+ * @param {Object} authUser Authenticated User
  * @param {Object} query Query filters passed in HTTP request
  * @param {Object} span the Span object
  * @return {Object} Data fetched from ES
  */
-function * listSubmissions (query, span) {
+function * listSubmissions (authUser, query, span) {
   const listSubmissionsSpan = tracer.startChildSpans('SubmissionService.listSubmissions', span)
+  let data = []
 
   try {
-    return yield helper.fetchFromES(query, helper.camelize(table), listSubmissionsSpan)
+    const data = yield helper.fetchFromES(query, helper.camelize(table), listSubmissionsSpan)
+    logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
+
+    data.rows = _.map(data.rows, (submission) => {
+      if (submission.review) {
+        submission.review = helper.cleanseReviews(submission.review, authUser)
+      }
+      return submission
+    })
   } finally {
     listSubmissionsSpan.finish()
   }
+
+  return data
 }
 
+const listSubmissionsQuerySchema = {
+  type: joi.string(),
+  url: joi.string().uri().trim(),
+  memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  page: joi.id(),
+  perPage: joi.pageSize(),
+  orderBy: joi.sortOrder(),
+  'review.score': joi.score(),
+  'review.legacyReviewId': joi.id(),
+  'review.typeId': joi.string().uuid(),
+  'review.reviewerId': joi.string().uuid(),
+  'review.scoreCardId': joi.id(),
+  'review.submissionId': joi.string().uuid(),
+  'review.status': joi.reviewStatus(),
+  'reviewSummation.scoreCardId': joi.id(),
+  'reviewSummation.submissionId': joi.string().uuid(),
+  'reviewSummation.aggregateScore': joi.score(),
+  'reviewSummation.isPassing': joi.boolean()
+}
+
+listSubmissionsQuerySchema.sortBy = joi.string().valid(_.difference(
+  Object.keys(listSubmissionsQuerySchema),
+  ['page', 'perPage', 'orderBy']
+))
+
 listSubmissions.schema = {
-  query: joi.object().keys({
-    type: joi.string(),
-    url: joi.string().uri().trim(),
-    memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    page: joi.id(),
-    perPage: joi.pageSize(),
-    'review.score': joi.score(),
-    'review.typeId': joi.string().uuid(),
-    'review.reviewerId': joi.string().uuid(),
-    'review.scoreCardId': joi.string().uuid(),
-    'review.submissionId': joi.string().uuid(),
-    'reviewSummation.scoreCardId': joi.string().uuid(),
-    'reviewSummation.submissionId': joi.string().uuid(),
-    'reviewSummation.aggregateScore': joi.score(),
-    'reviewSummation.isPassing': joi.boolean()
-  })
+  authUser: joi.object().required(),
+  query: joi.object().keys(listSubmissionsQuerySchema).with('orderBy', 'sortBy')
 }
 
 /**
@@ -309,44 +332,46 @@ function * createSubmission (authUser, files, entity, span) {
       }
       const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`, createSubmissionSpan)
       url = file.Location
+    } else if (files) {
+      throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
     }
 
     const currDate = (new Date()).toISOString()
 
     const item = {
-      'id': submissionId,
-      'type': entity.type,
-      'url': url,
-      'memberId': entity.memberId,
-      'challengeId': entity.challengeId,
-      'created': currDate,
-      'updated': currDate,
-      'createdBy': authUser.handle || authUser.sub,
-      'updatedBy': authUser.handle || authUser.sub
+      id: submissionId,
+      type: entity.type,
+      url: url,
+      memberId: entity.memberId,
+      challengeId: entity.challengeId,
+      created: currDate,
+      updated: currDate,
+      createdBy: authUser.handle || authUser.sub,
+      updatedBy: authUser.handle || authUser.sub
     }
 
     if (entity.legacySubmissionId) {
-      item['legacySubmissionId'] = entity.legacySubmissionId
+      item.legacySubmissionId = entity.legacySubmissionId
     }
 
     if (entity.legacyUploadId) {
-      item['legacyUploadId'] = entity.legacyUploadId
+      item.legacyUploadId = entity.legacyUploadId
     }
 
     if (entity.submissionPhaseId) {
-      item['submissionPhaseId'] = entity.submissionPhaseId
+      item.submissionPhaseId = entity.submissionPhaseId
     } else {
-      item['submissionPhaseId'] = yield helper.getSubmissionPhaseId(entity.challengeId, createSubmissionSpan)
+      item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId, createSubmissionSpan)
     }
 
     if (entity.fileType) {
-      item['fileType'] = entity.fileType
+      item.fileType = entity.fileType
     } else {
-      item['fileType'] = fileType
+      item.fileType = fileType
     }
 
     logger.info('Check User access before creating the submission')
-    if (_.intersection(authUser.roles, ['Administrator']).length === 0 && !authUser.scopes) {
+    if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
       yield helper.checkCreateAccess(authUser, item, createSubmissionSpan)
     }
 
@@ -362,19 +387,19 @@ function * createSubmission (authUser, files, entity, span) {
     // Push Submission created event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.create,
-      'originator': originator,
-      'timestamp': currDate, // time when submission was created
+      topic: events.submission.create,
+      originator: originator,
+      timestamp: currDate, // time when submission was created
       'mime-type': mimeType,
-      'payload': _.extend({ 'resource': helper.camelize(table) }, item)
+      payload: _.extend({ resource: helper.camelize(table) }, item)
     }
 
     // If the file is uploaded, set properties accordingly
     if (files && files.submission) {
-      reqBody['payload']['isFileSubmission'] = true
-      reqBody['payload']['filename'] = files.submission.name
+      reqBody.payload.isFileSubmission = true
+      reqBody.payload.filename = files.submission.name
     } else { // If the file URL is provided, handle accordingly
-      reqBody['payload']['isFileSubmission'] = false
+      reqBody.payload.isFileSubmission = false
     }
 
     logger.info('Prepared submission create event payload to pass to THE bus')
@@ -432,7 +457,7 @@ function * _updateSubmission (authUser, submissionId, entity, parentSpan) {
     const record = {
       TableName: table,
       Key: {
-        'id': submissionId
+        id: submissionId
       },
       UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
                           updated = :ua, updatedBy = :ub`,
@@ -452,20 +477,20 @@ function * _updateSubmission (authUser, submissionId, entity, parentSpan) {
 
     // If legacy submission ID exists, add it to the update expression
     if (entity.legacySubmissionId || exist.legacySubmissionId) {
-      record['UpdateExpression'] = record['UpdateExpression'] + `, legacySubmissionId = :ls`
-      record['ExpressionAttributeValues'][':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
+      record.UpdateExpression = record.UpdateExpression + ', legacySubmissionId = :ls'
+      record.ExpressionAttributeValues[':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
     }
 
     // If legacy upload ID exists, add it to the update expression
     if (entity.legacyUploadId || exist.legacyUploadId) {
-      record['UpdateExpression'] = record['UpdateExpression'] + `, legacyUploadId = :lu`
-      record['ExpressionAttributeValues'][':lu'] = entity.legacyUploadId || exist.legacyUploadId
+      record.UpdateExpression = record.UpdateExpression + ', legacyUploadId = :lu'
+      record.ExpressionAttributeValues[':lu'] = entity.legacyUploadId || exist.legacyUploadId
     }
 
     // If submissionPhaseId exists, add it to the update expression
     if (entity.submissionPhaseId || exist.submissionPhaseId) {
-      record['UpdateExpression'] = record['UpdateExpression'] + `, submissionPhaseId = :sp`
-      record['ExpressionAttributeValues'][':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
+      record.UpdateExpression = record.UpdateExpression + ', submissionPhaseId = :sp'
+      record.ExpressionAttributeValues[':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
     }
 
     logger.info('Prepared submission item to update in Dynamodb. Updating...')
@@ -476,17 +501,17 @@ function * _updateSubmission (authUser, submissionId, entity, parentSpan) {
     // Push Submission updated event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.update,
-      'originator': originator,
-      'timestamp': currDate, // time when submission was updated
+      topic: events.submission.update,
+      originator: originator,
+      timestamp: currDate, // time when submission was updated
       'mime-type': mimeType,
-      'payload': _.extend({
-        'resource': helper.camelize(table),
-        'id': submissionId,
-        'challengeId': updatedSub.challengeId,
-        'memberId': updatedSub.memberId,
-        'submissionPhaseId': updatedSub.submissionPhaseId,
-        'type': updatedSub.type
+      payload: _.extend({
+        resource: helper.camelize(table),
+        id: submissionId,
+        challengeId: updatedSub.challengeId,
+        memberId: updatedSub.memberId,
+        submissionPhaseId: updatedSub.submissionPhaseId,
+        type: updatedSub.type
       }, entity)
     }
 
@@ -573,7 +598,7 @@ function * deleteSubmission (submissionId, span) {
     const filter = {
       TableName: table,
       Key: {
-        'id': submissionId
+        id: submissionId
       }
     }
 
@@ -582,13 +607,13 @@ function * deleteSubmission (submissionId, span) {
     // Push Submission deleted event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.delete,
-      'originator': originator,
-      'timestamp': (new Date()).toISOString(), // time when submission was deleted
+      topic: events.submission.delete,
+      originator: originator,
+      timestamp: (new Date()).toISOString(), // time when submission was deleted
       'mime-type': mimeType,
-      'payload': {
-        'resource': helper.camelize(table),
-        'id': submissionId
+      payload: {
+        resource: helper.camelize(table),
+        id: submissionId
       }
     }
 

@@ -13,8 +13,10 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewId, testReview, nonExSubmissionId,
-  nonExReviewTypeId, testReviewPatch } = require('../common/testData')
+const {
+  nonExReviewId, testReview, nonExSubmissionId,
+  nonExReviewTypeId, testReviewPatch
+} = require('../common/testData')
 
 chai.use(chaiHttp)
 
@@ -77,6 +79,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(testReview.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
@@ -173,10 +176,32 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.not.be.eql(null)
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(testReview.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
           res.body.typeId.should.be.eql(testReview.Item.typeId)
+          res.body.status.should.be.eql(testReview.Item.status)
+          done()
+        })
+    }).timeout(10000)
+
+    it('Creating review without status should be created with status "completed"', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/reviews`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.omit(testReview.Item, ['id', 'status', 'created', 'updated', 'createdBy', 'updatedBy']))
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.all.keys(Object.keys(testReview.Item))
+          res.body.id.should.not.be.eql(null)
+          res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
+          res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
+          res.body.submissionId.should.be.eql(testReview.Item.submissionId)
+          res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
+          res.body.typeId.should.be.eql(testReview.Item.typeId)
+          res.body.status.should.be.eql('completed')
           done()
         })
     }).timeout(10000)
@@ -269,6 +294,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(testReview.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
@@ -341,6 +367,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReviewPatch.Item))
           res.body.id.should.be.eql(testReviewPatch.Item.id)
           res.body.score.should.be.eql(testReviewPatch.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReviewPatch.Item.reviewerId)
           res.body.submissionId.should.be.eql(testReviewPatch.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReviewPatch.Item.scoreCardId)
@@ -359,6 +386,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReviewPatch.Item))
           res.body.id.should.be.eql(testReviewPatch.Item.id)
           res.body.score.should.be.eql(testReviewPatch.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReviewPatch.Item.reviewerId)
           res.body.submissionId.should.be.eql(testReviewPatch.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReviewPatch.Item.scoreCardId)
@@ -439,6 +467,17 @@ describe('Review Service tests', () => {
         .end((err, res) => {
           res.should.have.status(400)
           res.body.message.should.be.eql('"test" is not allowed')
+          done()
+        })
+    })
+
+    it('Getting reviews with orderBy without sortBy filter should throw 400', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/reviews?orderBy=asc`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"orderBy" missing required peer "sortBy"')
           done()
         })
     })

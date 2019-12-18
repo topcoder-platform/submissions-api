@@ -10,9 +10,7 @@ const logger = require('winston')
 
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
-const {
-  originator, mimeType, events
-} = require('../../constants').busApiMeta
+const { originator, mimeType, events } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
 const SubmissionService = require('./SubmissionService')
 const tracer = require('../common/tracer')
@@ -35,7 +33,7 @@ function * _getReview (reviewId, parentSpan) {
     const filter = {
       TableName: table,
       Key: {
-        'id': reviewId
+        id: reviewId
       }
     }
     const result = yield dbhelper.getRecord(filter, getReviewSpan)
@@ -87,7 +85,10 @@ function * getReview (authUser, reviewId, span) {
 
 getReview.schema = {
   authUser: joi.object().required(),
-  reviewId: joi.string().uuid().required()
+  reviewId: joi
+    .string()
+    .uuid()
+    .required()
 }
 
 /**
@@ -106,16 +107,34 @@ function * listReviews (query, span) {
   }
 }
 
+const listReviewsQuerySchema = {
+  score: joi.score(),
+  legacyReviewId: joi.id(),
+  typeId: joi.string().uuid(),
+  reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  scoreCardId: joi.id(),
+  submissionId: joi.string().uuid(),
+  status: joi.reviewStatus(),
+  page: joi.id(),
+  perPage: joi.pageSize(),
+  orderBy: joi.sortOrder()
+}
+
+listReviewsQuerySchema.sortBy = joi
+  .string()
+  .valid(
+    _.difference(Object.keys(listReviewsQuerySchema), [
+      'page',
+      'perPage',
+      'orderBy'
+    ])
+  )
+
 listReviews.schema = {
-  query: joi.object().keys({
-    score: joi.score(),
-    typeId: joi.string().uuid(),
-    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionId: joi.string().uuid(),
-    page: joi.id(),
-    perPage: joi.pageSize()
-  })
+  query: joi
+    .object()
+    .keys(listReviewsQuerySchema)
+    .with('orderBy', 'sortBy')
 }
 
 /**
@@ -132,14 +151,15 @@ function * createReview (authUser, entity, span) {
     // Check the validness of references using Helper function
     yield HelperService._checkRef(entity, createReviewSpan)
 
-    const currDate = (new Date()).toISOString()
+    const currDate = new Date().toISOString()
 
     const item = _.extend({
-      'id': uuid(),
-      'created': currDate,
-      'updated': currDate,
-      'createdBy': authUser.handle || authUser.sub,
-      'updatedBy': authUser.handle || authUser.sub
+      id: uuid(),
+      created: currDate,
+      updated: currDate,
+      createdBy: authUser.handle || authUser.sub,
+      updatedBy: authUser.handle || authUser.sub,
+      status: entity.status || 'completed'
     }, entity)
 
     // Prepare record to be inserted
@@ -153,12 +173,12 @@ function * createReview (authUser, entity, span) {
     // Push Review created event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.create,
-      'originator': originator,
-      'timestamp': currDate, // time when submission was created
+      topic: events.submission.create,
+      originator: originator,
+      timestamp: currDate, // time when submission was created
       'mime-type': mimeType,
-      'payload': _.extend({
-        'resource': helper.camelize(table)
+      payload: _.extend({
+        resource: helper.camelize(table)
       }, item)
     }
 
@@ -175,14 +195,35 @@ function * createReview (authUser, entity, span) {
 
 createReview.schema = {
   authUser: joi.object().required(),
-  entity: joi.object().keys({
-    score: joi.score().required(),
-    typeId: joi.string().uuid().required(),
-    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    submissionId: joi.string().uuid().required(),
-    metadata: joi.object()
-  }).required()
+  entity: joi
+    .object()
+    .keys({
+      score: joi.when('status', {
+        is: joi.string().valid('completed'),
+        then: joi.required(),
+        otherwise: joi.optional()
+      }),
+      legacyReviewId: joi.id(),
+      typeId: joi
+        .string()
+        .uuid()
+        .required(),
+      reviewerId: joi
+        .alternatives()
+        .try(joi.id(), joi.string().uuid())
+        .required()
+        .error(errors => ({
+          message: '"reviewerId" must be a number or a string'
+        })),
+      scoreCardId: joi.id().required(),
+      submissionId: joi
+        .string()
+        .uuid()
+        .required(),
+      status: joi.reviewStatus(),
+      metadata: joi.object()
+    })
+    .required()
 }
 
 /*
@@ -207,32 +248,42 @@ function * _updateReview (authUser, reviewId, entity, parentSpan) {
     // Check the validness of references using Helper function
     yield HelperService._checkRef(entity, updateReviewSpan)
 
-    const currDate = (new Date()).toISOString()
+    const currDate = new Date().toISOString()
 
     // Record used for updating in Database
     const record = {
       TableName: table,
       Key: {
-        'id': reviewId
+        id: reviewId
       },
-      UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
-                          typeId = :t, reviewerId = :r,
+      UpdateExpression: `set score = :s, legacyReviewId = :lr, scoreCardId = :sc,
+                          submissionId = :su, typeId = :t, reviewerId = :r, #st = :st,
                           updated = :ua, updatedBy = :ub`,
       ExpressionAttributeValues: {
         ':s': entity.score || exist.score,
+        ':lr': entity.legacyReviewId || exist.legacyReviewId,
         ':sc': entity.scoreCardId || exist.scoreCardId,
         ':su': entity.submissionId || exist.submissionId,
         ':t': entity.typeId || exist.typeId,
         ':r': entity.reviewerId || exist.reviewerId,
+        ':st': entity.status || exist.status || 'completed',
         ':ua': currDate,
         ':ub': authUser.handle || authUser.sub
+      },
+      ExpressionAttributeNames: {
+        '#st': 'status'
       }
     }
 
     // If metadata exists, add it to the update expression
     if (entity.metadata || exist.metadata) {
-      record['UpdateExpression'] = record['UpdateExpression'] + `, metadata = :ma`
-      record['ExpressionAttributeValues'][':ma'] = _.merge({}, exist.metadata, entity.metadata)
+      record.UpdateExpression =
+        record.UpdateExpression + ', metadata = :ma'
+      record.ExpressionAttributeValues[':ma'] = _.merge(
+        {},
+        exist.metadata,
+        entity.metadata
+      )
     }
 
     yield dbhelper.updateRecord(record, updateReviewSpan)
@@ -240,16 +291,19 @@ function * _updateReview (authUser, reviewId, entity, parentSpan) {
     // Push Review updated event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.update,
-      'originator': originator,
-      'timestamp': currDate, // time when submission was updated
+      topic: events.submission.update,
+      originator: originator,
+      timestamp: currDate, // time when submission was updated
       'mime-type': mimeType,
-      'payload': _.extend({
-        'resource': helper.camelize(table),
-        'id': reviewId,
-        'updated': currDate,
-        'updatedBy': authUser.handle || authUser.sub
-      }, entity)
+      payload: _.extend(
+        {
+          resource: helper.camelize(table),
+          id: reviewId,
+          updated: currDate,
+          updatedBy: authUser.handle || authUser.sub
+        },
+        entity
+      )
     }
 
     // Post to Bus API using Client
@@ -280,15 +334,32 @@ function * updateReview (authUser, reviewId, entity, span) {
 
 updateReview.schema = {
   authUser: joi.object().required(),
-  reviewId: joi.string().uuid().required(),
-  entity: joi.object().keys({
-    score: joi.score().required(),
-    typeId: joi.string().uuid().required(),
-    reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
-    submissionId: joi.string().uuid().required(),
-    metadata: joi.object()
-  }).required()
+  reviewId: joi
+    .string()
+    .uuid()
+    .required(),
+  entity: joi
+    .object()
+    .keys({
+      score: joi.score().required(),
+      legacyReviewId: joi.id(),
+      typeId: joi
+        .string()
+        .uuid()
+        .required(),
+      reviewerId: joi
+        .alternatives()
+        .try(joi.id(), joi.string().uuid())
+        .required(),
+      scoreCardId: joi.id().required(),
+      submissionId: joi
+        .string()
+        .uuid()
+        .required(),
+      status: joi.reviewStatus(),
+      metadata: joi.object()
+    })
+    .required()
 }
 
 /**
@@ -305,13 +376,18 @@ function * patchReview (authUser, reviewId, entity, span) {
 
 patchReview.schema = {
   authUser: joi.object().required(),
-  reviewId: joi.string().uuid().required(),
+  reviewId: joi
+    .string()
+    .uuid()
+    .required(),
   entity: joi.object().keys({
     score: joi.score(),
+    legacyReviewId: joi.id(),
     typeId: joi.string().uuid(),
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
+    status: joi.reviewStatus(),
     metadata: joi.object()
   })
 }
@@ -336,7 +412,7 @@ function * deleteReview (reviewId, span) {
     const filter = {
       TableName: table,
       Key: {
-        'id': reviewId
+        id: reviewId
       }
     }
 
@@ -345,13 +421,13 @@ function * deleteReview (reviewId, span) {
     // Push Review deleted event to Bus API
     // Request body for Posting to Bus API
     const reqBody = {
-      'topic': events.submission.delete,
-      'originator': originator,
-      'timestamp': (new Date()).toISOString(), // time when submission was deleted
+      topic: events.submission.delete,
+      originator: originator,
+      timestamp: new Date().toISOString(), // time when submission was deleted
       'mime-type': mimeType,
-      'payload': {
-        'resource': helper.camelize(table),
-        'id': reviewId
+      payload: {
+        resource: helper.camelize(table),
+        id: reviewId
       }
     }
 
@@ -363,7 +439,10 @@ function * deleteReview (reviewId, span) {
 }
 
 deleteReview.schema = {
-  reviewId: joi.string().uuid().required()
+  reviewId: joi
+    .string()
+    .uuid()
+    .required()
 }
 
 module.exports = {

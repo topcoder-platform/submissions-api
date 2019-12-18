@@ -22,9 +22,11 @@ const testReviewTypePatch = {
 
 const testReviewTypeES = {
   hits:
-   { total: 1,
+   {
+     total: 1,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
@@ -39,56 +41,81 @@ const testReviewTypeES = {
 
 const testReviewTypesES = {
   hits:
-   { total: 5,
+   {
+     total: 5,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'a56a4180-65aa-42ec-a945-5fd21dec0505',
        _score: 0,
        _source:
-     { name: 'Iterative Review',
+     {
+       name: 'Iterative Review',
        id: 'a56a4180-65aa-42ec-a945-5fd21dec0505',
-       isActive: true } },
-     { _index: 'submission',
+       isActive: true
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a56a4180-65aa-42ec-a945-5fd21dec0504',
        _score: 0,
        _source:
-       { name: 'Appeals Response',
+       {
+         name: 'Appeals Response',
          id: 'a56a4180-65aa-42ec-a945-5fd21dec0504',
-         isActive: true } },
-     { _index: 'submission',
+         isActive: true
+       }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a56a4180-65aa-42ec-a945-5fd21dec0503',
        _score: 0,
        _source:
-       { name: 'Review',
+       {
+         name: 'Review',
          id: 'a56a4180-65aa-42ec-a945-5fd21dec0503',
-         isActive: true } },
-     { _index: 'submission',
+         isActive: true
+       }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a56a4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
        _source:
-       { name: 'Screening',
+       {
+         name: 'Screening',
          id: 'a56a4180-65aa-42ec-a945-5fd21dec0501',
-         isActive: true } },
-     { _index: 'submission',
+         isActive: true
+       }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a56a4180-65aa-42ec-a945-5fd21dec0502',
        _score: 0,
        _source:
-       { name: 'Checkpoint Review',
+       {
+         name: 'Checkpoint Review',
          id: 'a56a4180-65aa-42ec-a945-5fd21dec0502',
-         isActive: true } },
-     { _index: 'submission',
+         isActive: true
+       }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'f28b2725-ef90-4495-af59-ceb2bd98fc10',
        _score: 0,
        _source:
-       { name: 'AV Scan',
+       {
+         name: 'AV Scan',
          id: 'f28b2725-ef90-4495-af59-ceb2bd98fc10',
-         isActive: true } } ]
+         isActive: true
+       }
+     }]
    }
 }
 
@@ -142,9 +169,11 @@ const testSubmissionPatch = {
 
 const testSubmissionES = {
   hits:
-   { total: 1,
+   {
+     total: 1,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
@@ -167,14 +196,17 @@ const testSubmissionES = {
 
 const testSubmissionsES = {
   hits:
-   { total: 5,
+   {
+     total: 5,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
        _score: 0,
        _source:
-     { challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0503',
+     {
+       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0503',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
@@ -182,13 +214,35 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123458',
-       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0503' } },
-     { _index: 'submission',
+       review: [{
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         legacyReviewId: 1234567891,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       }],
+       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0503'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
        _source:
-     { challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+     {
+       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
@@ -196,13 +250,35 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
-       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501' } },
-     { _index: 'submission',
+       review: [{
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         legacyReviewId: 1234567891,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       }],
+       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
        _score: 0,
        _source:
-     { challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+     {
+       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
@@ -210,13 +286,35 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457',
-       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0502' } },
-     { _index: 'submission',
+       review: [{
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         legacyReviewId: 1234567891,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       }],
+       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0502'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0505',
        _score: 0,
        _source:
-     { challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0503',
+     {
+       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0503',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
@@ -224,13 +322,35 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460',
-       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0505' } },
-     { _index: 'submission',
+       review: [{
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         legacyReviewId: 1234567891,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       }],
+       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0505'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0504',
        _score: 0,
        _source:
-     { challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0503',
+     {
+       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0503',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
@@ -238,7 +358,27 @@ const testSubmissionsES = {
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
        url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123459',
-       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0504' } } ]
+       review: [{
+         id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
+         score: 92,
+         legacyReviewId: 1234567891,
+         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+         submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+         scoreCardId: 123456789,
+         status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
+         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         updated: '2018-06-01T07:36:28.178Z',
+         createdBy: 'admin',
+         updatedBy: 'admin'
+       }],
+       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0504'
+     }
+     }]
 
    }
 }
@@ -249,9 +389,11 @@ const testReview = {
   Item: {
     id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
     score: 92,
+    legacyReviewId: 1234567891,
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
-    scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+    scoreCardId: 123456789,
+    status: 'queued',
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
@@ -264,9 +406,11 @@ const testReviewPatch = {
   Item: {
     id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
     score: 90,
+    legacyReviewId: 1234567891,
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
-    scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+    scoreCardId: 123456789,
+    status: 'queued',
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
@@ -277,18 +421,22 @@ const testReviewPatch = {
 
 const testReviewES = {
   hits:
-   { total: 1,
+   {
+     total: 1,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'd24d4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
        _source: {
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
+         legacyReviewId: 1234567893,
          reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
-         scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+         scoreCardId: 123456789,
+         status: 'queued',
          typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
          created: '2018-05-20T07:00:30.123Z',
          updated: '2018-06-01T07:36:28.178Z',
@@ -301,68 +449,93 @@ const testReviewES = {
 
 const testReviewsES = {
   hits:
-   { total: 4,
+   {
+     total: 4,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'd24d4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
        _source:
-     { score: 95.5,
+     {
+       score: 95.5,
+       legacyReviewId: 1234567891,
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+       status: 'queued',
        updatedBy: 'admin',
        createdBy: 'admin',
-       scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+       scoreCardId: 123456789,
        created: '2018-05-20T07:00:30.123Z',
        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
        id: 'd24d4180-65aa-42ec-a945-5fd21dec0501',
-       updated: '2018-06-01T07:36:28.178Z' } },
-     { _index: 'submission',
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'd24d4180-65aa-42ec-a945-5fd21dec0504',
        _score: 0,
        _source:
-     { score: 65,
+     {
+       score: 65,
+       legacyReviewId: 1234567892,
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0504',
        updatedBy: 'admin',
        createdBy: 'admin',
-       scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+       scoreCardId: 123456789,
+       status: 'queued',
        created: '2018-05-20T07:00:30.123Z',
        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
        id: 'd24d4180-65aa-42ec-a945-5fd21dec0504',
-       updated: '2018-06-01T07:36:28.178Z' } },
-     { _index: 'submission',
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
        _score: 0,
        _source:
-     { score: 92,
+     {
+       score: 92,
+       legacyReviewId: 1234567893,
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
        updatedBy: 'admin',
        createdBy: 'admin',
-       scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+       scoreCardId: 123456789,
+       status: 'queued',
        created: '2018-05-20T07:00:30.123Z',
        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
        id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
-       updated: '2018-06-01T07:36:28.178Z' } },
-     { _index: 'submission',
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'd24d4180-65aa-42ec-a945-5fd21dec0503',
        _score: 0,
        _source:
-     { score: 80.83,
+     {
+       score: 80.83,
+       legacyReviewId: 1234567894,
        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
        updatedBy: 'admin',
        createdBy: 'admin',
-       scoreCardId: 'b25a4180-65aa-42ec-a945-5fd21dec0503',
+       scoreCardId: 123456789,
+       status: 'queued',
        created: '2018-05-20T07:00:30.123Z',
        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
        id: 'd24d4180-65aa-42ec-a945-5fd21dec0503',
-       updated: '2018-06-01T07:36:28.178Z' } } ]
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     }]
    }
 }
 
@@ -374,7 +547,7 @@ const testReviewSummation = {
     aggregateScore: 99,
     isPassing: true,
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
-    scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+    scoreCardId: 123456789,
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
     createdBy: 'copilot',
@@ -388,7 +561,7 @@ const testReviewSummationPatch = {
     aggregateScore: 78.5,
     isPassing: false,
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
-    scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+    scoreCardId: 123456789,
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
     createdBy: 'copilot',
@@ -398,9 +571,11 @@ const testReviewSummationPatch = {
 
 const testReviewSummationES = {
   hits:
-   { total: 1,
+   {
+     total: 1,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
        _score: 0,
@@ -409,7 +584,7 @@ const testReviewSummationES = {
          aggregateScore: 99,
          isPassing: true,
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
-         scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+         scoreCardId: 123456789,
          created: '2018-05-20T07:00:30.123Z',
          updated: '2018-06-01T07:36:28.178Z',
          createdBy: 'copilot',
@@ -421,161 +596,178 @@ const testReviewSummationES = {
 
 const testReviewSummationsES = {
   hits:
-   { total: 4,
+   {
+     total: 4,
      max_score: 0,
-     hits: [ { _index: 'submission',
+     hits: [{
+       _index: 'submission',
        _type: '_doc',
        _id: 'e45e4180-65aa-42ec-a945-5fd21dec1503',
        _score: 0,
        _source:
-     { aggregateScore: 46.3,
+     {
+       aggregateScore: 46.3,
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
        updatedBy: 'copilot',
        createdBy: 'copilot',
-       scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+       scoreCardId: 123456789,
        created: '2018-05-20T07:00:30.123Z',
        id: 'e45e4180-65aa-42ec-a945-5fd21dec1503',
        isPassing: false,
-       updated: '2018-06-01T07:36:28.178Z' } },
-     { _index: 'submission',
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'e45e4180-65aa-42ec-a945-5fd21dec1501',
        _score: 0,
        _source:
-     { aggregateScore: 17.8,
+     {
+       aggregateScore: 17.8,
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
        updatedBy: 'copilot',
        createdBy: 'copilot',
-       scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+       scoreCardId: 123456789,
        created: '2018-05-20T07:00:30.123Z',
        id: 'e45e4180-65aa-42ec-a945-5fd21dec1501',
        isPassing: false,
-       updated: '2018-06-01T07:36:28.178Z' } },
-     { _index: 'submission',
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'e45e4180-65aa-42ec-a945-5fd21dec1502',
        _score: 0,
        _source:
-     { aggregateScore: 84.5,
+     {
+       aggregateScore: 84.5,
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
        updatedBy: 'copilot',
        createdBy: 'copilot',
-       scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+       scoreCardId: 123456789,
        created: '2018-05-20T07:00:30.123Z',
        id: 'e45e4180-65aa-42ec-a945-5fd21dec1502',
        isPassing: true,
-       updated: '2018-06-01T07:36:28.178Z' } },
-     { _index: 'submission',
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     },
+     {
+       _index: 'submission',
        _type: '_doc',
        _id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
        _score: 0,
        _source:
-     { aggregateScore: 99,
+     {
+       aggregateScore: 99,
        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0504',
        updatedBy: 'copilot',
        createdBy: 'copilot',
-       scoreCardId: 'a12a4180-65aa-42ec-a945-5fd21dec0587',
+       scoreCardId: 123456789,
        created: '2018-05-20T07:00:30.123Z',
        id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
        isPassing: true,
-       updated: '2018-06-01T07:36:28.178Z' } } ]
+       updated: '2018-06-01T07:36:28.178Z'
+     }
+     }]
 
    }
 }
 
 const testChallengeAPIResponse = {
-  'id': '24a97f2f:1655fef5034:-7568',
-  'result': {
-    'success': true,
-    'status': 200,
-    'metadata': {
-      'fields': null,
-      'totalCount': 5
+  id: '24a97f2f:1655fef5034:-7568',
+  result: {
+    success: true,
+    status: 200,
+    metadata: {
+      fields: null,
+      totalCount: 5
     },
-    'content': [
+    content: [
       {
-        'challengeId': 30049360,
-        'id': 733195,
-        'phaseType': 'Registration',
-        'phaseStatus': 'Open',
-        'scheduledStartTime': '1438002000000',
-        'scheduledEndTime': '2019-12-02T09:00:00Z',
-        'actualStartTime': '1438002000000',
-        'actualEndTime': null,
-        'fixedStartTime': '1438002000000',
-        'duration': 137293200000,
-        'updatedAt': '2018-07-30T08:38Z',
-        'createdAt': '2015-07-27T09:19Z',
-        'createdBy': '11823846',
-        'updatedBy': '8547899'
+        challengeId: 30049360,
+        id: 733195,
+        phaseType: 'Registration',
+        phaseStatus: 'Open',
+        scheduledStartTime: '1438002000000',
+        scheduledEndTime: '2019-12-02T09:00:00Z',
+        actualStartTime: '1438002000000',
+        actualEndTime: null,
+        fixedStartTime: '1438002000000',
+        duration: 137293200000,
+        updatedAt: '2018-07-30T08:38Z',
+        createdAt: '2015-07-27T09:19Z',
+        createdBy: '11823846',
+        updatedBy: '8547899'
       },
       {
-        'challengeId': 30049360,
-        'id': 733196,
-        'phaseType': 'Submission',
-        'phaseStatus': 'Open',
-        'scheduledStartTime': '1438002300000',
-        'scheduledEndTime': '2019-12-02T09:00:00Z',
-        'actualStartTime': null,
-        'actualEndTime': null,
-        'fixedStartTime': null,
-        'duration': 137292900000,
-        'updatedAt': '2018-07-30T08:38Z',
-        'createdAt': '2015-07-27T09:19Z',
-        'createdBy': '11823846',
-        'updatedBy': '8547899'
+        challengeId: 30049360,
+        id: 733196,
+        phaseType: 'Submission',
+        phaseStatus: 'Open',
+        scheduledStartTime: '1438002300000',
+        scheduledEndTime: '2019-12-02T09:00:00Z',
+        actualStartTime: null,
+        actualEndTime: null,
+        fixedStartTime: null,
+        duration: 137292900000,
+        updatedAt: '2018-07-30T08:38Z',
+        createdAt: '2015-07-27T09:19Z',
+        createdBy: '11823846',
+        updatedBy: '8547899'
       },
       {
-        'challengeId': 30049360,
-        'id': 733197,
-        'phaseType': 'Review',
-        'phaseStatus': 'Scheduled',
-        'scheduledStartTime': '1575295200000',
-        'scheduledEndTime': '2019-12-04T09:00:00Z',
-        'actualStartTime': null,
-        'actualEndTime': null,
-        'fixedStartTime': null,
-        'duration': 172800000,
-        'updatedAt': '2018-07-30T08:38Z',
-        'createdAt': '2015-07-27T09:19Z',
-        'createdBy': '11823846',
-        'updatedBy': '8547899'
+        challengeId: 30049360,
+        id: 733197,
+        phaseType: 'Review',
+        phaseStatus: 'Scheduled',
+        scheduledStartTime: '1575295200000',
+        scheduledEndTime: '2019-12-04T09:00:00Z',
+        actualStartTime: null,
+        actualEndTime: null,
+        fixedStartTime: null,
+        duration: 172800000,
+        updatedAt: '2018-07-30T08:38Z',
+        createdAt: '2015-07-27T09:19Z',
+        createdBy: '11823846',
+        updatedBy: '8547899'
       },
       {
-        'challengeId': 30049360,
-        'id': 733198,
-        'phaseType': 'Appeals',
-        'phaseStatus': 'Scheduled',
-        'scheduledStartTime': '1575468000000',
-        'scheduledEndTime': '2019-12-05T09:00:00Z',
-        'actualStartTime': null,
-        'actualEndTime': null,
-        'fixedStartTime': null,
-        'duration': 86400000,
-        'updatedAt': '2018-07-30T08:38Z',
-        'createdAt': '2015-07-27T09:19Z',
-        'createdBy': '11823846',
-        'updatedBy': '8547899'
+        challengeId: 30049360,
+        id: 733198,
+        phaseType: 'Appeals',
+        phaseStatus: 'Scheduled',
+        scheduledStartTime: '1575468000000',
+        scheduledEndTime: '2019-12-05T09:00:00Z',
+        actualStartTime: null,
+        actualEndTime: null,
+        fixedStartTime: null,
+        duration: 86400000,
+        updatedAt: '2018-07-30T08:38Z',
+        createdAt: '2015-07-27T09:19Z',
+        createdBy: '11823846',
+        updatedBy: '8547899'
       },
       {
-        'challengeId': 30049360,
-        'id': 733199,
-        'phaseType': 'Appeals Response',
-        'phaseStatus': 'Scheduled',
-        'scheduledStartTime': '1575554400000',
-        'scheduledEndTime': '2019-12-05T09:00:00Z',
-        'actualStartTime': null,
-        'actualEndTime': null,
-        'fixedStartTime': null,
-        'duration': 43200000,
-        'updatedAt': '2018-07-30T08:38Z',
-        'createdAt': '2015-07-27T09:19Z',
-        'createdBy': '11823846',
-        'updatedBy': '8547899'
+        challengeId: 30049360,
+        id: 733199,
+        phaseType: 'Appeals Response',
+        phaseStatus: 'Scheduled',
+        scheduledStartTime: '1575554400000',
+        scheduledEndTime: '2019-12-05T09:00:00Z',
+        actualStartTime: null,
+        actualEndTime: null,
+        fixedStartTime: null,
+        duration: 43200000,
+        updatedAt: '2018-07-30T08:38Z',
+        createdAt: '2015-07-27T09:19Z',
+        createdBy: '11823846',
+        updatedBy: '8547899'
       }
     ]
   },
-  'version': 'v4'
+  version: 'v4'
 }
 
 module.exports = {

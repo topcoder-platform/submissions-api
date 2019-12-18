@@ -15,9 +15,11 @@ const mocha = require('mocha')
 const coMocha = require('co-mocha')
 const should = chai.should() // eslint-disable-line
 const app = require('../../app')
-const { nonExReviewId, testReview, nonExSubmissionId,
+const {
+  nonExReviewId, testReview, nonExSubmissionId,
   nonExReviewTypeId, testReviewPatch, testSubmission,
-  testReviewType } = require('../common/testData')
+  testReviewType
+} = require('../common/testData')
 const { loadReviews } = require('../../scripts/ESloadHelper')
 
 coMocha(mocha)
@@ -132,10 +134,33 @@ describe('Review Service tests', () => {
           res.body.id.should.not.be.eql(null)
           reviewId = res.body.id
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
           res.body.typeId.should.be.eql(reviewTypeId)
+          res.body.status.should.be.eql(testReview.Item.status)
+          done()
+        })
+    }).timeout(20000)
+
+    it('Creating review without status should be created with status "completed"', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/reviews`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend({ typeId: reviewTypeId, submissionId: submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'status', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.all.keys(Object.keys(testReview.Item))
+          res.body.id.should.not.be.eql(null)
+          reviewId = res.body.id
+          res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
+          res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
+          res.body.submissionId.should.be.eql(submissionId)
+          res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
+          res.body.typeId.should.be.eql(reviewTypeId)
+          res.body.status.should.be.eql('completed')
           done()
         })
     }).timeout(20000)
@@ -199,6 +224,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(testReview.Item.submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
@@ -295,6 +321,7 @@ describe('Review Service tests', () => {
           res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.be.eql(reviewId)
           res.body.score.should.be.eql(testReview.Item.score)
+          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
@@ -458,6 +485,17 @@ describe('Review Service tests', () => {
         .end((err, res) => {
           res.should.have.status(400)
           res.body.message.should.be.eql('"test" is not allowed')
+          done()
+        })
+    })
+
+    it('Getting reviews with orderBy without sortBy filter should throw 400', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/reviews?orderBy=asc`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"orderBy" missing required peer "sortBy"')
           done()
         })
     })

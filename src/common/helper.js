@@ -67,12 +67,14 @@ function autoWrapExpress (obj) {
 function getBusApiClient () {
   // If there is no Client instance, Create a new instance
   if (!busApiClient) {
+    logger.debug(`Creating Bus API client for ${config.BUSAPI_URL} `)
     busApiClient = busApi(_.pick(config,
       ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME',
         'AUTH0_CLIENT_ID', 'AUTH0_CLIENT_SECRET', 'BUSAPI_URL',
         'KAFKA_ERROR_TOPIC', 'AUTH0_PROXY_SERVER_URL']))
   }
 
+  logger.debug('returning Bus API client')
   return busApiClient
 }
 
@@ -82,26 +84,26 @@ function getBusApiClient () {
  */
 function getEsClient () {
   const esHost = config.get('esConfig.HOST')
-  if (!esClients['client']) {
+  if (!esClients.client) {
     // AWS ES configuration is different from other providers
     if (/.*amazonaws.*/.test(esHost)) {
-      esClients['client'] = elasticsearch.Client({
+      esClients.client = elasticsearch.Client({
         apiVersion: config.get('esConfig.API_VERSION'),
         hosts: esHost,
         connectionClass: require('http-aws-es'), // eslint-disable-line global-require
         amazonES: {
-          region: config.get('aws.AWS_REGION'),
-          credentials: new AWS.EnvironmentCredentials('AWS')
+          region: config.get('aws.AWS_REGION')
+          // credentials: new AWS.EnvironmentCredentials('AWS')
         }
       })
     } else {
-      esClients['client'] = new elasticsearch.Client({
+      esClients.client = new elasticsearch.Client({
         apiVersion: config.get('esConfig.API_VERSION'),
         hosts: esHost
       })
     }
   }
-  return esClients['client']
+  return esClients.client
 }
 
 /*
@@ -125,15 +127,17 @@ function camelize (str) {
 function prepESFilter (query, actResource) {
   const pageSize = query.perPage || config.get('PAGE_SIZE')
   const page = query.page || 1
-  const filters = _.omit(query, ['perPage', 'page'])
-  // Add match phrase filters for all query filters except page and perPage
+  const { sortBy, orderBy } = query
+  const filters = _.omit(query, ['perPage', 'page', 'sortBy', 'orderBy'])
+  // Add match phrase filters for all query filters
+  // except page, perPage, sortBy & orderBy
   const boolQuery = []
   const reviewFilters = []
   const reviewSummationFilters = []
   // Adding resource filter
   boolQuery.push({ match_phrase: { resource: actResource } })
   _.map(filters, (value, key) => {
-    let pair = {}
+    const pair = {}
     pair[key] = value
     if (key.indexOf('.') > -1) {
       const resKey = key.split('.')[0]
@@ -180,7 +184,7 @@ function prepESFilter (query, actResource) {
     from: (page - 1) * pageSize, // Es Index starts from 0
     body: {
       _source: {
-        exclude: [ 'resource' ] // Remove the resource field which is not required
+        exclude: ['resource'] // Remove the resource field which is not required
       },
       query: {
         bool: {
@@ -190,11 +194,23 @@ function prepESFilter (query, actResource) {
     }
   }
 
-  // Add sorting for submission
-  if (actResource === 'submission') {
-    searchCriteria.body.sort = [
-      { 'created': { 'order': 'asc' } }
-    ]
+  const esQuerySortArray = []
+
+  if (sortBy) {
+    const obj = {}
+    obj[sortBy] = { order: orderBy || 'asc' }
+    esQuerySortArray.push(obj)
+  }
+
+  // Internal sorting by 'updated' timestamp
+  if (actResource !== 'reviewType') {
+    esQuerySortArray.push({
+      updated: { order: 'desc' }
+    })
+  }
+
+  if (esQuerySortArray.length > 0) {
+    searchCriteria.body.sort = esQuerySortArray
   }
 
   return searchCriteria
@@ -224,10 +240,12 @@ function * fetchFromES (query, resource, parentSpan) {
     // Extract data from hits
     const rows = _.map(docs.hits.hits, single => single._source)
 
-    const response = { 'total': docs.hits.total,
-      'pageSize': filter.size,
-      'page': query.page || 1,
-      'rows': rows }
+    const response = {
+      total: docs.hits.total,
+      pageSize: filter.size,
+      page: query.page || 1,
+      rows: rows
+    }
     return response
   } catch (err) {
     fetchFromESSpan.setTag('error', true)
@@ -283,7 +301,7 @@ function setPaginationHeaders (req, res, data) {
       'X-Per-Page': data.pageSize,
       'X-Total': data.total,
       'X-Total-Pages': totalPages,
-      'Link': link
+      Link: link
     }
     _.assign(responseHeaders, headerData)
     res.set(headerData)
@@ -425,7 +443,7 @@ function * checkCreateAccess (authUser, subEntity, parentSpan) {
         throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
       }
 
-      const currPhase = _.filter(phases, {id: submissionPhaseId})
+      const currPhase = _.filter(phases, { id: submissionPhaseId })
 
       if (currPhase[0].phaseType === 'Final Fix') {
         if (!authUser.handle.equals(winner[0].handle)) {
@@ -527,8 +545,8 @@ function * checkGetAccess (authUser, submission, parentSpan) {
 
         // User is either a Reviewer or Screener
         if (screener.length !== 0 || reviewer.length !== 0) {
-          const screeningPhase = _.filter(phases, { phaseType: 'Screening', 'phaseStatus': 'Scheduled' })
-          const reviewPhase = _.filter(phases, { phaseType: 'Review', 'phaseStatus': 'Scheduled' })
+          const screeningPhase = _.filter(phases, { phaseType: 'Screening', phaseStatus: 'Scheduled' })
+          const reviewPhase = _.filter(phases, { phaseType: 'Review', phaseStatus: 'Scheduled' })
 
           // Neither Screening Nor Review is Opened / Closed
           if (screeningPhase.length !== 0 && reviewPhase.length !== 0) {
@@ -690,11 +708,65 @@ function * postEvent (reqBody, parentSpan) {
   }
 }
 
+/**
+ * Wrapper function to post to bus api. Ensures that every event posted to bus api
+ * is duplicated and posted to bus api again, but to a different "aggregate" topic
+ * Also stores the original topic in the payload
+ * @param {Object} payload Data that needs to be posted to the bus api
+ */
+function * postToBusApi (payload) {
+  const busApiClient = getBusApiClient()
+  const originalTopic = payload.topic
+
+  yield busApiClient.postEvent(payload)
+
+  // Post to aggregate topic
+  payload.topic = config.get('KAFKA_AGGREGATE_TOPIC')
+
+  // Store the original topic
+  payload.payload.originalTopic = originalTopic
+
+  yield busApiClient.postEvent(payload)
+}
+
+/**
+ * Function to remove metadata details from reviews for members who shouldn't see them
+ * @param  {Array} reviews The reviews to remove metadata from
+ * @param  {Object} authUser The authenticated user details
+ */
+function cleanseReviews (reviews, authUser) {
+  // Not a machine user
+  if (!authUser.scopes) {
+    const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
+    const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
+
+    // User is neither admin nor copilot
+    if (admin.length === 0 && copilot.length === 0) {
+      const cleansedReviews = []
+
+      _.forEach(reviews, (review) => {
+        if (review && review.metadata && review.metadata.private) {
+          _.unset(review.metadata, 'private')
+        } else {
+          // For backward compatibility, we remove metadata object entirely
+          // from reviews where metadata does not have an explicit
+          // "private" attribute
+          _.unset(review, 'metadata')
+        }
+        cleansedReviews.push(review)
+      })
+
+      return cleansedReviews
+    }
+  }
+
+  return reviews
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
   getEsClient,
-  getBusApiClient,
   fetchFromES,
   camelize,
   setPaginationHeaders,
@@ -703,6 +775,8 @@ module.exports = {
   checkGetAccess,
   checkReviewGetAccess,
   downloadFile,
+  postToBusApi,
+  cleanseReviews,
   logResultOnSpan,
   postEvent
 }
