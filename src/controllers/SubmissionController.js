@@ -3,7 +3,8 @@
  */
 
 const SubmissionService = require('../services/SubmissionService')
-const helper = require('../common/helper')
+const { setPaginationHeaders, logResultOnSpan } = require('../common/helper')
+const httpStatus = require('http-status')
 
 /**
  * Get submission details
@@ -11,7 +12,11 @@ const helper = require('../common/helper')
  * @param res the http response
  */
 function * getSubmission (req, res) {
-  res.json(yield SubmissionService.getSubmission(req.authUser, req.params.submissionId))
+  const result = yield SubmissionService.getSubmission(req.authUser, req.params.submissionId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -20,7 +25,7 @@ function * getSubmission (req, res) {
  * @param res the http response
  */
 function * downloadSubmission (req, res) {
-  const result = yield SubmissionService.downloadSubmission(req.authUser, req.params.submissionId)
+  const result = yield SubmissionService.downloadSubmission(req.authUser, req.params.submissionId, req.span)
   let fileName
   if (result.submission.legacySubmissionId) {
     fileName = `submission-${result.submission.legacySubmissionId}-${result.submission.id}.zip`
@@ -28,6 +33,9 @@ function * downloadSubmission (req, res) {
     fileName = `submission-${result.submission.id}.zip`
   }
   res.attachment(fileName)
+
+  logResultOnSpan(req.span, httpStatus.OK)
+
   res.send(result.file)
 }
 
@@ -37,8 +45,8 @@ function * downloadSubmission (req, res) {
  * @param res the http response
  */
 function * listSubmissions (req, res) {
-  const data = yield SubmissionService.listSubmissions(req.authUser, req.query)
-  helper.setPaginationHeaders(req, res, data)
+  const data = yield SubmissionService.listSubmissions(req.authUser, req.query, req.span)
+  setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -47,7 +55,11 @@ function * listSubmissions (req, res) {
  * @param res the http response
  */
 function * createSubmission (req, res) {
-  res.json(yield SubmissionService.createSubmission(req.authUser, req.files, req.body))
+  const result = yield SubmissionService.createSubmission(req.authUser, req.files, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -56,7 +68,11 @@ function * createSubmission (req, res) {
  * @param res the http response
  */
 function * updateSubmission (req, res) {
-  res.json(yield SubmissionService.updateSubmission(req.authUser, req.params.submissionId, req.body))
+  const result = yield SubmissionService.updateSubmission(req.authUser, req.params.submissionId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -65,7 +81,11 @@ function * updateSubmission (req, res) {
  * @param res the http response
  */
 function * patchSubmission (req, res) {
-  res.json(yield SubmissionService.patchSubmission(req.authUser, req.params.submissionId, req.body))
+  const result = yield SubmissionService.patchSubmission(req.authUser, req.params.submissionId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -74,7 +94,10 @@ function * patchSubmission (req, res) {
  * @param res the http response
  */
 function * deleteSubmission (req, res) {
-  yield SubmissionService.deleteSubmission(req.params.submissionId)
+  yield SubmissionService.deleteSubmission(req.params.submissionId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.NO_CONTENT)
+
   res.status(204).send()
 }
 

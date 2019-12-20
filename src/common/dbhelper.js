@@ -4,6 +4,7 @@
 
 const config = require('config')
 const AWS = require('aws-sdk')
+const tracer = require('./tracer')
 
 // Database instance mapping
 const dbs = { }
@@ -76,16 +77,26 @@ function * deleteTable (tableName) {
 /**
  * Insert record in DynamoDB
  * @param     {object} record Data to be inserted
+ * @param     {Object} parentSpan the parent Span object
  * @return    {promise}
  */
-function * insertRecord (record) {
+function * insertRecord (record, parentSpan) {
+  const insertRecordSpan = tracer.startChildSpans('DynamoDB.put', parentSpan)
+  insertRecordSpan.log({
+    event: 'info',
+    record: record
+  })
+
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.put(record, (err, data) => {
       if (err) {
-        reject(err)
+        insertRecordSpan.setTag('error', true)
+        insertRecordSpan.finish()
+        return reject(err)
       }
-      resolve(data)
+      insertRecordSpan.finish()
+      return resolve(data)
     })
   })
 }
@@ -93,16 +104,26 @@ function * insertRecord (record) {
 /**
  * Get single record from DynamoDB based on the filter
  * @param     {object} filter Filter to be applied on the database
+ * @param     {Object} parentSpan the parent Span object
  * @return    {promise}
  */
-function * getRecord (filter) {
+function * getRecord (filter, parentSpan) {
+  const getRecordSpan = tracer.startChildSpans('DynamoDB.get', parentSpan)
+  getRecordSpan.log({
+    event: 'info',
+    filter: filter
+  })
+
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.get(filter, (err, data) => {
       if (err) {
-        reject(err)
+        getRecordSpan.setTag('error', true)
+        getRecordSpan.finish()
+        return reject(err)
       }
-      resolve(data)
+      getRecordSpan.finish()
+      return resolve(data)
     })
   })
 }
@@ -110,16 +131,26 @@ function * getRecord (filter) {
 /**
  * Update record in DynamoDB
  * @param     {object} record Data to be updated
+ * @param     {Object} parentSpan the parent Span object
  * @return    {promise}
  */
-function * updateRecord (record) {
+function * updateRecord (record, parentSpan) {
+  const updateRecordSpan = tracer.startChildSpans('DynamoDB.update', parentSpan)
+  updateRecordSpan.log({
+    event: 'info',
+    record: record
+  })
+
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.update(record, (err, data) => {
       if (err) {
-        reject(err)
+        updateRecordSpan.setTag('error', true)
+        updateRecordSpan.finish()
+        return reject(err)
       }
-      resolve(data)
+      updateRecordSpan.finish()
+      return resolve(data)
     })
   })
 }
@@ -127,16 +158,26 @@ function * updateRecord (record) {
 /**
  * Delete record in DynamoDB
  * @param     {object} filter Filter to be used for deleting records
+ * @param     {Object} parentSpan the parent Span object
  * @return    {promise}
  */
-function * deleteRecord (filter) {
+function * deleteRecord (filter, parentSpan) {
+  const deleteRecordSpan = tracer.startChildSpans('DynamoDB.delete', parentSpan)
+  deleteRecordSpan.log({
+    event: 'info',
+    filter: filter
+  })
+
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.delete(filter, (err, data) => {
       if (err) {
-        reject(err)
+        deleteRecordSpan.setTag('error', true)
+        deleteRecordSpan.finish()
+        return reject(err)
       }
-      resolve(data)
+      deleteRecordSpan.finish()
+      return resolve(data)
     })
   })
 }
@@ -144,16 +185,26 @@ function * deleteRecord (filter) {
 /**
  * Get multiple records from DynamoDB based on the parameters
  * @param     {object} params Parameters to be used for Scanning
+ * @param     {Object} parentSpan the parent Span object
  * @return    {promise}
  */
-function * scanRecords (params) {
+function * scanRecords (params, parentSpan) {
+  const scanRecordsSpan = tracer.startChildSpans('DynamoDB.scan', parentSpan)
+  scanRecordsSpan.log({
+    event: 'info',
+    params: params
+  })
+
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.scan(params, (err, data) => {
       if (err) {
-        reject(err)
+        scanRecordsSpan.setTag('error', true)
+        scanRecordsSpan.finish()
+        return reject(err)
       }
-      resolve(data)
+      scanRecordsSpan.finish()
+      return resolve(data)
     })
   })
 }
@@ -161,16 +212,26 @@ function * scanRecords (params) {
 /**
  * Get records from DynamoDB based on the secondary index filter
  * @param     {object} filter Secondary index filter to be applied on the database
+ * @param     {Object} parentSpan the parent Span object
  * @return    {promise}
  */
-function * queryRecords (filter) {
+function * queryRecords (filter, parentSpan) {
+  const queryRecordsSpan = tracer.startChildSpans('DynamoDB.query', parentSpan)
+  queryRecordsSpan.log({
+    event: 'info',
+    filter: filter
+  })
+
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.query(filter, (err, data) => {
       if (err) {
-        reject(err)
+        queryRecordsSpan.setTag('error', true)
+        queryRecordsSpan.finish()
+        return reject(err)
       }
-      resolve(data)
+      queryRecordsSpan.finish()
+      return resolve(data)
     })
   })
 }

@@ -3,6 +3,8 @@
  */
 
 const ArtifactService = require('../services/ArtifactService')
+const { logResultOnSpan } = require('../common/helper')
+const httpStatus = require('http-status')
 
 /**
  * Download Artifact from S3
@@ -10,8 +12,11 @@ const ArtifactService = require('../services/ArtifactService')
  * @param res the http response
  */
 function * downloadArtifact (req, res) {
-  const result = yield ArtifactService.downloadArtifact(req.params.submissionId, req.params.file)
+  const result = yield ArtifactService.downloadArtifact(req.params.submissionId, req.params.file, req.span)
   res.attachment(result.fileName)
+
+  logResultOnSpan(req.span, httpStatus.OK)
+
   res.send(result.file)
 }
 
@@ -21,7 +26,11 @@ function * downloadArtifact (req, res) {
  * @param res the http response
  */
 function * listArtifacts (req, res) {
-  res.json(yield ArtifactService.listArtifacts(req.params.submissionId))
+  const result = yield ArtifactService.listArtifacts(req.params.submissionId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -30,7 +39,11 @@ function * listArtifacts (req, res) {
  * @param res the http response
  */
 function * createArtifact (req, res) {
-  res.json(yield ArtifactService.createArtifact(req.files, req.params.submissionId, req.body))
+  const result = yield ArtifactService.createArtifact(req.files, req.params.submissionId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -39,8 +52,11 @@ function * createArtifact (req, res) {
  * @param res the http response
  */
 function * deleteArtifact (req, res) {
-  yield ArtifactService.deleteArtifact(req.params.submissionId, req.params.file)
-  res.status(204).json()
+  yield ArtifactService.deleteArtifact(req.params.submissionId, req.params.file, req.span)
+
+  logResultOnSpan(req.span, httpStatus.NO_CONTENT)
+
+  res.status(204).send()
 }
 
 module.exports = {

@@ -3,7 +3,8 @@
  */
 
 const ReviewSummationService = require('../services/ReviewSummationService')
-const helper = require('../common/helper')
+const { setPaginationHeaders, logResultOnSpan } = require('../common/helper')
+const httpStatus = require('http-status')
 
 /**
  * Get review summation
@@ -11,7 +12,11 @@ const helper = require('../common/helper')
  * @param res the http response
  */
 function * getReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.getReviewSummation(req.params.reviewSummationId))
+  const result = yield ReviewSummationService.getReviewSummation(req.params.reviewSummationId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -20,8 +25,8 @@ function * getReviewSummation (req, res) {
  * @param res the http response
  */
 function * listReviewSummations (req, res) {
-  const data = yield ReviewSummationService.listReviewSummations(req.query)
-  helper.setPaginationHeaders(req, res, data)
+  const data = yield ReviewSummationService.listReviewSummations(req.query, req.span)
+  setPaginationHeaders(req, res, data)
 }
 
 /**
@@ -30,7 +35,11 @@ function * listReviewSummations (req, res) {
  * @param res the http response
  */
 function * createReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.createReviewSummation(req.authUser, req.body))
+  const result = yield ReviewSummationService.createReviewSummation(req.authUser, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -39,7 +48,11 @@ function * createReviewSummation (req, res) {
  * @param res the http response
  */
 function * updateReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.updateReviewSummation(req.authUser, req.params.reviewSummationId, req.body))
+  const result = yield ReviewSummationService.updateReviewSummation(req.authUser, req.params.reviewSummationId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -48,7 +61,11 @@ function * updateReviewSummation (req, res) {
  * @param res the http response
  */
 function * patchReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.patchReviewSummation(req.authUser, req.params.reviewSummationId, req.body))
+  const result = yield ReviewSummationService.patchReviewSummation(req.authUser, req.params.reviewSummationId, req.body, req.span)
+
+  logResultOnSpan(req.span, httpStatus.OK, result)
+
+  res.json(result)
 }
 
 /**
@@ -57,7 +74,10 @@ function * patchReviewSummation (req, res) {
  * @param res the http response
  */
 function * deleteReviewSummation (req, res) {
-  yield ReviewSummationService.deleteReviewSummation(req.params.reviewSummationId)
+  yield ReviewSummationService.deleteReviewSummation(req.params.reviewSummationId, req.span)
+
+  logResultOnSpan(req.span, httpStatus.NO_CONTENT)
+
   res.status(204).send()
 }
 

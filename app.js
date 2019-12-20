@@ -18,6 +18,13 @@ const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
 const authenticator = require('tc-core-library-js').middleware.jwtAuthenticator
 const fileUpload = require('express-fileupload')
+const tracer = require('./src/common/tracer')
+
+// Initialize tracing if configured.
+// Even if tracer is not initialized, all calls to tracer module will not raise any errors
+if (config.has('tracing')) {
+  tracer.initTracing(config.get('tracing'))
+}
 
 const swaggerDocument = YAML.load('./docs/swagger.yaml')
 const app = express()
@@ -68,7 +75,17 @@ _.each(routes, (verbs, url) => {
   _.each(verbs, (def, verb) => {
     let actions = [
       (req, res, next) => {
+        const span = tracer.startSpans(`${def.method}Request`)
+        span.setTag('Operation', verb.toUpperCase())
+        span.setTag('Url', req.originalUrl)
+        if (_.keys(req.body).length > 0) {
+          span.log({
+            event: 'info',
+            requestBody: req.body
+          })
+        }
         req.signature = `${def.controller}#${def.method}`
+        req.span = span
         next()
       }
     ]

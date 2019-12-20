@@ -3,7 +3,7 @@
  */
 
 module.exports = {
-  DISABLE_LOGGING: process.env.DISABLE_LOGGING || false, // If true, logging will be disabled
+  DISABLE_LOGGING: process.env.DISABLE_LOGGING ? process.env.DISABLE_LOGGING === 'true' : false, // If true, logging will be disabled
   LOG_LEVEL: process.env.LOG_LEVEL || 'debug',
   WEB_SERVER_PORT: process.env.PORT || 3000,
   AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
@@ -36,5 +36,27 @@ module.exports = {
   PAGE_SIZE: process.env.PAGE_SIZE || 20,
   MAX_PAGE_SIZE: parseInt(process.env.MAX_PAGE_SIZE) || 100,
   ES_BATCH_SIZE: process.env.ES_BATCH_SIZE || 250,
-  AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL
+  AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL,
+
+  tracing: {
+    dataDogEnabled: process.env.DATADOG_ENABLED ? process.env.DATADOG_ENABLED === 'true' : true,
+    lightStepEnabled: process.env.LIGHTSTEP_ENABLED ? process.env.LIGHTSTEP_ENABLED === 'true' : true,
+    signalFXEnabled: process.env.SIGNALFX_ENABLED ? process.env.SIGNALFX_ENABLED === 'true' : false,
+
+    dataDog: {
+      service: process.env.DATADOG_SERVICE_NAME || 'tc-submissions-api',
+      hostname: process.env.DD_TRACE_AGENT_HOSTNAME
+    },
+
+    lightStep: {
+      access_token: process.env.LIGHTSTEP_ACCESS_TOKEN,
+      component_name: process.env.LIGHTSTEP_COMPONENT_NAME || 'tc-submissions-api'
+    },
+
+    signalFX: {
+      service: process.env.SIGNALFX_SERVICE_NAME || 'tc-submissions-api',
+      accessToken: process.env.SIGNALFX_ACCESS_TOKEN,
+      url: `http://${process.env.SIGNALFX_TRACE_AGENT_HOSTNAME}:9080/v1/trace`
+    }
+  }
 }

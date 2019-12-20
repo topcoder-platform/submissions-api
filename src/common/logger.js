@@ -40,8 +40,8 @@ function _sanitizeObject (obj) {
     return JSON.parse(JSON.stringify(obj, (name, value) => {
       // Array of field names that should not be logged
       // add field if necessary (password, tokens etc)
-      const removeFields = []
-      if (_.contains(removeFields, name)) {
+      const removeFields = ['span', 'parentSpan']
+      if (_.includes(removeFields, name)) {
         return '<removed>'
       }
       if (_.isArray(value) && value.length > 30) {
@@ -112,17 +112,23 @@ logger.decorateWithValidators = function (service) {
       return
     }
     const params = getParams(method)
+    // Array of field names that should not be normalized by Joi
+    const noNormalizedFields = ['span']
     service[name] = function * () {
       const args = Array.prototype.slice.call(arguments); // eslint-disable-line
       const value = _combineObject(params, args)
-      const normalized = Joi.attempt(value, method.schema)
+      const normalized = Joi.attempt(_.omit(value, noNormalizedFields), method.schema)
 
       const newArgs = []
       // Joi will normalize values
       // for example string number '1' to 1
       // if schema type is number
       _.each(params, (param) => {
-        newArgs.push(normalized[param])
+        if (_.includes(noNormalizedFields, param)) {
+          newArgs.push(value[param])
+        } else {
+          newArgs.push(normalized[param])
+        }
       })
       return yield method.apply(this, newArgs)
     }

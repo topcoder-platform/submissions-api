@@ -13,6 +13,7 @@ install_dependency: &install_dependency
             pip install --upgrade pip
             sudo pip install awscli --upgrade
             sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest
+            apk add py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
             sudo pip install docker-compose
             sudo chmod +x /usr/local/bin/ecs-cli
 
@@ -74,7 +75,7 @@ workflows:
           context : org-global
           filters:
             branches:
-              only: ['develop']
+              only: ['develop','apm-tracing']
       - "build-prod":
           context : org-global
           filters:
