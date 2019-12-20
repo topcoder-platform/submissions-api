@@ -183,7 +183,7 @@ function * createReview (authUser, entity, span) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, createReviewSpan)
+    yield helper.postToBusApi(reqBody, createReviewSpan)
 
     // Inserting records in DynamoDB doesn't return any response
     // Hence returning the same entity to be in compliance with Swagger
@@ -307,7 +307,7 @@ function * _updateReview (authUser, reviewId, entity, parentSpan) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, updateReviewSpan)
+    yield helper.postToBusApi(reqBody, updateReviewSpan)
 
     // Updating records in DynamoDB doesn't return any response
     // Hence returning the response which will be in compliance with Swagger
@@ -432,7 +432,7 @@ function * deleteReview (reviewId, span) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, deleteReviewSpan)
+    yield helper.postToBusApi(reqBody, deleteReviewSpan)
   } finally {
     deleteReviewSpan.finish()
   }

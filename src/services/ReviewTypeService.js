@@ -129,7 +129,7 @@ function * createReviewType (entity, span) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, createReviewTypeSpan)
+    yield helper.postToBusApi(reqBody, createReviewTypeSpan)
 
     // Inserting records in DynamoDB doesn't return any response
     // Hence returning the same entity to be in compliance with Swagger
@@ -202,7 +202,7 @@ function * _updateReviewType (reviewTypeId, entity, parentSpan) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, updateReviewTypeSpan)
+    yield helper.postToBusApi(reqBody, updateReviewTypeSpan)
 
     // Updating records in DynamoDB doesn't return any response
     // Hence returning the response which will be in compliance with Swagger
@@ -290,7 +290,7 @@ function * deleteReviewType (reviewTypeId, span) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, deleteReviewTypeSpan)
+    yield helper.postToBusApi(reqBody, deleteReviewTypeSpan)
   } finally {
     deleteReviewTypeSpan.finish()
   }

@@ -687,46 +687,35 @@ function logResultOnSpan (span, statusCode, result) {
 }
 
 /**
- * Post event using BUS API
- * @param {Object} reqBody the request body
- * @param {Object} parentSpan the parentSpan object
- */
-function * postEvent (reqBody, parentSpan) {
-  const postEventSpan = tracer.startChildSpans('helper.postEvent', parentSpan)
-  postEventSpan.log({
-    event: 'info',
-    message: reqBody
-  })
-
-  try {
-    const client = getBusApiClient()
-
-    // Post to Bus API using Client
-    yield client.postEvent(reqBody)
-  } finally {
-    postEventSpan.finish()
-  }
-}
-
-/**
  * Wrapper function to post to bus api. Ensures that every event posted to bus api
  * is duplicated and posted to bus api again, but to a different "aggregate" topic
  * Also stores the original topic in the payload
  * @param {Object} payload Data that needs to be posted to the bus api
+ * @param {Object} parentSpan the parentSpan object
  */
-function * postToBusApi (payload) {
-  const busApiClient = getBusApiClient()
-  const originalTopic = payload.topic
+function * postToBusApi (payload, parentSpan) {
+  const postToBusApiSpan = tracer.startChildSpans('helper.postToBusApi', parentSpan)
+  postToBusApiSpan.log({
+    event: 'info',
+    message: payload
+  })
 
-  yield busApiClient.postEvent(payload)
+  try {
+    const busApiClient = getBusApiClient()
+    const originalTopic = payload.topic
 
-  // Post to aggregate topic
-  payload.topic = config.get('KAFKA_AGGREGATE_TOPIC')
+    yield busApiClient.postEvent(payload)
 
-  // Store the original topic
-  payload.payload.originalTopic = originalTopic
+    // Post to aggregate topic
+    payload.topic = config.get('KAFKA_AGGREGATE_TOPIC')
 
-  yield busApiClient.postEvent(payload)
+    // Store the original topic
+    payload.payload.originalTopic = originalTopic
+
+    yield busApiClient.postEvent(payload)
+  } finally {
+    postToBusApiSpan.finish()
+  }
 }
 
 /**
@@ -777,6 +766,5 @@ module.exports = {
   downloadFile,
   postToBusApi,
   cleanseReviews,
-  logResultOnSpan,
-  postEvent
+  logResultOnSpan
 }

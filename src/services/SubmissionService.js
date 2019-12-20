@@ -405,7 +405,7 @@ function * createSubmission (authUser, files, entity, span) {
     logger.info('Prepared submission create event payload to pass to THE bus')
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, createSubmissionSpan)
+    yield helper.postToBusApi(reqBody, createSubmissionSpan)
 
     // Inserting records in DynamoDB doesn't return any response
     // Hence returning the entity which is in compliance with Swagger
@@ -516,7 +516,7 @@ function * _updateSubmission (authUser, submissionId, entity, parentSpan) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, updateSubmissionSpan)
+    yield helper.postToBusApi(reqBody, updateSubmissionSpan)
 
     // Updating records in DynamoDB doesn't return any response
     // Hence returning the response which will be in compliance with Swagger
@@ -618,7 +618,7 @@ function * deleteSubmission (submissionId, span) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, deleteSubmissionSpan)
+    yield helper.postToBusApi(reqBody, deleteSubmissionSpan)
   } finally {
     deleteSubmissionSpan.finish()
   }

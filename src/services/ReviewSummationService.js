@@ -146,7 +146,7 @@ function * createReviewSummation (authUser, entity, span) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, createReviewSummationSpan)
+    yield helper.postToBusApi(reqBody, createReviewSummationSpan)
 
     // Inserting records in DynamoDB doesn't return any response
     // Hence returning the same entity to be in compliance with Swagger
@@ -254,7 +254,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity, parentSp
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, updateReviewSummationSpan)
+    yield helper.postToBusApi(reqBody, updateReviewSummationSpan)
 
     // Updating records in DynamoDB doesn't return any response
     // Hence returning the response which will be in compliance with Swagger
@@ -354,7 +354,7 @@ function * deleteReviewSummation (reviewSummationId, span) {
     }
 
     // Post to Bus API using Client
-    yield helper.postEvent(reqBody, deleteReviewSummationSpan)
+    yield helper.postToBusApi(reqBody, deleteReviewSummationSpan)
   } finally {
     deleteReviewSummationSpan.finish()
   }
