@@ -123,7 +123,7 @@ const nonExSubmissionId = 'b3564180-65aa-42ec-a945-5fd21dec0502'
 
 const testSubmission = {
   Item: {
-    challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+    challengeId: '30054692',
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     type: 'ContestSubmission',
     url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
@@ -153,7 +153,7 @@ const testSubmissionWoLegacy = {
 
 const testSubmissionPatch = {
   Item: {
-    challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+    challengeId: '30054692',
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     type: 'TestChange',
     url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=654321',
@@ -178,7 +178,7 @@ const testSubmissionES = {
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
        _source: {
-         challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+         challengeId: '30054692',
          id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          type: 'ContestSubmission',
          url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
@@ -242,7 +242,7 @@ const testSubmissionsES = {
        _score: 0,
        _source:
      {
-       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+       challengeId: '30054692',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
@@ -278,7 +278,7 @@ const testSubmissionsES = {
        _score: 0,
        _source:
      {
-       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+       challengeId: '30054692',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
