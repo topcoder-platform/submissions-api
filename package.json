@@ -31,7 +31,7 @@
     "dd-trace": "^0.12.0",
     "elasticsearch": "^15.1.1",
     "express": "^4.15.4",
-    "express-fileupload": "^0.4.0",
+    "express-fileupload": "^1.1.6",
     "file-type": "^9.0.0",
     "get-parameter-names": "^0.3.0",
     "http-aws-es": "^6.0.0",
@@ -58,7 +58,7 @@
     "mocha-prepare": "^0.1.0",
     "nock": "^9.4.3",
     "nodemon": "^1.17.5",
-    "nyc": "^12.0.2",
+    "nyc": "^14.1.1",
     "standard": "^11.0.1"
   },
   "engines": {
