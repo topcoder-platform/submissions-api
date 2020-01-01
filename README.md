@@ -1,6 +1,5 @@
 # Topcoder Submission API
 
-
 ## Pre-requisites
 
 1. Active AWS Account
@@ -13,7 +12,9 @@
 8. SignalFX
 
 ## Open Tracing Configuration Setup
+
 Refer `config/default.js`, tracing object will contain all configuration relate to integrate open tracing.
+
 1. dataDogEnabled, whether data dog tracing is enabled
 2. lightStepEnabled, whether light step tracing is enabled
 3. signalFXEnabled, whether singal fx tracing is enabled

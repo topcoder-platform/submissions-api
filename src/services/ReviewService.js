@@ -145,6 +145,7 @@ listReviews.schema = {
  * @return {Promise}
  */
 function * createReview (authUser, entity, span) {
+  let item
   const createReviewSpan = tracer.startChildSpans('ReviewService.createReview', span)
 
   try {
@@ -153,7 +154,7 @@ function * createReview (authUser, entity, span) {
 
     const currDate = new Date().toISOString()
 
-    const item = _.extend({
+    item = _.extend({
       id: uuid(),
       created: currDate,
       updated: currDate,
@@ -184,13 +185,13 @@ function * createReview (authUser, entity, span) {
 
     // Post to Bus API using Client
     yield helper.postToBusApi(reqBody, createReviewSpan)
-
-    // Inserting records in DynamoDB doesn't return any response
-    // Hence returning the same entity to be in compliance with Swagger
-    return item
   } finally {
     createReviewSpan.finish()
   }
+
+  // Inserting records in DynamoDB doesn't return any response
+  // Hence returning the same entity to be in compliance with Swagger
+  return item
 }
 
 createReview.schema = {
