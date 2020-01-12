@@ -153,7 +153,7 @@ describe('ReviewType Service tests', () => {
           res.body.isActive.should.be.eql(testReviewType.Item.isActive)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Getting existing review type with Admin token should return the record', (done) => {
       chai.request(app)
@@ -454,7 +454,7 @@ describe('ReviewType Service tests', () => {
           res.body.length.should.be.eql(6)
           done()
         })
-    })
+    }).timeout(20000)
 
     it('Getting review types with Admin token should return the record', (done) => {
       chai.request(app)

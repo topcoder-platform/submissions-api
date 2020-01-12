@@ -15,7 +15,7 @@ const should = chai.should() // eslint-disable-line
 const app = require('../../app')
 const {
   nonExReviewId, testReview, nonExSubmissionId,
-  nonExReviewTypeId, testReviewPatch
+  nonExReviewTypeId, testReviewPatch, testReviewES
 } = require('../common/testData')
 
 chai.use(chaiHttp)
@@ -71,19 +71,20 @@ describe('Review Service tests', () => {
     })
 
     it('Getting existing review with Admin token should return the record', (done) => {
+      const esRes = testReviewES.hits.hits[0]._source
       chai.request(app)
         .get(`${config.API_VERSION}/reviews/${testReview.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReview.Item))
-          res.body.id.should.be.eql(testReview.Item.id)
-          res.body.score.should.be.eql(testReview.Item.score)
-          res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
-          res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
-          res.body.submissionId.should.be.eql(testReview.Item.submissionId)
-          res.body.scoreCardId.should.be.eql(testReview.Item.scoreCardId)
-          res.body.typeId.should.be.eql(testReview.Item.typeId)
+          res.body.id.should.be.eql(esRes.id)
+          res.body.score.should.be.eql(esRes.score)
+          res.body.legacyReviewId.should.be.eql(esRes.legacyReviewId)
+          res.body.reviewerId.should.be.eql(esRes.reviewerId)
+          res.body.submissionId.should.be.eql(esRes.submissionId)
+          res.body.scoreCardId.should.be.eql(esRes.scoreCardId)
+          res.body.typeId.should.be.eql(esRes.typeId)
           done()
         })
     })
@@ -162,6 +163,18 @@ describe('Review Service tests', () => {
         .end((err, res) => {
           res.should.have.status(400)
           res.body.message.should.be.eql(`Review type with ID = ${nonExReviewTypeId} does not exist`)
+          done()
+        })
+    }).timeout(10000)
+
+    it('Creating review with invalid reviewerId should throw 400', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/reviews`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend({ reviewerId: 'b56a4180' }, _.omit(testReview.Item, ['id', 'reviewerId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql(`"reviewerId" must be a number or a string`)
           done()
         })
     }).timeout(10000)

@@ -264,6 +264,6 @@ Swagger UI will be served at `http://localhost:3000/docs`
 
 1. All JWT tokens provided in Postman environment file is created in JWT.IO with secret `mysecret`
 
-2. There are 3 tokens provided in the environment collection representing each role - Topcoder User, Copilot, Administrator
+2. There are 5 tokens provided in the environment collection representing each role - Topcoder User, Copilot, Administrator, non-role User, `empty` scope User
 
 3. DynamoDB performance seems to be slower in my testing

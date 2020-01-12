@@ -234,6 +234,11 @@ function * downloadSubmission (authUser, submissionId, span) {
   }
 }
 
+downloadSubmission.schema = {
+  authUser: joi.object().required(),
+  submissionId: joi.string().uuid().required()
+}
+
 /**
  * Function to list submissions from Elastic Search
  * @param {Object} authUser Authenticated User
@@ -246,7 +251,7 @@ function * listSubmissions (authUser, query, span) {
   let data = []
 
   try {
-    const data = yield helper.fetchFromES(query, helper.camelize(table), listSubmissionsSpan)
+    data = yield helper.fetchFromES(query, helper.camelize(table), listSubmissionsSpan)
     logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
     data.rows = _.map(data.rows, (submission) => {

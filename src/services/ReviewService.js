@@ -200,10 +200,11 @@ createReview.schema = {
     .object()
     .keys({
       score: joi.when('status', {
-        is: joi.string().valid('completed'),
+        is: joi.reviewStatus().valid('completed'),
         then: joi.required(),
         otherwise: joi.optional()
       }),
+      status: joi.reviewStatus(),
       legacyReviewId: joi.id(),
       typeId: joi
         .string()
@@ -217,11 +218,7 @@ createReview.schema = {
           message: '"reviewerId" must be a number or a string'
         })),
       scoreCardId: joi.id().required(),
-      submissionId: joi
-        .string()
-        .uuid()
-        .required(),
-      status: joi.reviewStatus(),
+      submissionId: joi.string().uuid().required(),
       metadata: joi.object()
     })
     .required()

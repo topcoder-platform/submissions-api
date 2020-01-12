@@ -366,7 +366,7 @@ function * getSubmissionPhaseId (challengeId, parentSpan) {
       // log error
       getChallengePhasesSpan.log({
         event: 'error',
-        error: ex.response.body
+        error: ex.response ? ex.response.body : ex
       })
       getChallengePhasesSpan.setTag('error', true)
     } finally {
