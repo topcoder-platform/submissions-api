@@ -123,6 +123,18 @@ describe('Review Service tests', () => {
         })
     }).timeout(20000)
 
+    it('Creating review with invalid reviewerId should throw 400', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/reviews`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend({ reviewerId: 'b56a4180' }, _.omit(testReview.Item, ['id', 'reviewerId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql(`"reviewerId" must be a number or a string`)
+          done()
+        })
+    }).timeout(20000)
+
     it('Creating review with Admin token should get succeeded', (done) => {
       chai.request(app)
         .post(`${config.API_VERSION}/reviews`)
@@ -221,7 +233,7 @@ describe('Review Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReview.Item))
+          res.body.should.have.all.keys(Object.keys(testReview.Item).filter(k => k !== 'status'))
           res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
           res.body.legacyReviewId.should.be.eql(testReview.Item.legacyReviewId)
@@ -529,7 +541,7 @@ describe('Review Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.length.should.be.eql(4)
+          res.body.length.should.be.eql(9)
           done()
         })
     }).timeout(20000)

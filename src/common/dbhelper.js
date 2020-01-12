@@ -81,21 +81,30 @@ function * deleteTable (tableName) {
  * @return    {promise}
  */
 function * insertRecord (record, parentSpan) {
-  const insertRecordSpan = tracer.startChildSpans('DynamoDB.put', parentSpan)
-  insertRecordSpan.log({
-    event: 'info',
-    record: record
-  })
+  // Initial database insert record script (for local development) will not have tracer info
+  let insertRecordSpan
+  if (parentSpan) {
+    insertRecordSpan = tracer.startChildSpans('DynamoDB.put', parentSpan)
+    insertRecordSpan.log({
+      event: 'info',
+      record: record
+    })
+  }
 
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.put(record, (err, data) => {
       if (err) {
-        insertRecordSpan.setTag('error', true)
-        insertRecordSpan.finish()
+        if (insertRecordSpan) {
+          insertRecordSpan.setTag('error', true)
+          insertRecordSpan.finish()
+        }
         return reject(err)
       }
-      insertRecordSpan.finish()
+
+      if (insertRecordSpan) {
+        insertRecordSpan.finish()
+      }
       return resolve(data)
     })
   })

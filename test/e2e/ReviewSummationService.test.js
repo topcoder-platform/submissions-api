@@ -108,6 +108,23 @@ describe('Review Summation Service tests', () => {
           done()
         })
     }).timeout(20000)
+
+    it('Creating ReviewSummation with final is true with Admin token should get succeeded', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/reviewSummations`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend({ submissionId: submissionId, isFinal: true }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummation.Item), 'isFinal'))
+          res.body.id.should.not.be.eql(null)
+          reviewSummationId = res.body.id // To be used in future requests
+          res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
+          res.body.submissionId.should.be.eql(submissionId)
+          res.body.scoreCardId.should.be.eql(testReviewSummation.Item.scoreCardId)
+          done()
+        })
+    }).timeout(20000)
   })
 
   /*
@@ -259,7 +276,23 @@ describe('Review Summation Service tests', () => {
         .send(_.extend({ submissionId: submissionId }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummation.Item), 'isFinal'))
+          res.body.id.should.be.eql(reviewSummationId)
+          res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
+          res.body.submissionId.should.be.eql(submissionId)
+          res.body.scoreCardId.should.be.eql(testReviewSummation.Item.scoreCardId)
+          done()
+        })
+    }).timeout(20000)
+
+    it('Updating ReviewSummation with final is true and with Admin token should get succeeded', (done) => {
+      chai.request(app)
+        .put(`${config.API_VERSION}/reviewSummations/${reviewSummationId}`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend({ submissionId: submissionId, isFinal: true }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummation.Item), 'isFinal'))
           res.body.id.should.be.eql(reviewSummationId)
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
           res.body.submissionId.should.be.eql(submissionId)
@@ -329,7 +362,7 @@ describe('Review Summation Service tests', () => {
         .send(_.pick(testReviewSummationPatch.Item, ['aggregateScore']))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummationPatch.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummationPatch.Item), 'isFinal', 'metadata'))
           res.body.id.should.be.eql(reviewSummationId)
           res.body.aggregateScore.should.be.eql(testReviewSummationPatch.Item.aggregateScore)
           done()
@@ -343,7 +376,7 @@ describe('Review Summation Service tests', () => {
         .send(_.pick(testReviewSummationPatch.Item, ['scoreCardId', 'isPassing']))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummationPatch.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummationPatch.Item), 'isFinal', 'metadata'))
           res.body.id.should.be.eql(reviewSummationId)
           res.body.scoreCardId.should.be.eql(testReviewSummationPatch.Item.scoreCardId)
           res.body.isPassing.should.be.eql(testReviewSummationPatch.Item.isPassing)
@@ -467,7 +500,7 @@ describe('Review Summation Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.length.should.be.eql(4)
+          res.body.length.should.be.eql(1)
           done()
         })
     }).timeout(20000)

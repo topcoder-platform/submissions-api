@@ -76,7 +76,7 @@ describe('Review Summation Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
+          res.body.should.have.all.keys(Object.keys(testReviewSummation.Item).filter(k => k !== 'metadata'))
           res.body.id.should.be.eql(testReviewSummation.Item.id)
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
           res.body.submissionId.should.be.eql(testReviewSummation.Item.submissionId)
@@ -143,10 +143,10 @@ describe('Review Summation Service tests', () => {
       chai.request(app)
         .post(`${config.API_VERSION}/reviewSummations`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.omit(testReviewSummation.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']))
+        .send(_.extend(_.omit(testReviewSummation.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']), {isFinal: true}))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummation.Item), 'isFinal'))
           res.body.id.should.not.be.eql(null)
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
           res.body.submissionId.should.be.eql(testReviewSummation.Item.submissionId)
@@ -237,7 +237,7 @@ describe('Review Summation Service tests', () => {
       chai.request(app)
         .put(`${config.API_VERSION}/reviewSummations/${testReviewSummation.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.omit(testReviewSummation.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']))
+        .send(_.extend(_.omit(testReviewSummation.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']), {isFinal: true}))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
@@ -310,7 +310,7 @@ describe('Review Summation Service tests', () => {
         .send(_.pick(testReviewSummationPatch.Item, ['aggregateScore', 'submissionId']))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummationPatch.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummationPatch.Item), 'isFinal', 'metadata'))
           res.body.id.should.be.eql(testReviewSummationPatch.Item.id)
           res.body.aggregateScore.should.be.eql(testReviewSummationPatch.Item.aggregateScore)
           res.body.submissionId.should.be.eql(testReviewSummationPatch.Item.submissionId)
@@ -326,7 +326,7 @@ describe('Review Summation Service tests', () => {
         .send(_.pick(testReviewSummationPatch.Item, ['scoreCardId', 'isPassing']))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummationPatch.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummationPatch.Item), 'isFinal', 'metadata'))
           res.body.id.should.be.eql(testReviewSummationPatch.Item.id)
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
           res.body.submissionId.should.be.eql(testReviewSummationPatch.Item.submissionId)

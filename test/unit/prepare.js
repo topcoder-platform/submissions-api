@@ -5,11 +5,13 @@
 // During the test the env variable is set to test
 process.env.NODE_ENV = 'test'
 
+const fs = require('fs')
 const AWS = require('aws-sdk-mock')
 const config = require('config')
 const nock = require('nock')
 const prepare = require('mocha-prepare')
 const URL = require('url')
+const jwt = require('jsonwebtoken')
 const testData = require('../common/testData')
 
 const nonExistentIds = [testData.nonExReviewTypeId, testData.nonExSubmissionId,
@@ -27,10 +29,22 @@ prepare(function (done) {
       callback(null, testData.testSubmission)
     } else if (params.Key.id === testData.testSubmissionWoLegacy.Item.id) {
       callback(null, testData.testSubmissionWoLegacy)
+    } else if (params.Key.id === testData.testSubmissionWReview.Item.id) {
+      callback(null, testData.testSubmissionWReview)
     } else if (params.Key.id === testData.testReview.Item.id) {
       callback(null, testData.testReview)
     } else if (params.Key.id === testData.testReviewSummation.Item.id) {
       callback(null, testData.testReviewSummation)
+    }
+  })
+
+  AWS.mock('DynamoDB.DocumentClient', 'query', (params, callback) => {
+    if (params.TableName === 'Review' && params.ExpressionAttributeValues[':p_submissionId'] && params.ExpressionAttributeValues[':p_submissionId'] === testData.testSubmissionWReview.Item.id) {
+      callback(null, {Count: 1, Items: testData.testSubmissionWReview.Item.review})
+    } else if (params.TableName === 'ReviewSummation' && params.ExpressionAttributeValues[':p_submissionId'] && params.ExpressionAttributeValues[':p_submissionId'] === testData.testSubmissionWReview.Item.id) {
+      callback(null, {Count: 1, Items: testData.testSubmissionWReview.Item.reviewSummation})
+    } else {
+      callback(null, {Count: 0})
     }
   })
 
@@ -56,7 +70,7 @@ prepare(function (done) {
 
   // Mock AWS S3 interactions
   AWS.mock('S3', 'upload', (params, callback) => {
-    if (params.Metadata.originalname === 'error') {
+    if (params.Metadata.originalname === 'error' || params.Metadata.originalname === 'error.zip') {
       callback(new Error('Simulating error'), {})
     } else {
       callback(null, {
@@ -67,10 +81,28 @@ prepare(function (done) {
     }
   })
 
+  AWS.mock('S3', 'getObject', (params, callback) => {
+    callback(null, {Body: fs.readFileSync('./test/common/fileToUpload.zip')})
+  })
+
+  AWS.mock('S3', 'listObjects', (params, callback) => {
+    if (params.Prefix === 'a12a4180-65aa-42ec-a945-5fd21dec0501/nonExistentFile.zip') {
+      callback(null, {Contents: []})
+    } else {
+      callback(null, {Contents: [{Location: 'https://test.s3.com/fileToUpload.zip', Key: 'a12a4180-65aa-42ec-a945-5fd21dec0501/fileToUpload.zip.zip', Bucket: config.aws.S3_BUCKET}]})
+    }
+  })
+
+  AWS.mock('S3', 'deleteObject', (params, callback) => {
+    callback(null, {})
+  })
+
   // Mock Posting to Bus API and ES interactions
   const authUrl = URL.parse(config.AUTH0_URL)
   const busUrl = URL.parse(config.BUSAPI_EVENTS_URL)
-  const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_URL}/30049360/phases`)
+  const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_URL}/${testData.testSubmissionWoLegacy.Item.challengeId}/phases`)
+  const challengeDetailUrl = URL.parse(`${config.CHALLENGEAPI_URL}?filter=id=${testData.testSubmission.Item.challengeId}`)
+  const challengeWoLegacyUrl = URL.parse(`${config.CHALLENGEAPI_URL}?filter=id=${testData.testSubmissionWoLegacy.Item.challengeId}`)
 
   nock(/.com/)
     .persist()
@@ -90,12 +122,18 @@ prepare(function (done) {
       }
       return body
     })
+    .head('/')
+    .reply(200)
     .post(authUrl.path)
-    .reply(200, { access_token: 'test' })
+    .reply(200, { access_token: jwt.sign({user: 'test', exp: 9999999999999999}, config.AUTH_SECRET) })
     .post(busUrl.path)
     .reply(204)
     .get(challengeApiUrl.path)
     .reply(200, testData.testChallengeAPIResponse)
+    .get(challengeDetailUrl.path)
+    .reply(200, testData.testChallengeDetailResponse)
+    .get(challengeWoLegacyUrl.path)
+    .reply(200, testData.testChallengeDetailResponse)
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'reviewType')
     .query(true)
     .reply(200, testData.testReviewTypesES)
@@ -117,12 +155,18 @@ prepare(function (done) {
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'a12a4180-65aa-42ec-a945-5fd21dec0501')
     .query(true)
     .reply(200, testData.testSubmissionES)
+    .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'a12a4180-65aa-42ec-a945-5fd21dec0502')
+    .query(true)
+    .reply(200, testData.testSubmissionWoLegacyES)
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'd24d4180-65aa-42ec-a945-5fd21dec0502')
     .query(true)
     .reply(200, testData.testReviewES)
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'e45e4180-65aa-42ec-a945-5fd21dec1504')
     .query(true)
     .reply(200, testData.testReviewSummationES)
+    .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'a12a4180-65aa-42ec-a945-5fd21dec0503')
+    .query(true)
+    .reply(200, { hits: { total: 0, hits: [] } })
 
   done()
 }, function (done) {

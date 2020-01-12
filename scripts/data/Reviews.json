@@ -20,6 +20,10 @@
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
     "scoreCardId": 123456789,
     "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+    "metadata": {
+      "public": "public data",
+      "private": "private data"
+    },
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
     "createdBy": "admin",
@@ -53,7 +57,7 @@
   },
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0505",
-    "score": 100,
+    "score": 100.0,
     "legacyReviewId": 1234567895,
     "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
@@ -92,7 +96,7 @@
   },
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0508",
-    "score": 100,
+    "score": 100.0,
     "legacyReviewId": 1234567898,
     "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",

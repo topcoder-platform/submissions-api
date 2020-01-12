@@ -366,7 +366,7 @@ function * getSubmissionPhaseId (challengeId, parentSpan) {
       // log error
       getChallengePhasesSpan.log({
         event: 'error',
-        error: ex.response.body
+        error: ex.response ? ex.response.body : ex
       })
       getChallengePhasesSpan.setTag('error', true)
     } finally {
@@ -594,6 +594,7 @@ function * checkGetAccess (authUser, submission, parentSpan) {
  * @returns {Promise}
  */
 function * checkReviewGetAccess (authUser, submission, parentSpan) {
+  let isAccessAllowed = false
   const checkReviewGetAccessSpan = tracer.startChildSpans('helper.checkReviewGetAccess', parentSpan)
 
   try {
@@ -608,7 +609,6 @@ function * checkReviewGetAccess (authUser, submission, parentSpan) {
         .set('Content-Type', 'application/json')
     } catch (ex) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
-      logger.error(ex)
 
       // log error
       getChallengeDetailSpan.log({
@@ -616,8 +616,6 @@ function * checkReviewGetAccess (authUser, submission, parentSpan) {
         error: ex.response.body
       })
       getChallengeDetailSpan.setTag('error', true)
-
-      return false
     } finally {
       getChallengeDetailSpan.finish()
     }
@@ -629,7 +627,7 @@ function * checkReviewGetAccess (authUser, submission, parentSpan) {
       // For Marathon Match, everyone can access review result
       if (subTrack === 'DEVELOP_MARATHON_MATCH') {
         logger.info('No access check for Marathon match')
-        return true
+        isAccessAllowed = true
       } else {
         const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', 'phaseStatus': 'Closed' })
 
@@ -638,8 +636,12 @@ function * checkReviewGetAccess (authUser, submission, parentSpan) {
           throw new errors.HttpStatusError(403, 'You cannot access the review before the end of the Appeals Response phase')
         }
 
-        return true
+        isAccessAllowed = true
       }
+    }
+
+    if (!isAccessAllowed) {
+      throw new errors.HttpStatusError(403, 'You cannot access the review at this time')
     }
   } finally {
     checkReviewGetAccessSpan.finish()

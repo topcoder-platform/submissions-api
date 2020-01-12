@@ -15,10 +15,21 @@ const should = chai.should() // eslint-disable-line
 const app = require('../../app')
 const {
   nonExSubmissionId, testSubmission, testSubmissionWoLegacy,
-  testSubmissionPatch
+  testSubmissionPatch, testSubmissionWReview
 } = require('../common/testData')
 
 chai.use(chaiHttp)
+
+const binaryParser = function (res, cb) {
+  res.setEncoding('binary')
+  res.data = ''
+  res.on('data', function (chunk) {
+    res.data += chunk
+  })
+  res.on('end', function () {
+    cb(null, Buffer.from(res.data, 'binary'))
+  })
+}
 
 describe('Submission Service tests', () => {
   /*
@@ -65,11 +76,13 @@ describe('Submission Service tests', () => {
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.keys(Object.keys(testSubmission.Item))
+          res.body.should.have.keys(_.concat(Object.keys(testSubmission.Item), 'review', 'reviewSummation'))
           res.body.id.should.be.eql(testSubmission.Item.id)
           res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
           res.body.type.should.be.eql(testSubmission.Item.type)
           res.body.url.should.be.eql(testSubmission.Item.url)
+          res.body.review.should.be.eql([])
+          res.body.reviewSummation.should.be.eql([])
           done()
         })
     })
@@ -80,11 +93,31 @@ describe('Submission Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testSubmission.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testSubmission.Item), 'review', 'reviewSummation'))
           res.body.id.should.be.eql(testSubmission.Item.id)
           res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
           res.body.type.should.be.eql(testSubmission.Item.type)
           res.body.url.should.be.eql(testSubmission.Item.url)
+          res.body.review.should.be.eql([])
+          res.body.reviewSummation.should.be.eql([])
+          done()
+        })
+    })
+
+    it('Getting existing submission with review and reviewSummation with Admin token should return the submission', (done) => {
+      const item = testSubmissionWReview.Item
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions/${item.id}`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.all.keys(Object.keys(item))
+          res.body.id.should.be.eql(item.id)
+          res.body.challengeId.should.be.eql(item.challengeId)
+          res.body.type.should.be.eql(item.type)
+          res.body.url.should.be.eql(item.url)
+          res.body.review.should.be.eql(item.review)
+          res.body.reviewSummation.should.be.eql(item.reviewSummation)
           done()
         })
     })
@@ -175,6 +208,22 @@ describe('Submission Service tests', () => {
         })
     })
 
+    it('Creating submission with file upload and mismatching attribute should throw 400', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/submissions`)
+        .set('Authorization', `Bearer ${config.USER_TOKEN}`)
+        .field('challengeId', testSubmissionWoLegacy.Item.challengeId)
+        .field('type', testSubmissionWoLegacy.Item.type)
+        .field('memberId', testSubmissionWoLegacy.Item.memberId)
+        .field('fileType', 'zip')
+        .attach('mismatching', './test/common/fileToUpload.zip', 'fileToUpload.zip')
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('The file should be uploaded under the "submission" attribute')
+          done()
+        })
+    })
+
     it('Creating submission with file upload should get succeeded', (done) => {
       chai.request(app)
         .post(`${config.API_VERSION}/submissions`)
@@ -216,10 +265,10 @@ describe('Submission Service tests', () => {
       chai.request(app)
         .post(`${config.API_VERSION}/submissions`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.omit(testSubmission.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']))
+        .send(_.extend(_.omit(testSubmission.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']), {legacyUploadId: 'b24d4180-65aa-42ec-a945-5fd21dec0501'}))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.keys(Object.keys(_.extend({ fileType: 'zip' }, testSubmission.Item)))
+          res.body.should.have.keys(Object.keys(_.extend({ fileType: 'zip', legacyUploadId: 'b24d4180-65aa-42ec-a945-5fd21dec0501' }, testSubmission.Item)))
           res.body.id.should.not.be.eql(null)
           res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
           res.body.type.should.be.eql(testSubmission.Item.type)
@@ -328,7 +377,7 @@ describe('Submission Service tests', () => {
       chai.request(app)
         .put(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.omit(testSubmission.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']))
+        .send(_.extend(_.omit(testSubmission.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']), {legacyUploadId: 'b24d4180-65aa-42ec-a945-5fd21dec0501'}))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.keys(Object.keys(testSubmission.Item))
@@ -417,7 +466,7 @@ describe('Submission Service tests', () => {
         .send(_.pick(testSubmissionPatch.Item, ['type', 'url']))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.keys(Object.keys(testSubmissionPatch.Item))
+          res.body.should.have.keys(_.concat(Object.keys(testSubmissionPatch.Item), 'legacyUploadId'))
           res.body.id.should.not.be.eql(null)
           res.body.challengeId.should.be.eql(testSubmissionPatch.Item.challengeId)
           res.body.type.should.be.eql(testSubmissionPatch.Item.type)
@@ -433,7 +482,7 @@ describe('Submission Service tests', () => {
         .send(_.pick(testSubmissionPatch.Item, ['legacySubmissionId', 'submissionPhaseId']))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.keys(Object.keys(testSubmissionPatch.Item))
+          res.body.should.have.keys(_.concat(Object.keys(testSubmissionPatch.Item), 'legacyUploadId'))
           res.body.id.should.not.be.eql(null)
           res.body.challengeId.should.be.eql(testSubmissionPatch.Item.challengeId)
           res.body.legacySubmissionId.should.be.eql(testSubmissionPatch.Item.legacySubmissionId)
@@ -595,6 +644,90 @@ describe('Submission Service tests', () => {
           res.should.have.status(200)
           res.body.should.have.nested.property('[0].review[0].metadata.public')
           res.body.should.not.have.nested.property('[0].review[0].metadata.private')
+          done()
+        })
+    })
+  })
+
+  /*
+   * Test the GET /submissions/:submissionId/download route
+   */
+  describe('GET /submissions/:submissionId/download', () => {
+    it('Getting invalid submission download should throw 400', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions/b56a4180/download`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"submissionId" must be a valid GUID')
+          done()
+        })
+    })
+
+    it('Getting non-existing submission download should throw 404', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions/${nonExSubmissionId}/download`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(404)
+          res.body.message.should.be.eql(`Submission with ID = ${nonExSubmissionId} is not found`)
+          done()
+        })
+    })
+
+    /*
+     * TODO: Auth library ideally need to throw 401 for this scenario
+     */
+    it('Getting existing submission download without token should throw 403', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions/${testSubmission.Item.id}/download`)
+        .end((err, res) => {
+          res.should.have.status(403)
+          done()
+        })
+    })
+
+    it('Getting existing submission download with user token should return the file', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions/${testSubmission.Item.id}/download`)
+        .set('Authorization', `Bearer ${config.USER_TOKEN}`)
+        .buffer()
+        .parse(binaryParser)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.header['content-type'].should.be.equal('application/zip')
+          res.header['content-disposition'].should.be.equal('attachment; filename="submission-b24d4180-65aa-42ec-a945-5fd21dec0501-a12a4180-65aa-42ec-a945-5fd21dec0501.zip"')
+          res.body.length.should.to.equal(151)
+          done()
+        })
+    })
+
+    it('Getting existing submission download with Admin token should return the file', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions/${testSubmission.Item.id}/download`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .buffer()
+        .parse(binaryParser)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.header['content-type'].should.be.equal('application/zip')
+          res.header['content-disposition'].should.be.equal('attachment; filename="submission-b24d4180-65aa-42ec-a945-5fd21dec0501-a12a4180-65aa-42ec-a945-5fd21dec0501.zip"')
+          res.body.length.should.to.equal(151)
+          done()
+        })
+    })
+
+    it('Getting existing submission without legacyId download with Admin token should return the file', (done) => {
+      chai.request(app)
+        .get(`${config.API_VERSION}/submissions/${testSubmissionWoLegacy.Item.id}/download`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .buffer()
+        .parse(binaryParser)
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.header['content-type'].should.be.equal('application/zip')
+          res.header['content-disposition'].should.be.equal('attachment; filename="submission-a12a4180-65aa-42ec-a945-5fd21dec0502.zip"')
+          res.body.length.should.to.equal(151)
           done()
         })
     })

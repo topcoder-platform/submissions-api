@@ -1,6 +1,5 @@
 # Topcoder Submission API
 
-
 ## Pre-requisites
 
 1. Active AWS Account
@@ -13,7 +12,9 @@
 8. SignalFX
 
 ## Open Tracing Configuration Setup
+
 Refer `config/default.js`, tracing object will contain all configuration relate to integrate open tracing.
+
 1. dataDogEnabled, whether data dog tracing is enabled
 2. lightStepEnabled, whether light step tracing is enabled
 3. signalFXEnabled, whether singal fx tracing is enabled
@@ -164,18 +165,14 @@ Refer to config/test.js and Set up the environment variables as necessary
 e.g.
 
 ```
-export AWS_REGION="<AWS Region>"
-export ARTIFACT_BUCKET="<Artifact S3 Bucket Name>"
-export ES_HOST="<ES Endpoint>"
-export AUTH0_URL="<Auth0 URL>"
-export AUTH0_AUDIENCE="<Auth0 Audience>"
-export AUTH0_CLIENT_ID="<Auth0 Client ID>"
-export AUTH0_CLIENT_SECRET="<Auth0 Client Secret>"
-export LIGHTSTEP_ACCESS_TOKEN=<Lightstep Access Token>
-export SIGNALFX_ACCESS_TOKEN=<SignalFx Access Token>
-export SIGNALFX_TRACE_AGENT_HOSTNAME=<SignalFx Trace Agent Hostname>
-export DD_TRACE_AGENT_HOSTNAME=<DataDog Trace Agent Hostname>
-export S3_BUCKET_TEST="<Test S3 Bucket Name>"
+export S3_BUCKET_TEST=
+export AUTH0_URL=
+export AUTH0_AUDIENCE=
+export AUTH0_CLIENT_ID=
+export AUTH0_CLIENT_SECRET=
+export ES_HOST=
+export ARTIFACT_BUCKET=
+export ES_INDEX_TEST= !IMPORTANT! Remember to set this different from what is used in development / production. E2E tests will erase data
 ```
 
 To run unit tests alone
@@ -197,18 +194,14 @@ Refer to config/test.js and Set up the environment variables as necessary
 e.g.
 
 ```
-export AWS_REGION="<AWS Region>"
-export ARTIFACT_BUCKET="<Artifact S3 Bucket Name>"
-export ES_HOST="<ES Endpoint>"
-export AUTH0_URL="<Auth0 URL>"
-export AUTH0_AUDIENCE="<Auth0 Audience>"
-export AUTH0_CLIENT_ID="<Auth0 Client ID>"
-export AUTH0_CLIENT_SECRET="<Auth0 Client Secret>"
-export LIGHTSTEP_ACCESS_TOKEN=<Lightstep Access Token>
-export SIGNALFX_ACCESS_TOKEN=<SignalFx Access Token>
-export SIGNALFX_TRACE_AGENT_HOSTNAME=<SignalFx Trace Agent Hostname>
-export DD_TRACE_AGENT_HOSTNAME=<DataDog Trace Agent Hostname>
-export S3_BUCKET_TEST="<Test S3 Bucket Name>"
+export S3_BUCKET_TEST=
+export AUTH0_URL=
+export AUTH0_AUDIENCE=
+export AUTH0_CLIENT_ID=
+export AUTH0_CLIENT_SECRET=
+export ES_HOST=
+export ARTIFACT_BUCKET=
+export ES_INDEX_TEST= !IMPORTANT! Remember to set this different from what is used in development / production. E2E tests will erase data
 ```
 
 To run integration tests alone
@@ -263,6 +256,6 @@ Swagger UI will be served at `http://localhost:3000/docs`
 
 1. All JWT tokens provided in Postman environment file is created in JWT.IO with secret `mysecret`
 
-2. There are 3 tokens provided in the environment collection representing each role - Topcoder User, Copilot, Administrator
+2. There are 5 tokens provided in the environment collection representing each role - Topcoder User, Copilot, Administrator, non-role User, `empty` scope User
 
 3. DynamoDB performance seems to be slower in my testing

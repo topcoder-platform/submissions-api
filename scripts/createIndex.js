@@ -35,7 +35,11 @@ co(function * createIndex () {
       submissionPhaseId: { type: 'keyword' },
       fileType: { type: 'keyword' },
       filename: { type: 'keyword' },
-      review: { type: 'nested' },
+      review: { type: 'nested',
+        properties: {
+          score: { type: 'float' }
+        }
+      },
       reviewSummation: { type: 'nested' }
     }
   }

@@ -206,7 +206,7 @@ function * deleteArtifact (submissionId, fileName, span) {
   }
 }
 
-downloadArtifact.schema = {
+deleteArtifact.schema = {
   submissionId: joi.string().uuid().required(),
   fileName: joi.string().trim().required()
 }

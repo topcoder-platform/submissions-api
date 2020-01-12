@@ -121,13 +121,15 @@ const testReviewTypesES = {
 
 const nonExSubmissionId = 'b3564180-65aa-42ec-a945-5fd21dec0502'
 
+const testSubmissionUrl = 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456'
+
 const testSubmission = {
   Item: {
-    challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+    challengeId: 30055732,
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     type: 'ContestSubmission',
-    url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
-    memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+    url: 'https://s3.amazonaws.com/test-submission/123456',
+    memberId: 40493050,
     legacySubmissionId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
     submissionPhaseId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
     created: '2018-05-20T07:00:30.123Z',
@@ -139,11 +141,59 @@ const testSubmission = {
 
 const testSubmissionWoLegacy = {
   Item: {
-    challengeId: 30049360,
+    challengeId: 30054692,
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
     type: 'ContestSubmission',
-    url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457',
-    memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0502',
+    url: 'https://s3.amazonaws.com/test-submission/123456',
+    memberId: 40493050,
+    created: '2018-05-20T07:00:30.123Z',
+    createdBy: 'topcoder user',
+    updated: '2018-06-01T07:36:28.178Z',
+    updatedBy: 'topcoder user'
+  }
+}
+
+const testSubmissionWReview = {
+  Item: {
+    challengeId: 30055732,
+    id: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
+    type: 'ContestSubmission',
+    url: 'https://s3.amazonaws.com/test-submission/123456',
+    memberId: 40493050,
+    legacySubmissionId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+    submissionPhaseId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+    review: [
+      {
+        id: 'd24d4180-65aa-42ec-a945-5fd21dec0501',
+        score: 95.5,
+        legacyReviewId: 1234567891,
+        typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
+        reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
+        scoreCardId: 123456789,
+        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+        metadata: {
+          public: 'public data',
+          private: 'private data'
+        },
+        created: '2018-05-20T07:00:30.123Z',
+        updated: '2018-06-01T07:36:28.178Z',
+        createdBy: 'admin',
+        updatedBy: 'admin'
+      }
+    ],
+    reviewSummation: [
+      {
+        id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
+        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+        aggregateScore: 99.0,
+        scoreCardId: 123456789,
+        isPassing: true,
+        created: '2018-05-20T07:00:30.123Z',
+        pdated: '2018-06-01T07:36:28.178Z',
+        createdBy: 'copilot',
+        updatedBy: 'copilot'
+      }
+    ],
     created: '2018-05-20T07:00:30.123Z',
     createdBy: 'topcoder user',
     updated: '2018-06-01T07:36:28.178Z',
@@ -153,11 +203,11 @@ const testSubmissionWoLegacy = {
 
 const testSubmissionPatch = {
   Item: {
-    challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+    challengeId: 30055732,
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     type: 'TestChange',
-    url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=654321',
-    memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+    url: 'https://s3.amazonaws.com/test-submission/123456',
+    memberId: 40493050,
     legacySubmissionId: 'b24d4180-65aa-42ec-a945-5fd21dec0502',
     submissionPhaseId: 'b24d4180-65aa-42ec-a945-5fd21dec0502',
     created: '2018-05-20T07:00:30.123Z',
@@ -178,13 +228,38 @@ const testSubmissionES = {
        _id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
        _score: 0,
        _source: {
-         challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+         challengeId: 30055732,
          id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          type: 'ContestSubmission',
-         url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
-         memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+         url: 'https://s3.amazonaws.com/test-submission/123456',
+         memberId: 40493050,
          legacySubmissionId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
          submissionPhaseId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
+         created: '2018-05-20T07:00:30.123Z',
+         createdBy: 'topcoder user',
+         updated: '2018-06-01T07:36:28.178Z',
+         updatedBy: 'topcoder user'
+       }
+     }]
+   }
+}
+
+const testSubmissionWoLegacyES = {
+  hits:
+   {
+     total: 1,
+     max_score: 0,
+     hits: [{
+       _index: 'submission',
+       _type: '_doc',
+       _id: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
+       _score: 0,
+       _source: {
+         challengeId: 30054692,
+         id: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
+         type: 'ContestSubmission',
+         url: 'https://s3.amazonaws.com/test-submission/123456',
+         memberId: 40493050,
          created: '2018-05-20T07:00:30.123Z',
          createdBy: 'topcoder user',
          updated: '2018-06-01T07:36:28.178Z',
@@ -213,7 +288,7 @@ const testSubmissionsES = {
        id: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
-       url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123458',
+       url: 'https://s3.amazonaws.com/test-submission/123456',
        review: [{
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
@@ -242,14 +317,14 @@ const testSubmissionsES = {
        _score: 0,
        _source:
      {
-       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+       challengeId: '30054692',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
        id: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
-       url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456',
+       url: 'https://s3.amazonaws.com/test-submission/123456',
        review: [{
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
@@ -268,7 +343,7 @@ const testSubmissionsES = {
          createdBy: 'admin',
          updatedBy: 'admin'
        }],
-       memberId: 'b24d4180-65aa-42ec-a945-5fd21dec0501'
+       memberId: 40493050
      }
      },
      {
@@ -278,14 +353,14 @@ const testSubmissionsES = {
        _score: 0,
        _source:
      {
-       challengeId: 'c3564180-65aa-42ec-a945-5fd21dec0502',
+       challengeId: '30054692',
        updatedBy: 'topcoder user',
        createdBy: 'topcoder user',
        created: '2018-05-20T07:00:30.123Z',
        id: 'a12a4180-65aa-42ec-a945-5fd21dec0502',
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
-       url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457',
+       url: 'https://s3.amazonaws.com/test-submission/123457',
        review: [{
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
@@ -321,7 +396,7 @@ const testSubmissionsES = {
        id: 'a12a4180-65aa-42ec-a945-5fd21dec0505',
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
-       url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460',
+       url: 'https://s3.amazonaws.com/test-submission/123460',
        review: [{
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
@@ -357,7 +432,7 @@ const testSubmissionsES = {
        id: 'a12a4180-65aa-42ec-a945-5fd21dec0504',
        type: 'ContestSubmission',
        updated: '2018-06-01T07:36:28.178Z',
-       url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123459',
+       url: 'https://s3.amazonaws.com/test-submission/123459',
        review: [{
          id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
          score: 92,
@@ -389,12 +464,16 @@ const testReview = {
   Item: {
     id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
     score: 92,
-    legacyReviewId: 1234567891,
+    legacyReviewId: 1234567892,
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
     status: 'queued',
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+    metadata: {
+      public: 'public data',
+      private: 'private data'
+    },
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
     createdBy: 'admin',
@@ -412,6 +491,10 @@ const testReviewPatch = {
     scoreCardId: 123456789,
     status: 'queued',
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+    metadata: {
+      public: 'public data',
+      private: 'private data'
+    },
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
     createdBy: 'admin',
@@ -437,6 +520,10 @@ const testReviewES = {
          submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
          scoreCardId: 123456789,
          status: 'queued',
+         metadata: {
+           public: 'public data',
+           private: 'private data'
+         },
          typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
          created: '2018-05-20T07:00:30.123Z',
          updated: '2018-06-01T07:36:28.178Z',
@@ -548,6 +635,10 @@ const testReviewSummation = {
     isPassing: true,
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
+    metadata: {
+      public: 'public data',
+      private: 'private data'
+    },
     created: '2018-05-20T07:00:30.123Z',
     updated: '2018-06-01T07:36:28.178Z',
     createdBy: 'copilot',
@@ -770,8 +861,77 @@ const testChallengeAPIResponse = {
   version: 'v4'
 }
 
+const testChallengeDetailResponse = {
+  id: '3cf68cb8:16f21aba872:-62ff',
+  result: {
+    success: true,
+    status: 200,
+    metadata: {
+      totalCount: 1,
+      allChallengesCount: 1,
+      myChallengesCount: 0,
+      openChallengesCount: 1,
+      ongoingChallengesCount: 0
+    },
+    content: [
+      {
+        challengeId: 30049360,
+        id: 733195,
+        currentPhases: [
+          {
+            id: '786331a5-4852-4e05-97ee-9c3d96c307b0',
+            phaseType: 'Appeals Response',
+            phaseStatus: 'Closed',
+            scheduledStartTime: '2019-10-01T00:19:57.311Z',
+            scheduledEndTime: '2020-11-11T00:19:00.000Z',
+            actualStartTime: '2019-10-01T00:19:57.311Z',
+            duration: 35164800000
+          }
+        ],
+        allPhases: [
+          {
+            id: 733196,
+            phaseType: 'Appeals Response',
+            phaseStatus: 'Closed',
+            scheduledStartTime: '2019-10-01T00:19:57.311Z',
+            scheduledEndTime: '2020-11-11T00:19:00.000Z',
+            actualStartTime: '2019-10-01T00:19:57.311Z',
+            duration: 35164800000
+          }
+        ],
+        prizes: [ 200 ],
+        isTask: false,
+        isRegistered: false,
+        submissionViewable: true,
+        subTrack: 'DEVELOP_MARATHON_MATCH',
+        registrationStartDate: '2019-03-19T19:45:55.563Z',
+        registrationEndDate: '2020-03-30T19:45:00.000Z',
+        submissionEndDate: '2020-04-01T21:39:00.000Z',
+        totalPrize: 200,
+        isPrivate: false,
+        projectId: 9616,
+        projectName: 'Tony App 4',
+        forumId: 602597,
+        numSubmissions: 1,
+        numRegistrants: 13,
+        numSubmitters: 1,
+        reviewType: 'INTERNAL',
+        name: 'test forum develop',
+        track: 'DEVELOP',
+        status: 'ACTIVE',
+        updatedAt: '2018-07-30T08:38Z',
+        createdAt: '2015-07-27T09:19Z',
+        createdBy: '11823846',
+        updatedBy: '8547899'
+      }
+    ]
+  },
+  version: 'v4'
+}
+
 module.exports = {
   nonExReviewTypeId,
+  testSubmissionUrl,
   testReviewType,
   testReviewTypePatch,
   testReviewTypeES,
@@ -792,5 +952,8 @@ module.exports = {
   testReviewSummationPatch,
   testReviewSummationES,
   testReviewSummationsES,
-  testChallengeAPIResponse
+  testChallengeAPIResponse,
+  testChallengeDetailResponse,
+  testSubmissionWoLegacyES,
+  testSubmissionWReview
 }

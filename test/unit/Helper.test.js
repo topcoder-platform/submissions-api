@@ -53,4 +53,37 @@ describe('Helper tests', () => {
         done()
       })
   })
+
+  it('Accessing routes with no role user should throw 401', (done) => {
+    chai.request(app)
+      .get(`${config.API_VERSION}/submissions`)
+      .set('Authorization', `Bearer ${config.USER_NO_ROLE_TOKEN}`)
+      .end((err, res) => {
+        res.should.have.status(401)
+        res.body.message.should.be.eql('You are not authorized to perform this action')
+        done()
+      })
+  })
+
+  it('Accessing routes with empty scope user should throw 403', (done) => {
+    chai.request(app)
+      .get(`${config.API_VERSION}/submissions`)
+      .set('Authorization', `Bearer ${config.USER_EMPTY_SCOPE_TOKEN}`)
+      .end((err, res) => {
+        res.should.have.status(403)
+        res.body.message.should.be.eql('You are not allowed to perform this action!')
+        done()
+      })
+  })
+
+  it('Accessing no need routes with no role user should get succeeded', (done) => {
+    chai.request(app)
+      .get(`${config.API_VERSION}/health`)
+      .set('Authorization', `Bearer ${config.USER_NO_ROLE_TOKEN}`)
+      .end((err, res) => {
+        res.should.have.status(200)
+        res.body.checksRun.should.be.eql(1)
+        done()
+      })
+  })
 })
