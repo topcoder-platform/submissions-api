@@ -32,6 +32,7 @@ app.use(cors())
 app.use(fileUpload())
 
 memwatch.on('leak', function (info) {
+  winston.info(`Memory leak detected, details:  ${info}`)
   const reqBody = {
     topic: 'common.error.reporting',
     originator: 'submission-api',
