@@ -18,6 +18,7 @@ const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
 const authenticator = require('tc-core-library-js').middleware.jwtAuthenticator
 const fileUpload = require('express-fileupload')
+const memwatch = require('memwatch-next')
 
 const swaggerDocument = YAML.load('./docs/swagger.yaml')
 const app = express()
@@ -29,6 +30,18 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 app.use(cors())
 app.use(fileUpload())
+
+memwatch.on('leak', function (info) {
+  const reqBody = {
+    topic: 'common.error.reporting',
+    originator: 'submission-api',
+    timestamp: (new Date()).toISOString(), // time when submission was created
+    'mime-type': 'application/json',
+    payload: info
+  }
+
+  helper.postToBusApi(reqBody)
+})
 
 const apiRouter = express.Router()
 
