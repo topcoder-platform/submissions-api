@@ -79,6 +79,7 @@ paths:
         - $ref: '#/parameters/filterSubmissionReviewSummationScoreCardId'
         - $ref: '#/parameters/filterSubmissionReviewSummationSubmissionId'
         - $ref: '#/parameters/filterSubmissionReviewSummationAggregateScore'
+        - $ref: '#/parameters/filterSubmissionReviewSummationStatus'
         - $ref: '#/parameters/filterSubmissionReviewSummationIsPassing'
       responses:
         200:
@@ -583,7 +584,7 @@ paths:
       description: |
         Get all review summations. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
 
-        Resulted collection of review summations can be filtered using filter parameters `submissionId`, `aggregateScore`, `scoreCardId`, `isPassing` (all filter parameters are optional and combined by the logical operation `AND`).
+        Resulted collection of review summations can be filtered using filter parameters `submissionId`, `aggregateScore`, `scoreCardId`, `isPassing`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
         **Authorization:** Review summation is accessible by roles `admin` and `copilot`.
       tags:
@@ -600,6 +601,7 @@ paths:
         - $ref: '#/parameters/filterReviewSummationScoreCardId'
         - $ref: '#/parameters/filterReviewSummationIsPassing'
         - $ref: '#/parameters/filterReviewSummationIsFinal'
+        - $ref: '#/parameters/filterReviewSummationStatus'
       responses:
         200:
           description: OK - the request was successful, the resource are returned.
@@ -615,6 +617,7 @@ paths:
                 scoreCardId: 123456789
                 isPassing: false
                 isFinal: false
+                status: processing
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: copilot
@@ -625,6 +628,7 @@ paths:
                 scoreCardId: 123456789
                 isPassing: true
                 isFinal: true
+                status: processing
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: copilot
@@ -666,7 +670,7 @@ paths:
       description: |
         Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
 
-        Requested review summations can be filtered using filter parameters `submissionId`, `aggregateScore`, `scoreCardId`, `isPassing` (all filter parameters are optional and combined by the logical operation `AND`).
+        Requested review summations can be filtered using filter parameters `submissionId`, `aggregateScore`, `scoreCardId`, `isPassing`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
         **Authorization:** Review summation is accessible by roles `admin` and `copilot`.
       tags:
@@ -681,6 +685,7 @@ paths:
         - $ref: '#/parameters/filterReviewSummationScoreCardId'
         - $ref: '#/parameters/filterReviewSummationIsPassing'
         - $ref: '#/parameters/filterReviewSummationIsFinal'
+        - $ref: '#/parameters/filterReviewSummationStatus'
       responses:
         200:
           description: OK - The request was successful.
@@ -1656,7 +1661,7 @@ parameters:
     description: The status of the reviews associated with the submission.
     required: false
     type: string
-    enum: [queued, completed]
+    enum: [queued, completed, processing]
 
   filterSubmissionReviewSummationScoreCardId:
     in: query
@@ -1679,6 +1684,14 @@ parameters:
     required: false
     type: integer
 
+  filterSubmissionReviewSummationStatus:
+    in: query
+    name: reviewSummation.status
+    description: The status filter of the review summaions associated with the submission.
+    required: false
+    type: string
+    enum: [processing]
+
   filterSubmissionReviewSummationIsPassing:
     in: query
     name: reviewSummation.isPassing
@@ -1700,6 +1713,14 @@ parameters:
     required: false
     type: number
     format: double
+
+  filterReviewSummationStatus:
+    in: query
+    name: status
+    description: The status filter for review summations.
+    required: false
+    type: string
+    enum: [processing]
 
   filterReviewSummationScoreCardId:
     in: query
@@ -1771,7 +1792,7 @@ parameters:
     description: The status of the review, whether it queued or has been completed.
     required: false
     type: string
-    enum: [queued, completed]
+    enum: [queued, completed, processing]
   
   filterReviewTypeName:
     in: query
@@ -1964,6 +1985,10 @@ definitions:
       metadata:
         type: object
         description: Review summation metadata in JSON format
+      status:
+        type: string
+        description: The review summation status.
+        example: processing
 
   UpdatableReviewSummation:
     description: The review summation entity fields that updates whole entity.

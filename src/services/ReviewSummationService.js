@@ -87,6 +87,7 @@ const listReviewSummationsQuerySchema = {
   aggregateScore: joi.score(),
   isPassing: joi.boolean(),
   isFinal: joi.boolean(),
+  status: joi.reviewSummationStatus(),
   page: joi.id(),
   perPage: joi.pageSize(),
   orderBy: joi.sortOrder()
@@ -164,7 +165,8 @@ createReviewSummation.schema = {
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
     isFinal: joi.boolean(),
-    metadata: joi.object()
+    metadata: joi.object(),
+    status: joi.reviewSummationStatus()
   }).required()
 }
 
@@ -238,6 +240,13 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity, parentSp
       record.ExpressionAttributeValues[':ls'] = isFinal
     }
 
+    // If status exists, add it to the update expression
+    if (entity.status || exist.status) {
+      record.UpdateExpression = record.UpdateExpression + ', #st = :st'
+      record.ExpressionAttributeValues[':st'] = entity.status || exist.status
+      record.ExpressionAttributeNames = {'#st': 'status'}
+    }
+
     yield dbhelper.updateRecord(record, updateReviewSummationSpan)
 
     // Push Review Summation updated event to Bus API
@@ -285,7 +294,8 @@ updateReviewSummation.schema = {
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
     isFinal: joi.boolean(),
-    metadata: joi.object()
+    metadata: joi.object(),
+    status: joi.reviewSummationStatus()
   }).required()
 }
 
@@ -310,7 +320,8 @@ patchReviewSummation.schema = {
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
     isFinal: joi.boolean(),
-    metadata: joi.object()
+    metadata: joi.object(),
+    status: joi.reviewSummationStatus()
   })
 }
 

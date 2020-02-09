@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "567b1b26-0edf-4f9f-9f69-ed0b35f8422c",
+		"_postman_id": "284f9816-9907-4118-99fa-c8e92de6613b",
 		"name": "Submission API",
 		"description": "Topcoder Submission API Postman Collection",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -707,7 +707,8 @@
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "Review",
@@ -1445,7 +1446,8 @@
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "ReviewSummation",
@@ -1523,7 +1525,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"aggregateScore\": 97.8,\n\t\"scoreCardId\": 123456789,\n\t\"isPassing\": true\n}"
+							"raw": "{\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"aggregateScore\": 97.8,\n\t\"scoreCardId\": 123456789,\n\t\"isPassing\": true,\n\t\"status\": \"processing\"\n}"
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations",
@@ -2059,7 +2061,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"aggregateScore\": 93.5,\n\t\"scoreCardId\": 123456789,\n\t\"isPassing\": true\n}"
+							"raw": "{\n\t\"submissionId\": \"{{submissionID}}\",\n\t\"aggregateScore\": 93.5,\n\t\"scoreCardId\": 123456789,\n\t\"isPassing\": true,\n\t\"status\": \"processing\"\n}"
 						},
 						"url": {
 							"raw": "{{URL}}/reviewSummations/{{reviewSummationID}}",
@@ -2183,7 +2185,8 @@
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		},
 		{
 			"name": "Submission",
@@ -2988,7 +2991,9 @@
 						]
 					}
 				}
-			]
+			],
+			"protocolProfileBehavior": {}
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
