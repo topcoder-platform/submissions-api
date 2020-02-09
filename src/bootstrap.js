@@ -14,7 +14,7 @@ joi.score = () => joi.number()
 joi.pageSize = () => joi.number().integer().min(1).max(config.get('MAX_PAGE_SIZE'))
 joi.sortOrder = () => joi.string().valid('asc', 'desc', 'ASC', 'DESC')
 joi.reviewStatus = () => joi.string().valid('queued', 'completed', 'processing')
-joi.reviewSummationStatus = () => joi.string().valid('processing')
+joi.reviewSummationStatus = () => joi.string().valid('queued', 'completed', 'processing')
 
 function buildServices (dir) {
   const files = fs.readdirSync(dir)

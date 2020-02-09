@@ -123,7 +123,9 @@ function * createReviewSummation (authUser, entity, span) {
       created: currDate,
       updated: currDate,
       createdBy: authUser.handle || authUser.sub,
-      updatedBy: authUser.handle || authUser.sub }, entity)
+      updatedBy: authUser.handle || authUser.sub,
+      status: 'completed'
+    }, entity)
 
     if (entity.isFinal) {
       item.isFinal = entity.isFinal
@@ -162,7 +164,11 @@ createReviewSummation.schema = {
   entity: joi.object().keys({
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
-    aggregateScore: joi.score().required(),
+    aggregateScore: joi.score().when('status', {
+      is: joi.string().valid('queued', 'processing').required(),
+      then: joi.forbidden(),
+      otherwise: joi.required()
+    }),
     isPassing: joi.boolean().required(),
     isFinal: joi.boolean(),
     metadata: joi.object(),
@@ -291,7 +297,11 @@ updateReviewSummation.schema = {
   entity: joi.object().keys({
     scoreCardId: joi.id().required(),
     submissionId: joi.string().uuid().required(),
-    aggregateScore: joi.score().required(),
+    aggregateScore: joi.score().when('status', {
+      is: joi.string().valid('queued', 'processing').required(),
+      then: joi.forbidden(),
+      otherwise: joi.required()
+    }),
     isPassing: joi.boolean().required(),
     isFinal: joi.boolean(),
     metadata: joi.object(),
@@ -317,7 +327,11 @@ patchReviewSummation.schema = {
   entity: joi.object().keys({
     scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
-    aggregateScore: joi.score(),
+    aggregateScore: joi.score().when('status', {
+      is: joi.string().valid('queued', 'processing').required(),
+      then: joi.forbidden(),
+      otherwise: joi.optional()
+    }),
     isPassing: joi.boolean(),
     isFinal: joi.boolean(),
     metadata: joi.object(),

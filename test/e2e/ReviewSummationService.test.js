@@ -67,6 +67,18 @@ describe('Review Summation Service tests', () => {
         })
     })
 
+    it('Creating ReviewSummation with processing status and aggregateScore should throw 400', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/reviewSummations`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend(_.omit(testReviewSummation.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']), {isFinal: true, status: 'processing'}))
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"aggregateScore" is not allowed')
+          done()
+        })
+    }).timeout(20000)
+
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
      */
@@ -99,7 +111,7 @@ describe('Review Summation Service tests', () => {
         .send(_.extend({ submissionId: submissionId }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
+          res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummation.Item), 'status'))
           res.body.id.should.not.be.eql(null)
           reviewSummationId = res.body.id // To be used in future requests
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
@@ -113,7 +125,7 @@ describe('Review Summation Service tests', () => {
       chai.request(app)
         .post(`${config.API_VERSION}/reviewSummations`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.extend({ submissionId: submissionId, isFinal: true, status: 'processing' }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .send(_.extend({ submissionId: submissionId, isFinal: true, status: 'completed' }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummation.Item), 'isFinal', 'status'))
@@ -122,7 +134,7 @@ describe('Review Summation Service tests', () => {
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReviewSummation.Item.scoreCardId)
-          res.body.status.should.be.eql('processing')
+          res.body.status.should.be.eql('completed')
           done()
         })
     }).timeout(20000)
@@ -233,6 +245,18 @@ describe('Review Summation Service tests', () => {
         })
     })
 
+    it('Updating ReviewSummation with processing status and aggregateScore should throw 400', (done) => {
+      chai.request(app)
+        .put(`${config.API_VERSION}/reviewSummations/${reviewSummationId}`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend(_.omit(testReviewSummation.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']), {isFinal: true, status: 'processing'}))
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"aggregateScore" is not allowed')
+          done()
+        })
+    })
+
     /*
      * TODO: Auth library ideally need to throw 401 for this scenario
      */
@@ -290,7 +314,7 @@ describe('Review Summation Service tests', () => {
       chai.request(app)
         .put(`${config.API_VERSION}/reviewSummations/${reviewSummationId}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.extend({ submissionId: submissionId, isFinal: true, status: 'processing' }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .send(_.extend({ submissionId: submissionId, isFinal: true, status: 'completed' }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(_.concat(Object.keys(testReviewSummation.Item), 'isFinal', 'status'))
@@ -298,7 +322,7 @@ describe('Review Summation Service tests', () => {
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
           res.body.submissionId.should.be.eql(submissionId)
           res.body.scoreCardId.should.be.eql(testReviewSummation.Item.scoreCardId)
-          res.body.status.should.eql('processing')
+          res.body.status.should.eql('completed')
           done()
         })
     }).timeout(20000)
@@ -316,6 +340,18 @@ describe('Review Summation Service tests', () => {
         .end((err, res) => {
           res.should.have.status(400)
           res.body.message.should.be.eql('"reviewSummationId" must be a valid GUID')
+          done()
+        })
+    })
+
+    it('Patching ReviewSummation with processing status and aggregateScore should throw 400', (done) => {
+      chai.request(app)
+        .patch(`${config.API_VERSION}/reviewSummations/${reviewSummationId}`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend(_.pick(testReviewSummationPatch.Item, ['aggregateScore', 'isPassing']), {status: 'processing'}))
+        .end((err, res) => {
+          res.should.have.status(400)
+          res.body.message.should.be.eql('"aggregateScore" is not allowed')
           done()
         })
     })
