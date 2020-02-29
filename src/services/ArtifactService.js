@@ -15,6 +15,7 @@ const HelperService = require('./HelperService')
 const tracer = require('../common/tracer')
 const dbhelper = require('../common/dbhelper')
 const model = require('../models/SubmissionArtifactMap')
+const SubmissionService = require('./SubmissionService')
 
 /*
  * Function to upload file to S3
@@ -176,7 +177,8 @@ function * createArtifact (files, submissionId, entity, span) {
     logger.info('Creating a new Artifact')
     if (files && files.artifact) {
       const uFileType = fileTypeFinder(files.artifact.data).ext // File type of uploaded file
-      fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
+      const { challengeId, memberId } = yield SubmissionService._getSubmission(submissionId, createArtifactSpan, false)
+      fileName = `${challengeId}/${memberId}/${submissionId}/artifacts/${files.artifact.name}.${uFileType}`
 
       yield createSubmissionArtifactMap({
         submissionId,
