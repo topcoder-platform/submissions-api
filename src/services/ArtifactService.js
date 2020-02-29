@@ -38,12 +38,12 @@ function * _uploadToS3 (file, name) {
 
 function * createSubmissionArtifactMap (mapObject, parentSpan) {
   const createSubmissionArtifactMapSpan = tracer.startChildSpans('ArtifactService.createSubmissionArtifactMap', parentSpan)
-  createSubmissionArtifactMap.setTag('submissionId', mapObject.submissionId)
-  createSubmissionArtifactMap.setTag('artifactFileName', mapObject.artifactFileName)
+  createSubmissionArtifactMapSpan.setTag('submissionId', mapObject.submissionId)
+  createSubmissionArtifactMapSpan.setTag('artifactFileName', mapObject.artifactFileName)
 
   try {
     const record = {
-      TableName: model.TableName,
+      TableName: model.SubmissionArtifactMap.TableName,
       Item: mapObject
     }
     yield dbhelper.insertRecord(record, createSubmissionArtifactMapSpan)
@@ -59,7 +59,7 @@ function * getSubmissionArtifactMap (submissionId, artifactFileName, parentSpan)
 
   try {
     const filter = {
-      TableName: model.TableName,
+      TableName: model.SubmissionArtifactMap.TableName,
       Key: {
         submissionId,
         artifactFileName
