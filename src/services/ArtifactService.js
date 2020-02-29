@@ -37,6 +37,12 @@ function * _uploadToS3 (file, name) {
   return s3.upload(params).promise()
 }
 
+/*
+ * Function to create a submission-artifact mapping
+ * @param {Object} mapObject The mapping object to be inserted
+ * @param {Object} parentSpan The parent span object
+ * @return {Promise}
+ */
 function * createSubmissionArtifactMap (mapObject, parentSpan) {
   const createSubmissionArtifactMapSpan = tracer.startChildSpans('ArtifactService.createSubmissionArtifactMap', parentSpan)
   createSubmissionArtifactMapSpan.setTag('submissionId', mapObject.submissionId)
@@ -53,6 +59,13 @@ function * createSubmissionArtifactMap (mapObject, parentSpan) {
   }
 }
 
+/*
+ * Function to get submission-artifact mapping from DynamoDB
+ * @param {Object} submissionId The ID of the submission
+ * @param {Object} artifactFileName The name of the artifact
+ * @param {Object} parentSpan The parent span
+ * @return {Object} Data from DynamoDB
+ */
 function * getSubmissionArtifactMap (submissionId, artifactFileName, parentSpan) {
   const getSubmissionArtifactMapSpan = tracer.startChildSpans('ArtifactService.getSubmissionArtifactMap', parentSpan)
   getSubmissionArtifactMapSpan.setTag('submissionId', submissionId)
