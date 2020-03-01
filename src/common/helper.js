@@ -525,6 +525,7 @@ function * checkGetAccess (authUser, submission, parentSpan) {
       // Fetch all roles of the User pertaining to the current challenge
       const currUserRoles = _.filter(resources.body.result.content, { properties: { Handle: authUser.handle } })
       const subTrack = challengeDetails.body.result.content[0].subTrack
+      const track = challengeDetails.body.result.content[0].track
       const phases = challengeDetails.body.result.content[0].allPhases
 
       // Check if the User is a Copilot/Manager/Observer
@@ -569,7 +570,8 @@ function * checkGetAccess (authUser, submission, parentSpan) {
           const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', 'phaseStatus': 'Closed' })
 
           // Appeals Response is not closed yet
-          if (appealsResponse.length === 0) {
+          // Do not check for end of Appeals Response for Design Challenges
+          if (appealsResponse.length === 0 && track !== 'DESIGN') {
             throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
           } else {
             const userSubmission = yield fetchFromES({ challengeId: submission.challengeId,
