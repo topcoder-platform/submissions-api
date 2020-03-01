@@ -527,12 +527,17 @@ function * checkGetAccess (authUser, submission, parentSpan) {
       const subTrack = challengeDetails.body.result.content[0].subTrack
       const phases = challengeDetails.body.result.content[0].allPhases
 
-      // Check if the User is a Copilot
-      const copilot = _.filter(currUserRoles, { role: 'Copilot' })
-      // Copilot have access to all submissions regardless of Phases
-      if (copilot.length !== 0) {
+      // Check if the User is a Copilot/Manager/Observer
+      const superRoles = _.union(
+        _.filter(currUserRoles, { role: 'Copilot' }),
+        _.filter(currUserRoles, { role: 'Manager' }),
+        _.filter(currUserRoles, { role: 'Observer' })
+      )
+      // Copilot/Manager/Observer have access to all submissions regardless of Phases
+      if (superRoles.length !== 0) {
         return true
       }
+
       // Check for Reviewer / Submitter roles
       if (subTrack === 'FIRST_2_FINISH') {
         const iterativeReviewer = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
