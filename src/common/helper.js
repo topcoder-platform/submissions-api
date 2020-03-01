@@ -594,7 +594,7 @@ function * checkGetAccess (authUser, submission, parentSpan) {
     } else {
       // We don't have enough details to validate the access
       logger.debug('No enough details to validate the Permissions')
-      return true
+      throw new errors.HttpStatusError(500, 'Could not get challenge info!')
     }
   } finally {
     checkGetAccessSpan.finish()
