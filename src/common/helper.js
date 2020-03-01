@@ -553,7 +553,10 @@ function * checkGetAccess (authUser, submission, parentSpan) {
         const reviewer = _.filter(currUserRoles, { role: 'Reviewer' })
 
         if (screener.length !== 0) { // User is Screener
-          const screeningPhase = _.filter(phases, { phaseType: 'Screening', phaseStatus: 'Scheduled' })
+          const screeningPhase = _.union(
+            _.filter(phases, { phaseType: 'Screening', phaseStatus: 'Open' }),
+            _.filter(phases, { phaseType: 'Screening', phaseStatus: 'Closed' })
+          )
 
           // Screening is not Opened / Closed
           if (screeningPhase.length !== 0) {
