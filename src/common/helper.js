@@ -551,16 +551,14 @@ function * checkGetAccess (authUser, submission, parentSpan) {
         const screener = _.filter(currUserRoles, { role: 'Primary Screener' })
         const reviewer = _.filter(currUserRoles, { role: 'Reviewer' })
 
-        if (screener.length !== 0) {
-          // User is Screener
+        if (screener.length !== 0) { // User is Screener
           const screeningPhase = _.filter(phases, { phaseType: 'Screening', phaseStatus: 'Scheduled' })
 
           // Screening is not Opened / Closed
           if (screeningPhase.length !== 0) {
             throw new errors.HttpStatusError(403, 'You can access the submission only when Screening is open')
           }
-        } else if (reviewer.length !== 0) {
-          // User is Reviewer
+        } else if (reviewer.length !== 0) { // User is Reviewer
           const reviewPhase = _.filter(phases, { phaseType: 'Review', phaseStatus: 'Scheduled' })
 
           // Review is not Opened / Closed
