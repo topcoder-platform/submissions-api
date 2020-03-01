@@ -460,6 +460,9 @@ function * checkCreateAccess (authUser, subEntity, parentSpan) {
 
 /*
  * Function to check user access to get a submission
+ * This function should throw an HttpStatusError
+ * if user cannot access submission
+ *
  * @param authUser Authenticated user
  * @param submission Submission Entity
  * @param {Object} parentSpan the parent Span object
@@ -493,7 +496,7 @@ function * checkGetAccess (authUser, submission, parentSpan) {
         error: ex.response.body
       })
       getChallengeResourcesSpan.setTag('error', true)
-      return false
+      throw new errors.HttpStatusError(500, `Error while accessing ${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
     } finally {
       getChallengeResourcesSpan.finish()
     }
@@ -513,7 +516,7 @@ function * checkGetAccess (authUser, submission, parentSpan) {
         error: ex.response.body
       })
       getChallengeDetailSpan.setTag('error', true)
-      return false
+      throw new errors.HttpStatusError(500, `Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
     } finally {
       getChallengeDetailSpan.finish()
     }
