@@ -114,6 +114,25 @@ function * getArtifactsForSubmissionFromMap (submissionId, parentSpan) {
   }
 }
 
+function * deleteSubmissionArtifactMap (submissionId, artifactFileName, parentSpan) {
+  const deleteSubmissionArtifactMapSpan = tracer.startChildSpans('ArtifactService.deleteSubmissionArtifactMap', parentSpan)
+  deleteSubmissionArtifactMapSpan.setTag('submissionId', submissionId)
+  deleteSubmissionArtifactMapSpan.setTag('artifactFileName', artifactFileName)
+  try {
+    const filter = {
+      TableName: model.SubmissionArtifactMap.TableName,
+      Key: {
+        submissionId,
+        artifactFileName
+      }
+    }
+
+    yield dbhelper.deleteRecord(filter, deleteSubmissionArtifactMapSpan)
+  } finally {
+    deleteSubmissionArtifactMapSpan.finish()
+  }
+}
+
 /**
  * Function to download Artifact from S3
  * @param {String} submissionId Submission ID
@@ -263,6 +282,7 @@ function * deleteArtifact (submissionId, fileName, span) {
     if (_.isNil(result)) {
       throw new errors.HttpStatusError(404, `Artifact ${fileName} doesn't exist for ${submissionId}`)
     }
+    yield deleteSubmissionArtifactMap(submissionId, fileName, span)
     // Delete the object from S3
     yield s3.deleteObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: result.s3Key }).promise()
     logger.info(`deleteArtifact: deleted artifact ${fileName} of Submission ID: ${submissionId}`)
