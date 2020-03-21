@@ -47,6 +47,7 @@ function * createSubmissionArtifactMap (mapObject, parentSpan) {
   const createSubmissionArtifactMapSpan = tracer.startChildSpans('ArtifactService.createSubmissionArtifactMap', parentSpan)
   createSubmissionArtifactMapSpan.setTag('submissionId', mapObject.submissionId)
   createSubmissionArtifactMapSpan.setTag('artifactFileName', mapObject.artifactFileName)
+  createSubmissionArtifactMapSpan.setTag('s3Key', mapObject.s3Key)
 
   try {
     const record = {
