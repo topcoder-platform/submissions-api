@@ -559,7 +559,7 @@ function * checkGetAccess (authUser, submission, parentSpan) {
           )
 
           // Screening is not Opened / Closed
-          if (screeningPhase.length !== 0) {
+          if (screeningPhase.length === 0) {
             throw new errors.HttpStatusError(403, 'You can access the submission only when Screening is open')
           }
         } else if (reviewer.length !== 0) { // User is Reviewer
