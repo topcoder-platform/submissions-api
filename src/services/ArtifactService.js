@@ -7,7 +7,6 @@ const config = require('config')
 const errors = require('common-errors')
 const fileTypeFinder = require('file-type')
 const joi = require('joi')
-const path = require('path')
 const _ = require('lodash')
 const s3 = new AWS.S3()
 const logger = require('../common/logger')
@@ -88,6 +87,33 @@ function * getSubmissionArtifactMap (submissionId, artifactFileName, parentSpan)
   }
 }
 
+/*
+ * Function to get all submission-artifact mappings from DynamoDB for
+ * submissionId
+ * @param {Object} submissionId The ID of the submission
+ * @param {Object} parentSpan The parent span
+ * @return {Object} Data from DynamoDB
+ */
+function * getArtifactsForSubmissionFromMap (submissionId, parentSpan) {
+  const getArtifactsForSubmissionFromMapSpan = tracer.startChildSpans('ArtifactService.getArtifactsForSubmissionFromMap', parentSpan)
+  getArtifactsForSubmissionFromMapSpan.setTag('submissionId', submissionId)
+
+  try {
+    const filter = {
+      TableName: model.SubmissionArtifactMap.TableName,
+      KeyConditionExpression: 'submissionId = :p_submissionId',
+      ExpressionAttributeValues: {
+        ':p_submissionId': submissionId
+      }
+    }
+
+    const result = yield dbhelper.queryRecords(filter, getArtifactsForSubmissionFromMapSpan)
+    return result.Items
+  } finally {
+    getArtifactsForSubmissionFromMapSpan.finish()
+  }
+}
+
 /**
  * Function to download Artifact from S3
  * @param {String} submissionId Submission ID
@@ -150,18 +176,9 @@ function * listArtifacts (submissionId, span) {
     // Check the validness of Submission ID
     yield HelperService._checkRef({submissionId}, listArtifactsSpan)
 
-    const listObjectsSpan = tracer.startChildSpans('S3.listObjects', listArtifactsSpan)
-    listObjectsSpan.setTag('Bucket', config.aws.ARTIFACT_BUCKET)
-    listObjectsSpan.setTag('Prefix', submissionId)
+    const artifacts = yield getArtifactsForSubmissionFromMap(submissionId, listArtifactsSpan)
 
-    let artifacts
-    try {
-      artifacts = yield s3.listObjects({Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId}).promise()
-    } finally {
-      listObjectsSpan.finish()
-    }
-
-    return { artifacts: _.map(artifacts.Contents, (at) => path.parse(at.Key).name) }
+    return { artifacts: _.map(artifacts, (at) => at.artifactFileName) }
   } finally {
     listArtifactsSpan.finish()
   }
