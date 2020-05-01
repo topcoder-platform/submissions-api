@@ -589,17 +589,60 @@ patchSubmission.schema = {
  * @param {Object} span the Span object
  * @return {Promise}
  */
-function * deleteSubmission (submissionId, span) {
+function * deleteSubmission (authUser, submissionId, span) {
   const deleteSubmissionSpan = tracer.startChildSpans('SubmissionService.deleteSubmission', span)
   deleteSubmissionSpan.setTag('submissionId', submissionId)
 
   try {
-    const exist = yield _getSubmission(submissionId, deleteSubmissionSpan)
-    if (!exist) {
+    const submissionRecord = yield _getSubmission(submissionId, deleteSubmissionSpan)
+    if (!submissionRecord) {
       throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
     }
 
-    // Filter used to delete the record
+    if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
+      // If not administrator, verify that the submission is owned by the user
+      if (submissionRecord.memberId !== authUser.userId) {
+        throw new errors.HttpStatusError(403, 'You cannot access other member\'s submission')
+      }
+
+      // Now verify that the Submission phase for the challenge is still active
+      // If not, non admin user cannot delete the submission
+      const activeSubmissionPhaseId = yield helper.getSubmissionPhaseId(submissionRecord.challengeId, deleteSubmissionSpan)
+
+      if (!activeSubmissionPhaseId) {
+        throw new errors.HttpStatusError(403, 'You cannot delete the submission because submission phase is not active')
+      }
+    }
+
+    // All checks passed - proceed to delete
+    // First, delete reviews and review summations for the submission
+    if (submissionRecord.review) {
+      const reviewService = require('./ReviewService')
+      for (let i = 0; i < submissionRecord.review.length; i++) {
+        const review = submissionRecord.review[i]
+        yield reviewService.deleteReview(review.id, deleteSubmissionSpan)
+      }
+    }
+
+    if (submissionRecord.reviewSummation) {
+      const reviewSummationService = require('./ReviewSummationService')
+      for (let i = 0; i < submissionRecord.reviewSummation.length; i++) {
+        const reviewSummation = submissionRecord.reviewSummation[i]
+        yield reviewSummationService.deleteReviewSummation(reviewSummation.id, deleteSubmissionSpan)
+      }
+    }
+
+    // Importing at the beginning of this service causes a circular dependency. Hence, dynamically invoking it
+    const artifactService = require('./ArtifactService')
+
+    // Next delete the artifacts for the submission
+    const submissionArtifacts = yield artifactService.listArtifacts(submissionRecord.id, deleteSubmissionSpan)
+
+    for (let i = 0; i < submissionArtifacts.artifacts.length; i++) {
+      yield artifactService.deleteArtifact(submissionRecord.id, submissionArtifacts.artifacts[i], deleteSubmissionSpan)
+    }
+
+    // Finally delete the submission itself
     const filter = {
       TableName: table,
       Key: {
@@ -630,6 +673,7 @@ function * deleteSubmission (submissionId, span) {
 }
 
 deleteSubmission.schema = {
+  authUser: joi.object().required(),
   submissionId: joi.string().guid().required()
 }
 
