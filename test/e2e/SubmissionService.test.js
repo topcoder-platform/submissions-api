@@ -35,7 +35,8 @@ const binaryParser = function (res, cb) {
   })
 }
 
-let submissionId // Used to store submissionId after creating submission
+let submissionId // Used to store submissionId after creating submission (Admin user role)
+let userSubmissionId // Used to store submissionId after creating submission (Topcoder user role)
 let fileSubmissionId // Used to store submissionId after upload file
 let fileWithLegacySubmissionId // Used to store submissionId after upload file with legacy
 
@@ -224,6 +225,25 @@ describe('Submission Service tests', () => {
           res.body.should.have.keys(Object.keys(_.extend({ fileType: 'zip' }, testSubmission.Item)))
           res.body.id.should.not.be.eql(null)
           submissionId = res.body.id // To be used in future requests
+          res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
+          res.body.type.should.be.eql(testSubmission.Item.type)
+          res.body.url.should.be.eql(testSubmission.Item.url)
+          res.body.fileType.should.be.eql('zip')
+          res.body.submissionPhaseId.should.be.eql(testSubmission.Item.submissionPhaseId)
+          done()
+        })
+    }).timeout(20000)
+
+    it('Creating another submission with url passing should get succeeded with user token', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/submissions`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.omit(testSubmission.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']))
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.keys(Object.keys(_.extend({ fileType: 'zip' }, testSubmission.Item)))
+          res.body.id.should.not.be.eql(null)
+          userSubmissionId = res.body.id // To be used in future requests
           res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
           res.body.type.should.be.eql(testSubmission.Item.type)
           res.body.url.should.be.eql(testSubmission.Item.url)
@@ -624,17 +644,6 @@ describe('Submission Service tests', () => {
         })
     })
 
-    it('Deleting submission with user token should throw 403', (done) => {
-      chai.request(app)
-        .delete(`${config.API_VERSION}/submissions/${submissionId}`)
-        .set('Authorization', `Bearer ${config.USER_TOKEN}`)
-        .end((err, res) => {
-          res.should.have.status(403)
-          res.body.message.should.be.eql('You are not allowed to perform this action!')
-          done()
-        })
-    })
-
     it('Deleting non-existent submission should throw 404', (done) => {
       chai.request(app)
         .delete(`${config.API_VERSION}/submissions/${nonExSubmissionId}`)
@@ -642,6 +651,17 @@ describe('Submission Service tests', () => {
         .end((err, res) => {
           res.should.have.status(404)
           res.body.message.should.be.eql(`Submission with ID = ${nonExSubmissionId} is not found`)
+          done()
+        })
+    }).timeout(20000)
+
+    it('Deleting submission with copilot token should throw 403', (done) => {
+      chai.request(app)
+        .delete(`${config.API_VERSION}/submissions/${userSubmissionId}`)
+        .set('Authorization', `Bearer ${config.COPILOT_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(403)
+          res.body.message.should.be.eql('You cannot access other member\'s submission')
           done()
         })
     }).timeout(20000)
