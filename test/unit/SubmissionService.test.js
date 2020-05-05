@@ -534,10 +534,10 @@ describe('Submission Service tests', () => {
     })
 
     // Non admin users should not be able to delete submissions that they don't own
-    it('Deleting submission with copilot token should throw 403', (done) => {
+    it('Deleting submission that the user does not own should throw 403', (done) => {
       chai.request(app)
         .delete(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
-        .set('Authorization', `Bearer ${config.COPILOT_TOKEN}`)
+        .set('Authorization', `Bearer ${config.ANOTHER_USER_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(403)
           res.body.message.should.be.eql('You cannot access other member\'s submission')

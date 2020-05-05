@@ -585,6 +585,7 @@ patchSubmission.schema = {
 
 /**
  * Function to delete submission
+ * @param {Object} authUser Authenticated user (that is making the request)
  * @param {String} submissionId submissionId which need to be deleted
  * @param {Object} span the Span object
  * @return {Promise}

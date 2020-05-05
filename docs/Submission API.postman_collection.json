@@ -2914,13 +2914,37 @@
 					"response": []
 				},
 				{
-					"name": "Delete Submission as a copilot - 403",
+					"name": "Delete submission as a copilot - 403",
 					"request": {
 						"method": "DELETE",
 						"header": [
 							{
 								"key": "Authorization",
 								"value": "Bearer {{COPILOT_TOKEN}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{URL}}/submissions/{{submissionID}}",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"submissions",
+								"{{submissionID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete another user's submission - 403",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{ANOTHER_USER_TOKEN}}",
 								"type": "text"
 							}
 						],

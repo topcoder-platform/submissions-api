@@ -655,10 +655,10 @@ describe('Submission Service tests', () => {
         })
     }).timeout(20000)
 
-    it('Deleting submission with copilot token should throw 403', (done) => {
+    it('Deleting submission that the user does not own should throw 403', (done) => {
       chai.request(app)
         .delete(`${config.API_VERSION}/submissions/${userSubmissionId}`)
-        .set('Authorization', `Bearer ${config.COPILOT_TOKEN}`)
+        .set('Authorization', `Bearer ${config.ANOTHER_USER_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(403)
           res.body.message.should.be.eql('You cannot access other member\'s submission')
