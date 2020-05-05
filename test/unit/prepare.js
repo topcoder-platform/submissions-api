@@ -101,6 +101,7 @@ prepare(function (done) {
   const authUrl = URL.parse(config.AUTH0_URL)
   const busUrl = URL.parse(config.BUSAPI_EVENTS_URL)
   const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_URL}/${testData.testSubmissionWoLegacy.Item.challengeId}/phases`)
+  const challengeApiUrl2 = URL.parse(`${config.CHALLENGEAPI_URL}/${testData.testSubmission.Item.challengeId}/phases`)
   const challengeDetailUrl = URL.parse(`${config.CHALLENGEAPI_URL}?filter=id=${testData.testSubmission.Item.challengeId}`)
   const challengeWoLegacyUrl = URL.parse(`${config.CHALLENGEAPI_URL}?filter=id=${testData.testSubmissionWoLegacy.Item.challengeId}`)
 
@@ -129,6 +130,8 @@ prepare(function (done) {
     .post(busUrl.path)
     .reply(204)
     .get(challengeApiUrl.path)
+    .reply(200, testData.testChallengeAPIResponse)
+    .get(challengeApiUrl2.path)
     .reply(200, testData.testChallengeAPIResponse)
     .get(challengeDetailUrl.path)
     .reply(200, testData.testChallengeDetailResponse)

@@ -519,17 +519,9 @@ describe('Submission Service tests', () => {
         })
     })
 
-    it('Deleting submission with user token should throw 403', (done) => {
-      chai.request(app)
-        .delete(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
-        .set('Authorization', `Bearer ${config.USER_TOKEN}`)
-        .end((err, res) => {
-          res.should.have.status(403)
-          res.body.message.should.be.eql('You are not allowed to perform this action!')
-          done()
-        })
-    })
-
+    /**
+     * START
+     */
     it('Deleting non-existent submission should throw 404', (done) => {
       chai.request(app)
         .delete(`${config.API_VERSION}/submissions/${nonExSubmissionId}`)
@@ -541,9 +533,45 @@ describe('Submission Service tests', () => {
         })
     })
 
-    it('Deleting submission with Admin token should get succeeded', (done) => {
+    // Non admin users should not be able to delete submissions that they don't own
+    it('Deleting submission that the user does not own should throw 403', (done) => {
       chai.request(app)
         .delete(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
+        .set('Authorization', `Bearer ${config.ANOTHER_USER_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(403)
+          res.body.message.should.be.eql('You cannot access other member\'s submission')
+          done()
+        })
+    })
+
+    it('Deleting submission while submission phase is inactive should throw 403', (done) => {
+      chai.request(app)
+        .delete(`${config.API_VERSION}/submissions/${testSubmissionWReview.Item.id}`)
+        .set('Authorization', `Bearer ${config.USER_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(403)
+          res.body.message.should.be.eql('You cannot delete the submission because submission phase is not active')
+          done()
+        })
+    })
+
+    it('Deleting submission with User token should get succeeded', (done) => {
+      chai.request(app)
+        .delete(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
+        .set('Authorization', `Bearer ${config.USER_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    }).timeout(10000)
+    /**
+     * END
+     */
+
+    it('Deleting submission with Admin token should get succeeded', (done) => {
+      chai.request(app)
+        .delete(`${config.API_VERSION}/submissions/${testSubmissionWReview.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(204)

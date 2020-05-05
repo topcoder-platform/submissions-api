@@ -155,7 +155,7 @@ const testSubmissionWoLegacy = {
 
 const testSubmissionWReview = {
   Item: {
-    challengeId: 30055732,
+    challengeId: 30055733,
     id: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
     type: 'ContestSubmission',
     url: 'https://s3.amazonaws.com/test-submission/123456',
@@ -164,13 +164,13 @@ const testSubmissionWReview = {
     submissionPhaseId: 'b24d4180-65aa-42ec-a945-5fd21dec0501',
     review: [
       {
-        id: 'd24d4180-65aa-42ec-a945-5fd21dec0501',
+        id: 'd24d4180-65aa-42ec-a945-5fd21dec0502',
         score: 95.5,
         legacyReviewId: 1234567891,
         typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
         reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
         scoreCardId: 123456789,
-        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
         metadata: {
           public: 'public data',
           private: 'private data'
@@ -184,7 +184,7 @@ const testSubmissionWReview = {
     reviewSummation: [
       {
         id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
-        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
+        submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0503',
         aggregateScore: 99.0,
         scoreCardId: 123456789,
         isPassing: true,
