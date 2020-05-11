@@ -75,7 +75,9 @@ function * getReview (authUser, reviewId, span) {
     // Fetch submission without review and review summations
     const submission = yield SubmissionService._getSubmission(review.submissionId, getReviewSpan, false)
     logger.info('Check User access before returning the review')
-    yield helper.checkReviewGetAccess(authUser, submission, getReviewSpan)
+    if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
+      yield helper.checkReviewGetAccess(authUser, submission, getReviewSpan)
+    }
     // Return the review
     return review
   } finally {

@@ -252,7 +252,7 @@ function * listSubmissions (authUser, query, span) {
 
   try {
     data = yield helper.fetchFromES(query, helper.camelize(table), listSubmissionsSpan)
-    logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
+    logger.info(`listSubmissions: returning ${data.rows.length} submissions for query: ${JSON.stringify(query)}`)
 
     data.rows = _.map(data.rows, (submission) => {
       if (submission.review) {

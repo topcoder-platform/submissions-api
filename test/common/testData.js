@@ -146,6 +146,9 @@ const testSubmissionWoLegacy = {
     type: 'ContestSubmission',
     url: 'https://s3.amazonaws.com/test-submission/123456',
     memberId: 40493050,
+    legacySubmissionId: 301232,
+    legacyUploadId: 483342,
+    submissionPhaseId: 12876,
     created: '2018-05-20T07:00:30.123Z',
     createdBy: 'topcoder user',
     updated: '2018-06-01T07:36:28.178Z',
@@ -468,7 +471,7 @@ const testReview = {
     reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503',
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
-    status: 'queued',
+    status: 'completed',
     typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
     metadata: {
       public: 'public data',
@@ -633,6 +636,7 @@ const testReviewSummation = {
     id: 'e45e4180-65aa-42ec-a945-5fd21dec1504',
     aggregateScore: 99,
     isPassing: true,
+    isFinal: true,
     submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0501',
     scoreCardId: 123456789,
     metadata: {

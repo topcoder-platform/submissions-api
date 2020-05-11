@@ -16,8 +16,9 @@
     "db-to-es": "node scripts/migrateFromDBToES.js",
     "test": "mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
     "e2e": "mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit",
-    "cov": "nyc --reporter=html --reporter=text mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
-    "cov-e2e": "nyc --reporter=html --reporter=text mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit"
+    "cov": "nyc --reporter=html --reporter=text npm run test",
+    "cov-e2e": "nyc --reporter=html --reporter=text npm run e2e",
+    "es-test": "mocha test/es-change/*.test.js --require test/es-change/prepare.js --exit"
   },
   "dependencies": {
     "amazon-s3-uri": "0.0.3",

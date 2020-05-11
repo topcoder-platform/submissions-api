@@ -5,9 +5,13 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456",
     "memberId": 40493050,
     "challengeId": 30055732,
+    "legacySubmissionId": 301231,
+    "legacyUploadId": 483341,
+    "submissionPhaseId": 12876,
     "review": [
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0501",
+        "status": "completed",
         "score": 95.5,
         "legacyReviewId": 1234567891,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
@@ -25,6 +29,7 @@
       },
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0502",
+        "status": "completed",
         "score": 92.0,
         "legacyReviewId": 1234567892,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0501",
@@ -48,6 +53,7 @@
         "aggregateScore": 99.0,
         "scoreCardId": 123456789,
         "isPassing": true,
+        "isFinal": true,
         "created": "2018-05-20T07:00:30.123Z",
         "updated": "2018-06-01T07:36:28.178Z",
         "createdBy": "copilot",
@@ -65,6 +71,9 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0502",
     "challengeId": 30054692,
+    "legacySubmissionId": 301232,
+    "legacyUploadId": 483342,
+    "submissionPhaseId": 12876,
     "created": "2018-05-20T06:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
     "createdBy": "topcoder user",
@@ -76,9 +85,13 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123458",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0503",
     "challengeId": 30051825,
+    "legacySubmissionId": 301233,
+    "legacyUploadId": 483343,
+    "submissionPhaseId": 12876,
     "review": [
        {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0503",
+        "status": "completed",
         "score": 80.83,
         "legacyReviewId": 1234567899,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
@@ -96,6 +109,7 @@
       },
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0504",
+        "status": "completed",
         "score": 85.62,
         "legacyReviewId": 1234567898,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
@@ -113,6 +127,7 @@
       },
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0505",
+        "status": "completed",
         "score": 100.0,
         "legacyReviewId": 1234567897,
         "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
@@ -140,9 +155,13 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123459",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0504",
     "challengeId": 30051825,
+    "legacySubmissionId": 301234,
+    "legacyUploadId": 483344,
+    "submissionPhaseId": 12878,
     "review": [
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0506",
+        "status": "completed",
         "score": 65.0,
         "legacyReviewId": 1234567893,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
@@ -160,6 +179,7 @@
       },
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0507",
+        "status": "completed",
         "score": 68.0,
         "legacyReviewId": 1234567894,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
@@ -187,9 +207,13 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0505",
     "challengeId": 30051825,
+    "legacySubmissionId": 301235,
+    "legacyUploadId": 483345,
+    "submissionPhaseId": 12878,
     "review": [
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0508",
+        "status": "completed",
         "score": 100.0,
         "legacyReviewId": 1234567895,
         "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
@@ -217,15 +241,19 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0506",
     "challengeId": 30051825,
+    "legacySubmissionId": 301236,
+    "legacyUploadId": 483346,
+    "submissionPhaseId": 12879,
     "review": [
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
+        "status": "completed",
         "score": 92.5,
         "legacyReviewId": 1234567896,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
         "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
         "scoreCardId": 123456789,
-        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0506",
         "metadata": {
           "public": "public data",
           "private": "private data"
@@ -238,6 +266,148 @@
     ],
     "created": "2018-05-20T05:20:30.145Z",
     "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "d61bb468-c46b-4483-8213-d738b73a9dae",
+    "type": "ContestSubmission",
+    "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123461",
+    "memberId": "5d0a2759-949d-4987-908d-12d747836343",
+    "challengeId": 30023443,
+    "legacySubmissionId": 301237,
+    "legacyUploadId": 483347,
+    "submissionPhaseId": 12879,
+    "reviewSummation": [
+      {
+        "id": "ca6e5274-430b-4b9a-a4de-483812cebdad",
+        "submissionId": "d61bb468-c46b-4483-8213-d738b73a9dae",
+        "aggregateScore": 90,
+        "scoreCardId": 123456789,
+        "isPassing": true,
+        "isFinal": false,
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2019-05-20T07:00:30.123Z",
+        "updated": "2019-06-01T07:36:28.178Z",
+        "createdBy": "copilot",
+        "updatedBy": "copilot"
+      }
+    ],
+    "created": "2019-05-20T05:20:30.145Z",
+    "updated": "2019-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "cfb5c40a-82dd-4826-8c46-0bccfaadc98e",
+    "type": "ContestSubmission",
+    "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123462",
+    "memberId": "37cdba80-f02b-4fea-8336-696d554ad728",
+    "challengeId": 30023443,
+    "legacySubmissionId": 301238,
+    "legacyUploadId": 483348,
+    "submissionPhaseId": 12879,
+    "reviewSummation": [
+      {
+        "id": "4de555ee-435e-4773-84ce-4eafda72cd8a",
+        "submissionId": "cfb5c40a-82dd-4826-8c46-0bccfaadc98e",
+        "aggregateScore": 50,
+        "scoreCardId": 68234,
+        "isPassing": false,
+        "isFinal": true,
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2019-05-20T07:00:30.123Z",
+        "updated": "2019-06-01T07:36:28.178Z",
+        "createdBy": "copilot",
+        "updatedBy": "copilot"
+      }
+    ],
+    "created": "2019-05-20T05:20:30.145Z",
+    "updated": "2019-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "f668b3f8-dff1-4e7d-93d7-73ec457a31e3",
+    "type": "ContestSubmission",
+    "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123463",
+    "memberId": "c6c5e4de-401e-4c9b-891f-26a518f37c7a",
+    "challengeId": 30023443,
+    "legacySubmissionId": 301239,
+    "legacyUploadId": 483349,
+    "submissionPhaseId": 12879,
+    "review": [
+      {
+        "id": "a74ca4d9-985e-487e-9fb7-1e7adf4035b9",
+        "status": "queued",
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 234234,
+        "submissionId": "f668b3f8-dff1-4e7d-93d7-73ec457a31e3",
+        "created": "2019-05-20T07:00:30.123Z",
+        "updated": "2019-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "reviewSummation": [
+      {
+        "id": "292dafc6-6929-4ce9-b932-4b855f50f24d4",
+        "submissionId": "f668b3f8-dff1-4e7d-93d7-73ec457a31e3",
+        "aggregateScore": 90,
+        "scoreCardId": 88633,
+        "isPassing": true,
+        "isFinal": true,
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2019-05-20T07:00:30.123Z",
+        "updated": "2019-06-01T07:36:28.178Z",
+        "createdBy": "copilot",
+        "updatedBy": "copilot"
+      }
+    ],
+    "created": "2019-05-20T05:20:30.145Z",
+    "updated": "2019-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "e4d6ed7c-0310-4c2e-8223-17d3cfa8b310",
+    "type": "Task",
+    "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123464",
+    "memberId": "b7a938ec-f3be-46c8-865b-44442a0e1c26",
+    "challengeId": 30023443,
+    "legacySubmissionId": 301240,
+    "legacyUploadId": 483350,
+    "submissionPhaseId": 12879,
+    "reviewSummation": [
+      {
+        "id": "74792861-48ea-4e5f-b704-49ac6b5937bb",
+        "submissionId": "e4d6ed7c-0310-4c2e-8223-17d3cfa8b310",
+        "aggregateScore": 60,
+        "scoreCardId": 123456789,
+        "isPassing": false,
+        "isFinal": false,
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2019-05-20T07:00:30.123Z",
+        "updated": "2019-06-01T07:36:28.178Z",
+        "createdBy": "copilot",
+        "updatedBy": "copilot"
+      }
+    ],
+    "created": "2019-05-20T05:20:30.145Z",
+    "updated": "2019-06-01T07:36:28.178Z",
     "createdBy": "topcoder user",
     "updatedBy": "topcoder user"
   }

@@ -2,6 +2,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0501",
     "score": 95.5,
+    "status": "completed",
     "legacyReviewId": 1234567891,
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
@@ -15,6 +16,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0502",
     "score": 92.0,
+    "status": "completed",
     "legacyReviewId": 1234567892,
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0501",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
@@ -32,10 +34,11 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0503",
     "score": 80.83,
+    "status": "completed",
     "legacyReviewId": 1234567893,
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
-    "scoreCardId": 123456789,
+    "scoreCardId": 89756,
     "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0503",
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
@@ -45,6 +48,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0504",
     "score": 85.62,
+    "status": "completed",
     "legacyReviewId": 1234567894,
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0502",
@@ -58,6 +62,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0505",
     "score": 100.0,
+    "status": "completed",
     "legacyReviewId": 1234567895,
     "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
@@ -71,6 +76,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0506",
     "score": 65.0,
+    "status": "completed",
     "legacyReviewId": 1234567896,
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
@@ -84,10 +90,11 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0507",
     "score": 68.0,
+    "status": "completed",
     "legacyReviewId": 1234567897,
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0502",
-    "scoreCardId": 123456789,
+    "scoreCardId": 78234,
     "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0504",
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
@@ -97,10 +104,11 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0508",
     "score": 100.0,
+    "status": "completed",
     "legacyReviewId": 1234567898,
     "typeId": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
-    "scoreCardId": 123456789,
+    "scoreCardId": 85779,
     "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
@@ -110,6 +118,7 @@
   {
     "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
     "score": 92.5,
+    "status": "completed",
     "legacyReviewId": 1234567899,
     "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
     "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
@@ -117,6 +126,18 @@
     "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "admin",
+    "updatedBy": "admin"
+  },
+  {
+    "id": "a74ca4d9-985e-487e-9fb7-1e7adf4035b9",
+    "status": "queued",
+    "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+    "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+    "scoreCardId": 234234,
+    "submissionId": "f668b3f8-dff1-4e7d-93d7-73ec457a31e3",
+    "created": "2019-05-20T07:00:30.123Z",
+    "updated": "2019-06-01T07:36:28.178Z",
     "createdBy": "admin",
     "updatedBy": "admin"
   }

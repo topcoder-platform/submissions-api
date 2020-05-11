@@ -22,4 +22,12 @@
   "id": "f28b2725-ef90-4495-af59-ceb2bd98fc10",
   "name": "AV Scan",
   "isActive": true
+}, {
+  "id": "745eab5b-4f7e-41fa-a55d-14c0ce707c5b",
+  "name": "Inactive review",
+  "isActive": false
+}, {
+  "id": "f93e9f29-1c00-4354-a5f2-8e754a12373c",
+  "name": "Approval",
+  "isActive": false
 }]

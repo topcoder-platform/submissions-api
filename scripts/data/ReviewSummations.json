@@ -5,12 +5,77 @@
     "aggregateScore": 99.0,
     "scoreCardId": 123456789,
     "isPassing": true,
+    "isFinal": true,
     "metadata": {
       "public": "public data",
       "private": "private data"
     },
     "created": "2018-05-20T07:00:30.123Z",
     "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  },
+  {
+    "id": "ca6e5274-430b-4b9a-a4de-483812cebdad",
+    "submissionId": "d61bb468-c46b-4483-8213-d738b73a9dae",
+    "aggregateScore": 90,
+    "scoreCardId": 123456789,
+    "isPassing": true,
+    "isFinal": false,
+    "metadata": {
+      "public": "public data",
+      "private": "private data"
+    },
+    "created": "2019-05-20T07:00:30.123Z",
+    "updated": "2019-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  },
+  {
+    "id": "4de555ee-435e-4773-84ce-4eafda72cd8a",
+    "submissionId": "cfb5c40a-82dd-4826-8c46-0bccfaadc98e",
+    "aggregateScore": 50,
+    "scoreCardId": 68234,
+    "isPassing": false,
+    "isFinal": true,
+    "metadata": {
+      "public": "public data",
+      "private": "private data"
+    },
+    "created": "2019-05-20T07:00:30.123Z",
+    "updated": "2019-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  },
+  {
+    "id": "292dafc6-6929-4ce9-b932-4b855f50f24d4",
+    "submissionId": "f668b3f8-dff1-4e7d-93d7-73ec457a31e3",
+    "aggregateScore": 90,
+    "scoreCardId": 88633,
+    "isPassing": true,
+    "isFinal": true,
+    "metadata": {
+      "public": "public data",
+      "private": "private data"
+    },
+    "created": "2019-05-20T07:00:30.123Z",
+    "updated": "2019-06-01T07:36:28.178Z",
+    "createdBy": "copilot",
+    "updatedBy": "copilot"
+  },
+  {
+    "id": "74792861-48ea-4e5f-b704-49ac6b5937bb",
+    "submissionId": "e4d6ed7c-0310-4c2e-8223-17d3cfa8b310",
+    "aggregateScore": 60,
+    "scoreCardId": 123456789,
+    "isPassing": false,
+    "isFinal": false,
+    "metadata": {
+      "public": "public data",
+      "private": "private data"
+    },
+    "created": "2019-05-20T07:00:30.123Z",
+    "updated": "2019-06-01T07:36:28.178Z",
     "createdBy": "copilot",
     "updatedBy": "copilot"
   }
