@@ -315,12 +315,12 @@ function * createSubmission (authUser, files, entity, span) {
   try {
     logger.info('Creating a new submission')
     if (files && entity.url) {
-      logger.info('Cannot create submission. Neither file nor url to upload has been passed')
-      throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
+      logger.info('Cannot create submission. Ambiguous parameters. Both file and url have been provided. Unsure which to use')
+      throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present. Not both.`)
     }
 
     if (!files && !entity.url) {
-      logger.info('Cannot create submission. Ambiguous parameters. Both file and url have been provided. Unsure which to use')
+      logger.info('Cannot create submission. Neither file nor url to upload has been passed')
       throw new errors.HttpStatusError(400, `Either file to be uploaded or URL should be present`)
     }
 
