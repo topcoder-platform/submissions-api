@@ -248,6 +248,10 @@ function * fetchFromES (query, resource, parentSpan) {
     }
     return response
   } catch (err) {
+    console.log(JSON.stringify(err))
+    if (err.toJSON) {
+      console.log(err.toJSON())
+    }
     fetchFromESSpan.setTag('error', true)
     throw err
   } finally {
