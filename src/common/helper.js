@@ -236,7 +236,7 @@ function * fetchFromES (query, resource, parentSpan) {
     // Construct ES filter
     const filter = prepESFilter(query, resource)
     // Search with constructed filter
-    console.log(yield esClient.indices.getMapping({ index: 'submission-index' }))
+    console.log(JSON.stringify(yield esClient.indices.getMapping({ index: 'submission-index' })))
     const docs = yield esClient.search(filter)
     // Extract data from hits
     const rows = _.map(docs.hits.hits, single => single._source)
