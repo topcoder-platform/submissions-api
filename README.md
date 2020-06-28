@@ -118,7 +118,7 @@ npm run start
 
 #### Duplicating the ES Index
 
-To duplicate the existing ES Index (from the `ES_INDEX` to `ES_INDEX_NEW` based on the configs in `config/default.js`) run `npm run create-new-index`
+To duplicate the existing ES Index (from the `ES_INDEX` to `ES_INDEX_V2` based on the configs in `config/default.js`) run `npm run create-new-index`
 
 #### Linting JS files
 

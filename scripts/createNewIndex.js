@@ -1,5 +1,6 @@
 /**
- * Create new index in Elasticsearch
+ * Copies the existing index to a new index and updates the type of challengeId
+ * to be keyword (It is long in the source index)
  */
 
 const co = require('co')
@@ -23,7 +24,7 @@ co(function * createIndex () {
     }
   }
   yield esClient.indices.create({
-    index: config.get('esConfig.ES_INDEX_NEW'),
+    index: config.get('esConfig.ES_INDEX_V2'),
     body
   })
   logger.info('ES Index creation succeeded!')

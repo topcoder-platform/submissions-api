@@ -44,7 +44,7 @@ co(function * createIndex () {
     }
   }
   yield esClient.indices.create({
-    index: config.get('esConfig.ES_INDEX'),
+    index: config.get('esConfig.ES_INDEX_V2'),
     body
   })
   logger.info('ES Index creation succeeded!')
