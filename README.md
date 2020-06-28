@@ -116,6 +116,10 @@ This script will load the data from `scripts/data` directory into ES
 npm run start
 ```
 
+#### Duplicating the ES Index
+
+To duplicate the existing ES Index (from the `ES_INDEX` to `ES_INDEX_NEW` based on the configs in `config/default.js`) run `npm run create-new-index`
+
 #### Linting JS files
 
 ```

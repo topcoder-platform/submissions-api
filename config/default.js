@@ -28,9 +28,10 @@ module.exports = {
   AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
   AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
   esConfig: {
-    HOST: process.env.ES_HOST,
+    HOST: process.env.ES_HOST || 'localhost:9200',
     API_VERSION: process.env.ES_API_VERSION || '6.3',
     ES_INDEX: process.env.ES_INDEX || 'submission',
+    ES_INDEX_NEW: process.env.ES_INDEX_NEW || 'new_submission',
     ES_TYPE: process.env.ES_TYPE || '_doc' // ES 6.x accepts only 1 Type per index and it's mandatory to define it
   },
   PAGE_SIZE: process.env.PAGE_SIZE || 20,
