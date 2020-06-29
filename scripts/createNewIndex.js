@@ -20,7 +20,8 @@ co(function * createIndex () {
   body.mappings[config.get('esConfig.ES_TYPE')] = {
     properties: {
       ...existingMappings.properties,
-      challengeId: { type: 'keyword' }
+      challengeId: { type: 'keyword' },
+      memberId: { type: 'keyword' }
     }
   }
   yield esClient.indices.create({
