@@ -13,6 +13,9 @@ co(function * deleteIndex () {
   yield esClient.indices.delete({
     index: config.get('esConfig.ES_INDEX')
   })
+  yield esClient.indices.delete({
+    index: config.get('esConfig.ES_INDEX_V2')
+  })
   logger.info('ES Index deletion succeeded!')
   process.exit(0)
 }).catch((err) => {
