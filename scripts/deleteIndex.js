@@ -10,8 +10,11 @@ const helper = require('../src/common/helper')
 co(function * deleteIndex () {
   logger.info('ES Index deletion started!')
   const esClient = helper.getEsClient()
+  // yield esClient.indices.delete({
+  //   index: config.get('esConfig.ES_INDEX')
+  // })
   yield esClient.indices.delete({
-    index: config.get('esConfig.ES_INDEX')
+    index: config.get('esConfig.ES_INDEX_V2')
   })
   logger.info('ES Index deletion succeeded!')
   process.exit(0)

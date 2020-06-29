@@ -11,6 +11,7 @@
     "create-tables": "node scripts/createTables.js",
     "init-db": "node scripts/importData.js",
     "create-index": "node scripts/createIndex.js",
+    "create-new-index": "node scripts/createNewIndex.js",
     "delete-index": "node scripts/deleteIndex.js",
     "init-es": "node scripts/loadES.js",
     "db-to-es": "node scripts/migrateFromDBToES.js",
