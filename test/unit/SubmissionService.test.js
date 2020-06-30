@@ -15,7 +15,7 @@ const should = chai.should() // eslint-disable-line
 const app = require('../../app')
 const {
   nonExSubmissionId, testSubmission, testSubmissionWoLegacy,
-  testSubmissionPatch, testSubmissionWReview
+  testSubmissionPatch, testSubmissionWReview, testChallengeV5APIResponse
 } = require('../common/testData')
 
 chai.use(chaiHttp)
@@ -187,7 +187,7 @@ describe('Submission Service tests', () => {
         .attach('submission', './test/common/fileToUpload.zip', 'fileToUpload.zip')
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql('Either file to be uploaded or URL should be present')
+          res.body.message.should.be.eql('Either file to be uploaded or URL should be present. Not both.')
           done()
         })
     })
@@ -288,6 +288,23 @@ describe('Submission Service tests', () => {
           res.body.should.have.keys(Object.keys(_.extend({ fileType: 'zip' }, testSubmission.Item)))
           res.body.id.should.not.be.eql(null)
           res.body.challengeId.should.be.eql(testSubmission.Item.challengeId)
+          res.body.type.should.be.eql(testSubmission.Item.type)
+          res.body.url.should.be.eql(testSubmission.Item.url)
+          res.body.fileType.should.be.eql('zip')
+          done()
+        })
+    }).timeout(10000)
+
+    it('Creating a submission using v5 challenge id should succeed', (done) => {
+      chai.request(app)
+        .post(`${config.API_VERSION}/submissions`)
+        .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
+        .send(_.extend(_.omit(testSubmission.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy', 'submissionPhaseId', 'challengeId']), {challengeId: testChallengeV5APIResponse.id}))
+        .end((err, res) => {
+          res.should.have.status(200)
+          res.body.should.have.keys(Object.keys(_.extend({ fileType: 'zip' }, testSubmission.Item)))
+          res.body.id.should.not.be.eql(null)
+          res.body.challengeId.should.be.eql(testChallengeV5APIResponse.id)
           res.body.type.should.be.eql(testSubmission.Item.type)
           res.body.url.should.be.eql(testSubmission.Item.url)
           res.body.fileType.should.be.eql('zip')

@@ -339,6 +339,35 @@ function * getM2Mtoken (parentSpan) {
   }
 }
 
+/**
+ * Get legacy challenge id if the challenge id is uuid form
+ * @param {String} challengeId Challenge ID
+ * @param {Object} parentSpan the parent Span object
+ * @returns {String} Legacy Challenge ID of the given challengeId
+ */
+function * getlegacyChallengeId (challengeId, token, parentSpan) {
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
+    const getlegacyChallengeIdSpan = tracer.startChildSpans('helper.getlegacyChallengeId', parentSpan)
+    try {
+      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('Content-Type', 'application/json')
+      return response.body.legacyId
+    } catch (err) {
+      getlegacyChallengeIdSpan.setTag('error', true)
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+      getlegacyChallengeIdSpan.log({
+        event: 'error',
+        error: err.response.body
+      })
+      throw err
+    } finally {
+      getlegacyChallengeIdSpan.finish()
+    }
+  }
+  return challengeId
+}
+
 /*
  * Get submission phase ID of a challenge from Challenge API
  * @param challengeId Challenge ID
@@ -352,17 +381,19 @@ function * getSubmissionPhaseId (challengeId, parentSpan) {
   try {
     let phaseId = null
     let response
+    let legacyChallengeId
 
     const token = yield getM2Mtoken(getSubmissionPhaseIdSpan)
 
     const getChallengePhasesSpan = tracer.startChildSpans('getChallengePhases', getSubmissionPhaseIdSpan)
     getChallengePhasesSpan.setTag('challengeId', challengeId)
     try {
-      response = yield request.get(`${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+      legacyChallengeId = yield getlegacyChallengeId(challengeId, token, getChallengePhasesSpan)
+      response = yield request.get(`${config.CHALLENGEAPI_URL}/${legacyChallengeId}/phases`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
     } catch (ex) {
-      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${legacyChallengeId}/phases`)
       logger.debug('Setting submissionPhaseId to Null')
       response = null
       // log error
@@ -406,6 +437,7 @@ function * checkCreateAccess (authUser, subEntity, parentSpan) {
 
   try {
     let response
+    let legacyChallengeId
 
     // User can only create submission for themselves
     if (authUser.userId !== subEntity.memberId) {
@@ -417,11 +449,12 @@ function * checkCreateAccess (authUser, subEntity, parentSpan) {
     const getChallengeDetailSpan = tracer.startChildSpans('getChallengeDetail', checkCreateAccessSpan)
     getChallengeDetailSpan.setTag('challengeId', subEntity.challengeId)
     try {
-      response = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+      legacyChallengeId = yield getlegacyChallengeId(subEntity.challengeId, token, getChallengeDetailSpan)
+      response = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${legacyChallengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
     } catch (ex) {
-      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${legacyChallengeId}`)
       logger.error(ex)
       // log error
       getChallengeDetailSpan.log({
@@ -473,6 +506,7 @@ function * checkGetAccess (authUser, submission, parentSpan) {
   try {
     let resources
     let challengeDetails
+    let legacyChallengeId
     // Allow downloading Own submission
     if (submission.memberId === authUser.userId) {
       return true
@@ -483,11 +517,12 @@ function * checkGetAccess (authUser, submission, parentSpan) {
     const getChallengeResourcesSpan = tracer.startChildSpans('getChallengeResources', checkGetAccessSpan)
     getChallengeResourcesSpan.setTag('challengeId', submission.challengeId)
     try {
-      resources = yield request.get(`${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
+      legacyChallengeId = yield getlegacyChallengeId(submission.challengeId, token, getChallengeResourcesSpan)
+      resources = yield request.get(`${config.CHALLENGEAPI_URL}/${legacyChallengeId}/resources`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
     } catch (ex) {
-      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${legacyChallengeId}/resources`)
       logger.error(ex)
       // log error
       getChallengeResourcesSpan.log({
@@ -503,11 +538,11 @@ function * checkGetAccess (authUser, submission, parentSpan) {
     const getChallengeDetailSpan = tracer.startChildSpans('getChallengeDetail', checkGetAccessSpan)
     getChallengeDetailSpan.setTag('challengeId', submission.challengeId)
     try {
-      challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${legacyChallengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
     } catch (ex) {
-      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${legacyChallengeId}`)
       logger.error(ex)
       // log error
       getChallengeDetailSpan.log({
@@ -601,16 +636,18 @@ function * checkReviewGetAccess (authUser, submission, parentSpan) {
 
   try {
     let challengeDetails
+    let legacyChallengeId
     const token = yield getM2Mtoken(checkReviewGetAccessSpan)
 
     const getChallengeDetailSpan = tracer.startChildSpans('getChallengeDetail', checkReviewGetAccessSpan)
     getChallengeDetailSpan.setTag('challengeId', submission.challengeId)
     try {
-      challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      legacyChallengeId = yield getlegacyChallengeId(submission.challengeId, token, getChallengeDetailSpan)
+      challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${legacyChallengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
     } catch (ex) {
-      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${legacyChallengeId}`)
 
       // log error
       getChallengeDetailSpan.log({

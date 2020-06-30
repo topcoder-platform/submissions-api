@@ -766,6 +766,38 @@ const testReviewSummationsES = {
    }
 }
 
+const testChallengeV5APIResponse = {
+  id: '60bde5f2-aadc-4c64-aa74-523081a1e394',
+  typeId: '',
+  track: 'track',
+  name: `a B c challenge`,
+  description: 'desc',
+  challengeSettings: [{ type: '', value: 'value' }],
+  timelineTemplateId: '',
+  phases: [],
+  prizeSets: [{
+    type: 'ChallengePrizes',
+    description: 'ddd',
+    prizes: [{
+      description: 'some prize',
+      type: 'type',
+      value: 800
+    }]
+  }],
+  reviewType: 'review type',
+  tags: ['tag1'],
+  projectId: 111,
+  legacyId: '30054692',
+  forumId: 333,
+  termsIds: [21343, 20723],
+  startDate: '2015-07-27T09:19Z',
+  status: 'active',
+  groups: ['group1'],
+  gitRepoURLs: ['https://mozilla.org/?x=%D1%88%D0%B5%D0%BB%D0%BB%D1%8B'],
+  created: '2015-07-27T09:19Z',
+  createdBy: 'admin'
+}
+
 const testChallengeAPIResponse = {
   id: '24a97f2f:1655fef5034:-7568',
   result: {
@@ -953,6 +985,7 @@ module.exports = {
   testReviewSummationES,
   testReviewSummationsES,
   testChallengeAPIResponse,
+  testChallengeV5APIResponse,
   testChallengeDetailResponse,
   testSubmissionWoLegacyES,
   testSubmissionWReview
