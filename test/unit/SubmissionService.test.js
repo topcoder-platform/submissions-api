@@ -304,7 +304,7 @@ describe('Submission Service tests', () => {
           res.should.have.status(200)
           res.body.should.have.keys(Object.keys(_.extend({ fileType: 'zip' }, testSubmission.Item)))
           res.body.id.should.not.be.eql(null)
-          res.body.challengeId.should.be.eql(testChallengeV5APIResponse.id)
+          res.body.challengeId.should.be.eql(parseInt(testChallengeV5APIResponse.legacyId, 10))
           res.body.type.should.be.eql(testSubmission.Item.type)
           res.body.url.should.be.eql(testSubmission.Item.url)
           res.body.fileType.should.be.eql('zip')

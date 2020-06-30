@@ -250,6 +250,12 @@ function * listSubmissions (authUser, query, span) {
   const listSubmissionsSpan = tracer.startChildSpans('SubmissionService.listSubmissions', span)
   let data = []
 
+  if (query.challengeId) {
+    // Submission api only works with legacy challenge id
+    // If it is a v5 challenge id, get the associated legacy challenge id
+    query.challengeId = yield helper.getLegacyChallengeId(query.challengeId, listSubmissionsSpan)
+  }
+
   try {
     data = yield helper.fetchFromES(query, helper.camelize(table), listSubmissionsSpan)
     logger.info(`listSubmissions: returning ${data.rows.length} submissions for query: ${JSON.stringify(query)}`)
@@ -341,6 +347,10 @@ function * createSubmission (authUser, files, entity, span) {
       throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
     }
 
+    // Submission api only works with legacy challenge id
+    // If it is a v5 challenge id, get the associated legacy challenge id
+    const challengeId = yield helper.getLegacyChallengeId(entity.challengeId, createSubmissionSpan)
+
     const currDate = (new Date()).toISOString()
 
     const item = {
@@ -348,7 +358,7 @@ function * createSubmission (authUser, files, entity, span) {
       type: entity.type,
       url: url,
       memberId: entity.memberId,
-      challengeId: entity.challengeId,
+      challengeId: challengeId,
       created: currDate,
       updated: currDate,
       createdBy: authUser.handle || authUser.sub,
@@ -366,7 +376,7 @@ function * createSubmission (authUser, files, entity, span) {
     if (entity.submissionPhaseId) {
       item.submissionPhaseId = entity.submissionPhaseId
     } else {
-      item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId, createSubmissionSpan)
+      item.submissionPhaseId = yield helper.getSubmissionPhaseId(challengeId, createSubmissionSpan)
     }
 
     if (entity.fileType) {
@@ -455,6 +465,12 @@ function * _updateSubmission (authUser, submissionId, entity, parentSpan) {
     if (!exist) {
       logger.info(`Submission with ID = ${submissionId} is not found`)
       throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
+    }
+
+    if (entity.challengeId) {
+      // Submission api only works with legacy challenge id
+      // If it is a v5 challenge id, get the associated legacy challenge id
+      entity.challengeId = yield helper.getLegacyChallengeId(entity.challengeId, updateSubmissionSpan)
     }
 
     const currDate = (new Date()).toISOString()
