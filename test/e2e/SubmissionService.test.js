@@ -111,7 +111,7 @@ describe('Submission Service tests', () => {
         .attach('submission', './test/common/fileToUpload.zip', 'fileToUpload.zip')
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql('Either file to be uploaded or URL should be present')
+          res.body.message.should.be.eql('Either file to be uploaded or URL should be present. Not both.')
           done()
         })
     })

@@ -17,7 +17,7 @@ co(function * createIndex () {
     // fields not specified below will be 'text' by default
     properties: {
       resource: { type: 'keyword' },
-      challengeId: { type: 'keyword' },
+      challengeId: { type: 'long' },
       memberId: { type: 'keyword' },
       type: { type: 'keyword' },
       isFileSubmission: { type: 'boolean' },
@@ -44,7 +44,7 @@ co(function * createIndex () {
     }
   }
   yield esClient.indices.create({
-    index: config.get('esConfig.ES_INDEX_V2'),
+    index: config.get('esConfig.ES_INDEX'),
     body
   })
   logger.info('ES Index creation succeeded!')

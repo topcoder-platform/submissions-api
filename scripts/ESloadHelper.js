@@ -20,7 +20,7 @@ const esClient = helper.getEsClient()
 function deleteDatafromES () {
   logger.info('Clear data from ES if any')
   const filter = {
-    index: config.get('esConfig.ES_INDEX_V2'),
+    index: config.get('esConfig.ES_INDEX'),
     type: config.get('esConfig.ES_TYPE'),
     q: '*'
   }
@@ -34,7 +34,7 @@ function * loadReviewTypes () {
   const promises = []
   reviewTypes.forEach((reviewType) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX_V2'),
+      index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: reviewType.id,
       body: _.extend({ resource: 'reviewType' }, reviewType)
@@ -51,7 +51,7 @@ function * loadSubmissions () {
   const promises = []
   submissions.forEach((submission) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX_V2'),
+      index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: submission.id,
       body: _.extend({ resource: 'submission' }, submission)
@@ -68,7 +68,7 @@ function * loadReviews () {
   const promises = []
   reviews.forEach((review) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX_V2'),
+      index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: review.id,
       body: _.extend({ resource: 'review' }, review)
@@ -85,7 +85,7 @@ function * loadReviewSummations () {
   const promises = []
   reviewSummations.forEach((reviewSummation) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX_V2'),
+      index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
       id: reviewSummation.id,
       body: _.extend({ resource: 'reviewSummation' }, reviewSummation)
