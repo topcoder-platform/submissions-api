@@ -235,6 +235,8 @@ function * fetchFromES (query, resource, parentSpan) {
     const esClient = getEsClient()
     // Construct ES filter
     const filter = prepESFilter(query, resource)
+    logger.debug('Elasticsearch query is:')
+    logger.debug(JSON.stringify(filter, null, 4))
     // Search with constructed filter
     const docs = yield esClient.search(filter)
     // Extract data from hits
