@@ -29,7 +29,7 @@ function * migrateRecords (tableName) {
     logger.debug(`Number of ${tableName}s fetched from DB - ` + totalRecords)
     for (let i = 0; i < totalRecords; i++) {
       const record = {
-        index: config.get('esConfig.ES_INDEX_V2'),
+        index: config.get('esConfig.ES_INDEX'),
         type: config.get('esConfig.ES_TYPE'),
         id: records.Items[i].id,
         body: {

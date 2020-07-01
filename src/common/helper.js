@@ -176,7 +176,7 @@ function prepESFilter (query, actResource) {
   }
 
   const searchCriteria = {
-    index: config.get('esConfig.ES_INDEX_V2'),
+    index: config.get('esConfig.ES_INDEX'),
     type: config.get('esConfig.ES_TYPE'),
     size: pageSize,
     from: (page - 1) * pageSize, // Es Index starts from 0
@@ -297,6 +297,30 @@ function setPaginationHeaders (req, res, data) {
  */
 function * getM2Mtoken () {
   return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+}
+
+/**
+ * Get legacy challenge id if the challenge id is uuid form
+ * @param {String} challengeId Challenge ID
+ * @returns {String} Legacy Challenge ID of the given challengeId
+ */
+function * getLegacyChallengeId (challengeId) {
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
+    logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
+    const token = yield getM2Mtoken()
+    try {
+      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('Content-Type', 'application/json')
+      const legacyId = parseInt(response.body.legacyId, 10)
+      logger.debug(`Legacy challenge id is ${legacyId} for v5 challenge id ${challengeId}`)
+      return legacyId
+    } catch (err) {
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+      throw err
+    }
+  }
+  return challengeId
 }
 
 /*
@@ -604,6 +628,7 @@ module.exports = {
   fetchFromES,
   camelize,
   setPaginationHeaders,
+  getLegacyChallengeId,
   getSubmissionPhaseId,
   checkCreateAccess,
   checkGetAccess,
