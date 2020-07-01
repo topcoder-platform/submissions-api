@@ -280,7 +280,7 @@ const listSubmissionsQuerySchema = {
   challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-  submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  submissionPhaseId: joi.id(),
   page: joi.id(),
   perPage: joi.pageSize(),
   orderBy: joi.sortOrder(),
@@ -441,7 +441,7 @@ createSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
+    submissionPhaseId: joi.id()
   }).required()
 }
 
@@ -569,7 +569,7 @@ updateSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
+    submissionPhaseId: joi.id()
   }).required()
 }
 
@@ -595,7 +595,7 @@ patchSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.alternatives().try(joi.id(), joi.string().uuid())
+    submissionPhaseId: joi.id()
   })
 }
 

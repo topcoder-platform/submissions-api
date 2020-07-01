@@ -95,7 +95,7 @@ paths:
                 challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                submissionPhaseId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                submissionPhaseId: 764567
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'topcoder user'
@@ -107,7 +107,7 @@ paths:
                 challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                submissionPhaseId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
+                submissionPhaseId: 764567
                 created: '2018-05-20T08:00:30.000Z'
                 updated: '2018-06-01T09:23:00.178Z'
                 createdBy: 'topcoder user'
@@ -261,9 +261,7 @@ paths:
           description: Legacy Submission Id
         - in: formData
           name: submissionPhaseId
-          oneOf:
-            - type: string
-            - type: integer
+          type: integer
           description: Submission Phase Id
       responses:
         201:
@@ -1604,9 +1602,7 @@ parameters:
     name: submissionPhaseId
     description: The submission phase id filter for submissions.
     required: false
-    oneOf:
-      - type: string
-      - type: integer
+    type: integer
 
   filterSubmissionReviewScore:
     in: query
@@ -1900,9 +1896,7 @@ definitions:
         description: The legacy upload id.
         example: '5da27562-eaec-4c9f-ad1c-ddfbed6ffdbc'
       submissionPhaseId:
-        oneOf:
-          - type: string
-          - type: integer
+        type: integer
         description: The submission phase id.
         example: '5dea6d9e-161a-4c7a-b316-597c73a7b8f4'
 
