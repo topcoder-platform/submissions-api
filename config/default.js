@@ -22,6 +22,7 @@ module.exports = {
   KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'error.notification',
   KAFKA_AGGREGATE_TOPIC: process.env.KAFKA_AGGREGATE_TOPIC || 'submission.notification.aggregate',
   CHALLENGEAPI_URL: process.env.CHALLENGEAPI_URL || 'https://api.topcoder-dev.com/v4/challenges',
+  CHALLENGEAPI_V5_URL: process.env.CHALLENGEAPI_V5_URL || 'https://api.topcoder-dev.com/v5/challenges',
   AUTH0_URL: process.env.AUTH0_URL, // Auth0 credentials for Submission Service
   AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'https://www.topcoder.com',
   TOKEN_CACHE_TIME: process.env.TOKEN_CACHE_TIME,
