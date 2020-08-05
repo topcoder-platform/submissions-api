@@ -31,7 +31,7 @@
     "dd-trace": "^0.12.0",
     "elasticsearch": "^15.1.1",
     "express": "^4.15.4",
-    "express-fileupload": "^1.1.6",
+    "express-fileupload": "^1.1.9",
     "file-type": "^9.0.0",
     "get-parameter-names": "^0.3.0",
     "http-aws-es": "^6.0.0",
