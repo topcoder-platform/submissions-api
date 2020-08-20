@@ -1652,7 +1652,7 @@ parameters:
     description: The status of the reviews associated with the submission.
     required: false
     type: string
-    enum: [queued, completed]
+    enum: [queued, completed, processing]
 
   filterSubmissionReviewSummationScoreCardId:
     in: query
@@ -1767,7 +1767,7 @@ parameters:
     description: The status of the review, whether it queued or has been completed.
     required: false
     type: string
-    enum: [queued, completed]
+    enum: [queued, completed, processing]
   
   filterReviewTypeName:
     in: query
@@ -2024,7 +2024,7 @@ definitions:
         example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
       status:
         type: string
-        enum: [queued, completed]
+        enum: [queued, completed, processing]
         description: The status of the review, whether it is queued or has been completed.
         example: 'queued'
       metadata:
