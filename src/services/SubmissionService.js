@@ -310,8 +310,13 @@ function * createSubmission (authUser, files, entity) {
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
     yield helper.checkCreateAccess(authUser, item)
+
+    if (entity.submittedDate) {
+      throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')
+    }
   } else {
     logger.info(`No need to call checkCreateAccess for ${JSON.stringify(authUser)}`)
+    item.submittedDate = entity.submittedDate || item.created
   }
 
   // Prepare record to be inserted
@@ -363,7 +368,8 @@ createSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.id()
+    submissionPhaseId: joi.id(),
+    submittedDate: joi.string()
   }).required()
 }
 
@@ -398,14 +404,15 @@ function * _updateSubmission (authUser, submissionId, entity) {
       id: submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
-                        updated = :ua, updatedBy = :ub`,
+                        updated = :ua, updatedBy = :ub, submittedDate = :sb`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
       ':m': entity.memberId || exist.memberId,
       ':c': entity.challengeId || exist.challengeId,
       ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub
+      ':ub': authUser.handle || authUser.sub,
+      ':sb': entity.submittedDate || exist.submittedDate || exist.created
     },
     ExpressionAttributeNames: {
       '#type': 'type',
@@ -449,7 +456,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
       challengeId: updatedSub.challengeId,
       memberId: updatedSub.memberId,
       submissionPhaseId: updatedSub.submissionPhaseId,
-      type: updatedSub.type
+      type: updatedSub.type,
+      submittedDate: updatedSub.submittedDate
     }, entity)
   }
 
@@ -458,7 +466,15 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { updated: currDate, updatedBy: authUser.handle || authUser.sub })
+  return _.extend(
+    exist,
+    entity,
+    {
+      updated: currDate,
+      updatedBy: authUser.handle || authUser.sub,
+      submittedDate: updatedSub.submittedDate
+    }
+  )
 }
 
 /**
@@ -482,7 +498,8 @@ updateSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.id()
+    submissionPhaseId: joi.id(),
+    submittedDate: joi.string()
   }).required()
 }
 
@@ -507,7 +524,8 @@ patchSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.id()
+    submissionPhaseId: joi.id(),
+    submittedDate: joi.string()
   })
 }
 

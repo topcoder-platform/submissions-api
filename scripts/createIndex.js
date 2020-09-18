@@ -17,7 +17,7 @@ co(function * createIndex () {
     // fields not specified below will be 'text' by default
     properties: {
       resource: { type: 'keyword' },
-      challengeId: { type: 'long' },
+      challengeId: { type: 'keyword' },
       memberId: { type: 'keyword' },
       type: { type: 'keyword' },
       isFileSubmission: { type: 'boolean' },
