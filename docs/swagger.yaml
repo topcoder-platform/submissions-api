@@ -728,6 +728,8 @@ paths:
         Create a new review summation.
 
         **Authorization:** Review summation creation is accessible by roles `admin` and `copilot`.
+
+        **Note** Value for `reviewedDate` attribute can only be provided by users with `admin` role
       tags:
         - 'Review summations'
       operationId: createReviewSummation
@@ -1050,6 +1052,8 @@ paths:
         Create a new review.
 
         **Authorization:** Review creation is accessible by roles `admin` and `copilot`.
+
+        **Note** Value for `reviewedDate` attribute can only be provided by users with `admin` role
       tags:
         - 'Reviews'
       operationId: createReview
