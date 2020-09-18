@@ -316,8 +316,9 @@ function * createSubmission (authUser, files, entity) {
     }
   } else {
     logger.info(`No need to call checkCreateAccess for ${JSON.stringify(authUser)}`)
-    item.submittedDate = entity.submittedDate || item.created
   }
+
+  item.submittedDate = entity.submittedDate || item.created
 
   // Prepare record to be inserted
   const record = {

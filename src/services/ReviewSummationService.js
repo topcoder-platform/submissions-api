@@ -106,9 +106,9 @@ function * createReviewSummation (authUser, entity) {
     if (entity.reviewedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `reviewedDate` attribute on a review summation')
     }
-  } else {
-    item.reviewedDate = entity.reviewedDate || item.created
   }
+
+  item.reviewedDate = entity.reviewedDate || item.created
 
   const record = {
     TableName: table,

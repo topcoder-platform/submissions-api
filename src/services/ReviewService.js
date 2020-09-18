@@ -148,9 +148,9 @@ function * createReview (authUser, entity) {
     if (entity.reviewedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `reviewedDate` attribute on a review')
     }
-  } else {
-    item.reviewedDate = entity.reviewedDate || item.created
   }
+
+  item.reviewedDate = entity.reviewedDate || item.created
 
   // Prepare record to be inserted
   const record = {
