@@ -144,6 +144,14 @@ function * createReview (authUser, entity) {
     entity
   )
 
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
+    if (entity.reviewedDate) {
+      throw new errors.HttpStatusError(403, 'You are not allowed to set the `reviewedDate` attribute on a review')
+    }
+  }
+
+  item.reviewedDate = entity.reviewedDate || item.created
+
   // Prepare record to be inserted
   const record = {
     TableName: table,
@@ -202,7 +210,8 @@ createReview.schema = {
         .uuid()
         .required(),
       status: joi.reviewStatus(),
-      metadata: joi.object()
+      metadata: joi.object(),
+      reviewedDate: joi.string()
     })
     .required()
 }
@@ -237,7 +246,7 @@ function * _updateReview (authUser, reviewId, entity) {
     },
     UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
                         typeId = :t, reviewerId = :r, #st = :st,
-                        updated = :ua, updatedBy = :ub`,
+                        updated = :ua, updatedBy = :ub, reviewedDate = :rd`,
     ExpressionAttributeValues: {
       ':s': entity.score || exist.score,
       ':sc': entity.scoreCardId || exist.scoreCardId,
@@ -246,7 +255,8 @@ function * _updateReview (authUser, reviewId, entity) {
       ':r': entity.reviewerId || exist.reviewerId,
       ':st': entity.status || exist.status || 'completed',
       ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub
+      ':ub': authUser.handle || authUser.sub,
+      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created
     },
     ExpressionAttributeNames: {
       '#st': 'status'
@@ -278,7 +288,8 @@ function * _updateReview (authUser, reviewId, entity) {
         resource: helper.camelize(table),
         id: reviewId,
         updated: currDate,
-        updatedBy: authUser.handle || authUser.sub
+        updatedBy: authUser.handle || authUser.sub,
+        reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
       },
       entity
     )
@@ -291,7 +302,8 @@ function * _updateReview (authUser, reviewId, entity) {
   // Hence returning the response which will be in compliance with Swagger
   return _.extend(exist, entity, {
     updated: currDate,
-    updatedBy: authUser.handle || authUser.sub
+    updatedBy: authUser.handle || authUser.sub,
+    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
   })
 }
 
@@ -330,7 +342,8 @@ updateReview.schema = {
         .uuid()
         .required(),
       status: joi.reviewStatus(),
-      metadata: joi.object()
+      metadata: joi.object(),
+      reviewedDate: joi.string()
     })
     .required()
 }
@@ -359,7 +372,8 @@ patchReview.schema = {
     scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
     status: joi.reviewStatus(),
-    metadata: joi.object()
+    metadata: joi.object(),
+    reviewedDate: joi.string()
   })
 }
 
