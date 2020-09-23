@@ -135,7 +135,6 @@ Please ensure to create the index `submission-test` or the index specified in th
 export ES_INDEX=submission-test
 ```
 
-
 #### Running unit tests and coverage
 
 To run unit tests alone
