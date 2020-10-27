@@ -367,30 +367,49 @@ function * getSubmissionPhaseId (challengeId) {
  * @returns {Promise}
  */
 function * checkCreateAccess (authUser, subEntity) {
-  let response
+  let challengeDetails
+  let resources
 
   // User can only create submission for themselves
   if (authUser.userId !== subEntity.memberId) {
     throw new errors.HttpStatusError(403, 'You are not allowed to submit on behalf of others')
   }
 
+  const token = yield getM2Mtoken()
+
   try {
-    const token = yield getM2Mtoken()
     logger.info(`Calling to challenge API for fetch phases and winners for ${subEntity.challengeId}`)
-    response = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
-    logger.info(`returned for ${subEntity.challengeId} with ${JSON.stringify(response)}`)
+    logger.info(`returned for ${subEntity.challengeId} with ${JSON.stringify(challengeDetails)}`)
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
     logger.error(ex)
-    return false
+    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${subEntity.challengeId}`)
   }
 
-  if (response) {
-    // Get phases and winner detail from response
-    const phases = response.body.result.content[0].allPhases
-    const winner = response.body.result.content[0].winners
+  try {
+    resources = yield request.get(`${config.CHALLENGEAPI_URL}/${subEntity.challengeId}/resources`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${subEntity.challengeId}/resources`)
+    logger.error(ex)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${subEntity.challengeId}`)
+  }
+
+  if (resources && challengeDetails) {
+    const currUserRoles = _.filter(resources.body.result.content, { properties: { Handle: authUser.handle } })
+    // Get phases and winner detail from challengeDetails
+    const phases = challengeDetails.body.result.content[0].allPhases
+    const winner = challengeDetails.body.result.content[0].winners
+
+    // Check if the User is registered for the contest
+    const submitters = _.filter(currUserRoles, { role: 'Submitter' })
+    if (submitters.length === 0) {
+      throw new errors.HttpStatusError(403, `Register for the contest before you can submit`)
+    }
 
     const submissionPhaseId = yield getSubmissionPhaseId(subEntity.challengeId)
 
@@ -405,9 +424,11 @@ function * checkCreateAccess (authUser, subEntity) {
         throw new errors.HttpStatusError(403, 'Only winner is allowed to submit during Final Fix phase')
       }
     }
+  } else {
+    // We don't have enough details to validate the access
+    logger.debug('No enough details to validate the Permissions')
+    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${subEntity.challengeId}`)
   }
-
-  return true
 }
 
 /*
@@ -433,7 +454,7 @@ function * checkGetAccess (authUser, submission) {
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
     logger.error(ex)
-    return false
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${submission.challengeId}`)
   }
 
   try {
@@ -443,7 +464,7 @@ function * checkGetAccess (authUser, submission) {
   } catch (ex) {
     logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
     logger.error(ex)
-    return false
+    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${submission.challengeId}`)
   }
 
   if (resources && challengeDetails) {
@@ -509,7 +530,7 @@ function * checkGetAccess (authUser, submission) {
   } else {
     // We don't have enough details to validate the access
     logger.debug('No enough details to validate the Permissions')
-    return true
+    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${submission.challengeId}`)
   }
 }
 
