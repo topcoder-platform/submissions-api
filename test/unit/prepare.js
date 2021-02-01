@@ -70,7 +70,7 @@ prepare(function (done) {
   // Mock Posting to Bus API and ES interactions
   const authUrl = URL.parse(config.AUTH0_URL)
   const busUrl = URL.parse(config.BUSAPI_EVENTS_URL)
-  const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_URL}/30049360/phases`)
+  const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_V5_URL}/30049360/phases`)
 
   nock(/.com/)
     .persist()

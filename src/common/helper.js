@@ -299,30 +299,6 @@ function * getM2Mtoken () {
   return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
 }
 
-/**
- * Get legacy challenge id if the challenge id is uuid form
- * @param {String} challengeId Challenge ID
- * @returns {String} Legacy Challenge ID of the given challengeId
- */
-function * getLegacyChallengeId (challengeId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
-    logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
-    try {
-      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .set('Content-Type', 'application/json')
-      const legacyId = parseInt(response.body.legacyId, 10)
-      logger.debug(`Legacy challenge id is ${legacyId} for v5 challenge id ${challengeId}`)
-      return legacyId
-    } catch (err) {
-      logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      throw err
-    }
-  }
-  return challengeId
-}
-
 /*
  * Get submission phase ID of a challenge from Challenge API
  * @param challengeId Challenge ID
@@ -335,20 +311,20 @@ function * getSubmissionPhaseId (challengeId) {
   try {
     logger.info(`Calling to challenge API to find submission phase Id for ${challengeId}`)
     const token = yield getM2Mtoken()
-    response = yield request.get(`${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+    response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
     logger.info(`returned from finding submission phase Id for ${challengeId}`)
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${challengeId}/phases`)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
     logger.debug('Setting submissionPhaseId to Null')
     response = null
   }
   if (response) {
-    const phases = _.get(response.body, 'result.content', [])
-    const checkPoint = _.filter(phases, { phaseType: 'Checkpoint Submission', phaseStatus: 'Open' })
-    const submissionPh = _.filter(phases, { phaseType: 'Submission', phaseStatus: 'Open' })
-    const finalFixPh = _.filter(phases, { phaseType: 'Final Fix', phaseStatus: 'Open' })
+    const phases = _.get(response.body, 'phases', [])
+    const checkPoint = _.filter(phases, { name: 'Checkpoint Submission', isOpen: true })
+    const submissionPh = _.filter(phases, { name: 'Submission', isOpen: true })
+    const finalFixPh = _.filter(phases, { name: 'Final Fix', isOpen: true })
     if (checkPoint.length !== 0) {
       phaseId = checkPoint[0].id
     } else if (submissionPh.length !== 0) {
@@ -379,31 +355,45 @@ function * checkCreateAccess (authUser, subEntity) {
 
   try {
     logger.info(`Calling to challenge API for fetch phases and winners for ${subEntity.challengeId}`)
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${subEntity.challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
     logger.info(`returned for ${subEntity.challengeId} with ${JSON.stringify(challengeDetails)}`)
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${subEntity.challengeId}`)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${subEntity.challengeId}`)
     logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${subEntity.challengeId}`)
   }
 
   try {
-    resources = yield request.get(`${config.CHALLENGEAPI_URL}/${subEntity.challengeId}/resources`)
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${subEntity.challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${subEntity.challengeId}/resources`)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${subEntity.challengeId}`)
     logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${subEntity.challengeId}`)
   }
 
+  // Get map of role id to role name
+  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+
+  // Check if role id to role name mapping is available. If not user's role cannot be determined.
+  if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${subEntity.challengeId}`)
+  }
+
   if (resources && challengeDetails) {
-    const currUserRoles = _.filter(resources.body.result.content, { properties: { Handle: authUser.handle } })
+    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+
+    // Populate the role names for the current user role ids
+    _.forEach(currUserRoles, currentUserRole => {
+      currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
+    })
+
     // Get phases and winner detail from challengeDetails
-    const phases = challengeDetails.body.result.content[0].allPhases
-    const winner = challengeDetails.body.result.content[0].winners
+    const phases = challengeDetails.body.phases
+    const winner = challengeDetails.body.winners
 
     // Check if the User is registered for the contest
     const submitters = _.filter(currUserRoles, { role: 'Submitter' })
@@ -419,7 +409,7 @@ function * checkCreateAccess (authUser, subEntity) {
 
     const currPhase = _.filter(phases, { id: submissionPhaseId })
 
-    if (currPhase[0].phaseType === 'Final Fix') {
+    if (currPhase[0].name === 'Final Fix') {
       if (!authUser.handle.equals(winner[0].handle)) {
         throw new errors.HttpStatusError(403, 'Only winner is allowed to submit during Final Fix phase')
       }
@@ -448,30 +438,43 @@ function * checkGetAccess (authUser, submission) {
   const token = yield getM2Mtoken()
 
   try {
-    resources = yield request.get(`${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${submission.challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}/${submission.challengeId}/resources`)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${submission.challengeId}`)
     logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${submission.challengeId}`)
   }
 
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
     logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${submission.challengeId}`)
   }
 
+  // Get map of role id to role name
+  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+
+  // Check if role id to role name mapping is available. If not user's role cannot be determined.
+  if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${submission.challengeId}`)
+  }
+
   if (resources && challengeDetails) {
     // Fetch all roles of the User pertaining to the current challenge
-    const currUserRoles = _.filter(resources.body.result.content, { properties: { Handle: authUser.handle } })
-    const subTrack = challengeDetails.body.result.content[0].subTrack
-    const phases = challengeDetails.body.result.content[0].allPhases
+    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+
+    // Populate the role names for the current user role ids
+    _.forEach(currUserRoles, currentUserRole => {
+      currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
+    })
+
+    const subTrack = challengeDetails.body.legacy.subTrack
 
     // Check if the User is a Copilot
     const copilot = _.filter(currUserRoles, { role: 'Copilot' })
@@ -494,18 +497,18 @@ function * checkGetAccess (authUser, submission) {
 
       // User is either a Reviewer or Screener
       if (screener.length !== 0 || reviewer.length !== 0) {
-        const screeningPhase = _.filter(phases, { phaseType: 'Screening', phaseStatus: 'Scheduled' })
-        const reviewPhase = _.filter(phases, { phaseType: 'Review', phaseStatus: 'Scheduled' })
+        const screeningPhaseStatus = getPhaseStatus('Screening', challengeDetails.body)
+        const reviewPhaseStatus = getPhaseStatus('Review', challengeDetails.body)
 
         // Neither Screening Nor Review is Opened / Closed
-        if (screeningPhase.length !== 0 && reviewPhase.length !== 0) {
+        if (screeningPhaseStatus === 'Scheduled' && reviewPhaseStatus === 'Scheduled') {
           throw new errors.HttpStatusError(403, 'You can access the submission only when Screening / Review is open')
         }
       } else {
-        const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', phaseStatus: 'Closed' })
+        const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
 
         // Appeals Response is not closed yet
-        if (appealsResponse.length === 0) {
+        if (appealsResponseStatus !== 'Closed') {
           throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
         } else {
           const userSubmission = yield fetchFromES({
@@ -545,28 +548,27 @@ function * checkReviewGetAccess (authUser, submission) {
   const token = yield getM2Mtoken()
 
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_URL}?filter=id=${submission.challengeId}`)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
     logger.error(ex)
     return false
   }
 
   if (challengeDetails) {
-    const subTrack = challengeDetails.body.result.content[0].subTrack
-    const phases = challengeDetails.body.result.content[0].allPhases
+    const subTrack = challengeDetails.body.legacy.subTrack
 
     // For Marathon Match, everyone can access review result
     if (subTrack === 'DEVELOP_MARATHON_MATCH') {
       logger.info('No access check for Marathon match')
       return true
     } else {
-      const appealsResponse = _.filter(phases, { phaseType: 'Appeals Response', phaseStatus: 'Closed' })
+      const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
 
       // Appeals Response is not closed yet
-      if (appealsResponse.length === 0) {
+      if (appealsResponseStatus !== 'Closed') {
         throw new errors.HttpStatusError(403, 'You cannot access the review before the end of the Appeals Response phase')
       }
 
@@ -642,6 +644,74 @@ function cleanseReviews (reviews, authUser) {
   return reviews
 }
 
+/**
+ * Function to get role id to role name map
+ * @returns {Object|null} <Role Id, Role Name> map
+ */
+function * getRoleIdToRoleNameMap () {
+  let resourceRoles
+  let resourceRolesMap = null
+  const token = yield getM2Mtoken()
+  try {
+    resourceRoles = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
+    logger.error(ex)
+    resourceRoles = null
+  }
+  if (resourceRoles) {
+    resourceRolesMap = {}
+    _.forEach(resourceRoles.body, resourceRole => {
+      resourceRolesMap[resourceRole.id] = resourceRole.name
+    })
+  }
+  return resourceRolesMap
+}
+
+/**
+ * Function to get phase status of phases used in an active challenge
+ * @param {String} phaseName the phase name for retrieving status
+ * @param {Object} challengeDetails the challenge details
+ * @returns {('Scheduled' | 'Open' | 'Closed' | 'Invalid')} status of the phase
+ */
+function * getPhaseStatus (phaseName, challengeDetails) {
+  const phases = challengeDetails.phases
+  if (challengeDetails.status === 'Completed') {
+    return 'Closed'
+  } else if (challengeDetails.status === 'Active') {
+    const queriedPhaseIndex = _.findIndex(phases, phase => {
+      return phase.name === phaseName
+    })
+    // Requested phase name could not be found in phases hence 'Invalid'
+    if (queriedPhaseIndex === -1) {
+      return 'Invalid'
+    }
+    // If requested phase name is open return 'Open'
+    if (phases[queriedPhaseIndex].isOpen) {
+      return 'Open'
+    }
+
+    // Search for phase where isOpen == true from list of phases
+    // Phases are already in sorted order as per challenge-api repository
+    const currentOpenPhaseIndex = _.findLastIndex(phases, phase => {
+      return phase.isOpen === true
+    })
+
+    // if queried phase occurs before current open phase it is 'Closed'
+    // else it is 'Scheduled'
+    if (currentOpenPhaseIndex !== -1) {
+      return currentOpenPhaseIndex > queriedPhaseIndex ? 'Closed' : 'Scheduled'
+    } else {
+      // if no phase is open but the challenge is Active return Scheduled
+      return 'Scheduled'
+    }
+  } else { // if challenge is not in Active or Completed state return Scheduled
+    return 'Scheduled'
+  }
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -649,12 +719,12 @@ module.exports = {
   fetchFromES,
   camelize,
   setPaginationHeaders,
-  getLegacyChallengeId,
   getSubmissionPhaseId,
   checkCreateAccess,
   checkGetAccess,
   checkReviewGetAccess,
   downloadFile,
   postToBusApi,
-  cleanseReviews
+  cleanseReviews,
+  getRoleIdToRoleNameMap
 }

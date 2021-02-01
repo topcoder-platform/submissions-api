@@ -181,12 +181,6 @@ function * downloadSubmission (authUser, submissionId) {
  * @return {Object} Data fetched from ES
  */
 function * listSubmissions (authUser, query) {
-  if (query.challengeId) {
-    // Submission api only works with legacy challenge id
-    // If it is a v5 challenge id, get the associated legacy challenge id
-    query.challengeId = yield helper.getLegacyChallengeId(query.challengeId)
-  }
-
   const data = yield helper.fetchFromES(query, helper.camelize(table))
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
@@ -268,10 +262,6 @@ function * createSubmission (authUser, files, entity) {
     throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
   }
 
-  // Submission api only works with legacy challenge id
-  // If it is a v5 challenge id, get the associated legacy challenge id
-  const challengeId = yield helper.getLegacyChallengeId(entity.challengeId)
-
   const currDate = (new Date()).toISOString()
 
   const item = {
@@ -279,7 +269,7 @@ function * createSubmission (authUser, files, entity) {
     type: entity.type,
     url: url,
     memberId: entity.memberId,
-    challengeId: challengeId,
+    challengeId: entity.challengeId,
     created: currDate,
     updated: currDate,
     createdBy: authUser.handle || authUser.sub,
@@ -297,7 +287,7 @@ function * createSubmission (authUser, files, entity) {
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
   } else {
-    item.submissionPhaseId = yield helper.getSubmissionPhaseId(challengeId)
+    item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
   }
 
   if (entity.fileType) {
@@ -389,12 +379,6 @@ function * _updateSubmission (authUser, submissionId, entity) {
   if (!exist) {
     logger.info(`Submission with ID = ${submissionId} is not found`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
-  }
-
-  if (entity.challengeId) {
-    // Submission api only works with legacy challenge id
-    // If it is a v5 challenge id, get the associated legacy challenge id
-    entity.challengeId = yield helper.getLegacyChallengeId(entity.challengeId)
   }
 
   const currDate = (new Date()).toISOString()
