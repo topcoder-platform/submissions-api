@@ -76,7 +76,7 @@ describe('Review Summation Service tests', () => {
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
+          res.body.should.have.all.keys(Object.keys(_.omit(testReviewSummation.Item, ['reviewedDate'])))
           res.body.id.should.be.eql(testReviewSummation.Item.id)
           res.body.aggregateScore.should.be.eql(testReviewSummation.Item.aggregateScore)
           res.body.submissionId.should.be.eql(testReviewSummation.Item.submissionId)

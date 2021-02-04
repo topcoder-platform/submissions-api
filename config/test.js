@@ -7,7 +7,7 @@ module.exports = {
   LOG_LEVEL: 'info',
   WEB_SERVER_PORT: 3010,
   AUTH_SECRET: 'mysecret',
-  VALID_ISSUERS: '["https://api.topcoder.com"]',
+  VALID_ISSUERS: process.env.VALID_ISSUERS ? process.env.VALID_ISSUERS.replace(/\\"/g, '') : '["https://api.topcoder.com","https://topcoder-dev.auth0.com/"]',
   API_VERSION: process.env.API_VERSION || '/api/v5',
   aws: {
     AWS_REGION: process.env.AWS_REGION || 'us-east-1', // AWS Region to be used by the application
@@ -16,14 +16,14 @@ module.exports = {
     S3_BUCKET: process.env.S3_BUCKET_TEST || 'tc-testing-submissions' // S3 Bucket to which submissions need to be uploaded
   },
   BUSAPI_EVENTS_URL: 'https://api.topcoder-dev.com/v5/bus/events',
+  BUSAPI_URL: 'https://api.topcoder-dev.com/v5',
   CHALLENGEAPI_V5_URL: 'https://api.topcoder-dev.com/v5/challenges',
   esConfig: {
     ES_INDEX: process.env.ES_INDEX_TEST || 'submission-test',
     ES_TYPE: process.env.ES_TYPE_TEST || '_doc' // ES 6.x accepts only 1 Type per index and it's mandatory to define it
   },
   AUTH0_URL: process.env.AUTH0_URL, // Auth0 credentials for Submission Service
-  AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || 'https://www.topcoder.com',
-  TOKEN_CACHE_TIME: process.env.TOKEN_CACHE_TIME,
+  AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
   AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
   AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
   USER_TOKEN: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6WyJUb3Bjb2RlciBVc2VyIl0sImlzcyI6Imh0dHBzOi8vYXBpLnRvcGNvZGVyLmNvbSIsImhhbmRsZSI6IlNoYXJhdGhrdW1hcjkyIiwiZXhwIjo1NTUzMDE5OTI1OSwidXNlcklkIjoiNDA0OTMwNTAiLCJpYXQiOjE1MzAxOTg2NTksImVtYWlsIjoiU2hhcmF0aGt1bWFyOTJAdG9wY29kZXIuY29tIiwianRpIjoiYzNhYzYwOGEtNTZiZS00NWQwLThmNmEtMzFmZTk0Yjk1NjFjIn0.2gtNJwhcv7MYc-muX3Nv-B0RdWbhMRl7-xrwFUsLazM',

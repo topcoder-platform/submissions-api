@@ -53,7 +53,7 @@ function autoWrapExpress (obj) {
     return obj
   }
   _.each(obj, (value, key) => {
-        obj[key] = autoWrapExpress(value); //eslint-disable-line
+    obj[key] = autoWrapExpress(value); //eslint-disable-line
   })
   return obj
 }
@@ -676,39 +676,31 @@ function * getRoleIdToRoleNameMap () {
  * @param {Object} challengeDetails the challenge details
  * @returns {('Scheduled' | 'Open' | 'Closed' | 'Invalid')} status of the phase
  */
-function * getPhaseStatus (phaseName, challengeDetails) {
-  const phases = challengeDetails.phases
-  if (challengeDetails.status === 'Completed') {
-    return 'Closed'
-  } else if (challengeDetails.status === 'Active') {
-    const queriedPhaseIndex = _.findIndex(phases, phase => {
-      return phase.name === phaseName
-    })
-    // Requested phase name could not be found in phases hence 'Invalid'
-    if (queriedPhaseIndex === -1) {
-      return 'Invalid'
-    }
-    // If requested phase name is open return 'Open'
-    if (phases[queriedPhaseIndex].isOpen) {
-      return 'Open'
-    }
-
-    // Search for phase where isOpen == true from list of phases
-    // Phases are already in sorted order as per challenge-api repository
-    const currentOpenPhaseIndex = _.findLastIndex(phases, phase => {
-      return phase.isOpen === true
-    })
-
-    // if queried phase occurs before current open phase it is 'Closed'
-    // else it is 'Scheduled'
-    if (currentOpenPhaseIndex !== -1) {
-      return currentOpenPhaseIndex > queriedPhaseIndex ? 'Closed' : 'Scheduled'
+function getPhaseStatus (phaseName, challengeDetails) {
+  const { phases } = challengeDetails
+  const queriedPhaseIndex = _.findIndex(phases, phase => {
+    return phase.name === phaseName
+  })
+  // Requested phase name could not be found in phases hence 'Invalid'
+  if (queriedPhaseIndex === -1) {
+    return 'Invalid'
+  }
+  // If requested phase name is open return 'Open'
+  if (phases[queriedPhaseIndex].isOpen) {
+    return 'Open'
+  } else {
+    const { actualEndDate } = phases[queriedPhaseIndex]
+    if (!_.isEmpty(actualEndDate)) {
+      const present = new Date().getTime()
+      const actualDate = new Date(actualEndDate).getTime()
+      if (present > actualDate) {
+        return 'Closed'
+      } else {
+        return 'Scheduled'
+      }
     } else {
-      // if no phase is open but the challenge is Active return Scheduled
       return 'Scheduled'
     }
-  } else { // if challenge is not in Active or Completed state return Scheduled
-    return 'Scheduled'
   }
 }
 
