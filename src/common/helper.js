@@ -735,6 +735,7 @@ module.exports = {
   fetchFromES,
   camelize,
   setPaginationHeaders,
+  getLegacyChallengeId,
   getSubmissionPhaseId,
   checkCreateAccess,
   checkGetAccess,
