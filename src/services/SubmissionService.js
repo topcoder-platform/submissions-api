@@ -203,7 +203,7 @@ const listSubmissionsQuerySchema = {
   type: joi.string(),
   url: joi.string().uri().trim(),
   memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-  challengeId: joi.string().uuid(),
+  challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   submissionPhaseId: joi.id(),
