@@ -67,7 +67,7 @@ workflows:
           context : org-global
           filters:
             branches:
-              only: ['develop', 'develop-temp']
+              only: ['develop', 'feature/shapeup-pure-v5-task']
       - "build-prod":
           context : org-global
           filters:
