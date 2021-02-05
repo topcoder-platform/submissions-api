@@ -181,6 +181,12 @@ function * downloadSubmission (authUser, submissionId) {
  * @return {Object} Data fetched from ES
  */
 function * listSubmissions (authUser, query) {
+  if (query.challengeId) {
+    // Submission api only works with legacy challenge id
+    // If it is a v5 challenge id, get the associated legacy challenge id
+    query.challengeId = yield helper.getLegacyChallengeId(query.challengeId)
+  }
+
   const data = yield helper.fetchFromES(query, helper.camelize(table))
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
