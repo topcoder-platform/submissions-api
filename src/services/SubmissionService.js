@@ -268,6 +268,9 @@ function * createSubmission (authUser, files, entity) {
     throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
   }
 
+  // Submission api only works with legacy challenge id
+  // If it is a v5 challenge id, get the associated legacy challenge id
+  const challengeId = yield helper.getLegacyChallengeId(entity.challengeId)
   const currDate = (new Date()).toISOString()
 
   const item = {
@@ -275,7 +278,7 @@ function * createSubmission (authUser, files, entity) {
     type: entity.type,
     url: url,
     memberId: entity.memberId,
-    challengeId: entity.challengeId,
+    challengeId: challengeId,
     created: currDate,
     updated: currDate,
     createdBy: authUser.handle || authUser.sub,

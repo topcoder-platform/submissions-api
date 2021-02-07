@@ -31,8 +31,8 @@ let busApiClient
  * @param {Function} fn the generator function
  * @returns {Function} the wrapped function
  */
-function wrapExpress (fn) {
-  return function wrap (req, res, next) {
+function wrapExpress(fn) {
+  return function wrap(req, res, next) {
     co(fn(req, res, next)).catch(next)
   }
 }
@@ -42,7 +42,7 @@ function wrapExpress (fn) {
  * @param obj the object (controller exports)
  * @returns {Object|Array} the wrapped object
  */
-function autoWrapExpress (obj) {
+function autoWrapExpress(obj) {
   if (_.isArray(obj)) {
     return obj.map(autoWrapExpress)
   }
@@ -62,7 +62,7 @@ function autoWrapExpress (obj) {
  * Get Bus API Client
  * @return {Object} Bus API Client Instance
 */
-function getBusApiClient () {
+function getBusApiClient() {
   // If there is no Client instance, Create a new instance
   if (!busApiClient) {
     logger.debug(`Creating Bus API client for ${config.BUSAPI_URL} `)
@@ -80,7 +80,7 @@ function getBusApiClient () {
  * Get ES Client
  * @return {Object} Elastic Host Client Instance
  */
-function getEsClient () {
+function getEsClient() {
   const esHost = config.get('esConfig.HOST')
   if (!esClients.client) {
     // AWS ES configuration is different from other providers
@@ -109,7 +109,7 @@ function getEsClient () {
  * @param str Input string
  * @returns string String converted into camelCase
  */
-function camelize (str) {
+function camelize(str) {
   return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
     if (+match === 0) return '' // or if (/\s+/.test(match)) for white spaces
     return index === 0 ? match.toLowerCase() : match.toUpperCase()
@@ -122,7 +122,7 @@ function camelize (str) {
  * @param  {String} actResource Resource name in ES
  * @return {Object} search request body that can be passed to ES
  */
-function prepESFilter (query, actResource) {
+function prepESFilter(query, actResource) {
   const pageSize = query.perPage || config.get('PAGE_SIZE')
   const page = query.page || 1
   const { sortBy, orderBy } = query
@@ -220,7 +220,7 @@ function prepESFilter (query, actResource) {
  * @param  {String} resource Resource name in ES
  * @return {Object} Data fetched from ES based on the filters
  */
-function * fetchFromES (query, resource) {
+function* fetchFromES(query, resource) {
   const esClient = getEsClient()
   // Construct ES filter
   const filter = prepESFilter(query, resource)
@@ -244,7 +244,7 @@ function * fetchFromES (query, resource) {
  * @param res HTTP response
  * @param {Object} data Data for which pagination need to be applied
  */
-function setPaginationHeaders (req, res, data) {
+function setPaginationHeaders(req, res, data) {
   const totalPages = Math.ceil(data.total / data.pageSize)
   let fullUrl = req.protocol + '://' + req.get('host') + req.url.replace(`&page=${data.page}`, '')
   // URL formatting to add pagination parameters accordingly
@@ -295,7 +295,7 @@ function setPaginationHeaders (req, res, data) {
 /* Function to get M2M token
  * @returns {Promise}
  */
-function * getM2Mtoken () {
+function* getM2Mtoken() {
   return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
 }
 
@@ -304,7 +304,7 @@ function * getM2Mtoken () {
  * @param {String} challengeId Challenge ID
  * @returns {String} Legacy Challenge ID of the given challengeId
  */
-function * getLegacyChallengeId (challengeId) {
+function* getLegacyChallengeId(challengeId) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
     const token = yield getM2Mtoken()
@@ -323,14 +323,39 @@ function * getLegacyChallengeId (challengeId) {
   return challengeId
 }
 
+/**
+ * Get v5 challenge id (uuid) if legacy challenge id
+ * @param {Integer} challengeId Challenge ID
+ * @returns {String} v5 uuid Challenge ID of the given challengeId
+ */
+function* getV5ChallengeId(challengeId) {
+  if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId))) {
+    logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
+    const token = yield getM2Mtoken()
+    try {
+      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('Content-Type', 'application/json')
+      const v5Uuid = _.get(response, 'body.id')
+      logger.debug(`V5 challenge id is ${v5Uuid} for legacy challenge id ${challengeId}`)
+      return v5Uuid
+    } catch (err) {
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
+      throw err
+    }
+  }
+  return challengeId
+}
+
 /*
  * Get submission phase ID of a challenge from Challenge API
  * @param challengeId Challenge ID
  * @returns {Integer} Submission phase ID of the given challengeId
  */
-function * getSubmissionPhaseId (challengeId) {
+function* getSubmissionPhaseId(challengeId) {
   let phaseId = null
   let response
+  challengeId = getV5ChallengeId(challengeId)
 
   try {
     logger.info(`Calling to challenge API to find submission phase Id for ${challengeId}`)
@@ -366,9 +391,11 @@ function * getSubmissionPhaseId (challengeId) {
  * @param subEntity Submission Entity
  * @returns {Promise}
  */
-function * checkCreateAccess (authUser, subEntity) {
+function* checkCreateAccess(authUser, subEntity) {
   let challengeDetails
   let resources
+
+  const challengeId = getV5ChallengeId(subEntity.challengeId)
 
   // User can only create submission for themselves
   if (authUser.userId !== subEntity.memberId) {
@@ -378,25 +405,25 @@ function * checkCreateAccess (authUser, subEntity) {
   const token = yield getM2Mtoken()
 
   try {
-    logger.info(`Calling to challenge API for fetch phases and winners for ${subEntity.challengeId}`)
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${subEntity.challengeId}`)
+    logger.info(`Calling to challenge API for fetch phases and winners for ${challengeId}`)
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
-    logger.info(`returned for ${subEntity.challengeId} with ${JSON.stringify(challengeDetails)}`)
+    logger.info(`returned for ${challengeId} with ${JSON.stringify(challengeDetails)}`)
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${subEntity.challengeId}`)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
     logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${subEntity.challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${challengeId}`)
   }
 
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${subEntity.challengeId}`)
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${subEntity.challengeId}`)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
     logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${subEntity.challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   // Get map of role id to role name
@@ -451,7 +478,7 @@ function * checkCreateAccess (authUser, subEntity) {
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function * checkGetAccess (authUser, submission) {
+function* checkGetAccess(authUser, submission) {
   let resources
   let challengeDetails
   // Allow downloading Own submission
@@ -460,25 +487,26 @@ function * checkGetAccess (authUser, submission) {
   }
 
   const token = yield getM2Mtoken()
+  const challengeId = getV5ChallengeId(submission.challengeId)
 
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${submission.challengeId}`)
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${submission.challengeId}`)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
     logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${submission.challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
     logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${submission.challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${challengeId}`)
   }
 
   // Get map of role id to role name
@@ -486,7 +514,7 @@ function * checkGetAccess (authUser, submission) {
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${submission.challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   if (resources && challengeDetails) {
@@ -567,16 +595,17 @@ function * checkGetAccess (authUser, submission) {
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function * checkReviewGetAccess (authUser, submission) {
+function* checkReviewGetAccess(authUser, submission) {
   let challengeDetails
   const token = yield getM2Mtoken()
+  const challengeId = getV5ChallengeId(submission.challengeId)
 
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
+    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${submission.challengeId}`)
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
     logger.error(ex)
     return false
   }
@@ -606,7 +635,7 @@ function * checkReviewGetAccess (authUser, submission) {
  * @param{String} fileURL S3 URL of the file to be downloaded
  * @returns {Buffer} Buffer of downloaded file
  */
-function * downloadFile (fileURL) {
+function* downloadFile(fileURL) {
   const { bucket, key } = AmazonS3URI(fileURL)
   logger.info(`downloadFile(): file is on S3 ${bucket} / ${key}`)
   const downloadedFile = yield s3.getObject({ Bucket: bucket, Key: key }).promise()
@@ -619,7 +648,7 @@ function * downloadFile (fileURL) {
  * Also stores the original topic in the payload
  * @param {Object} payload Data that needs to be posted to the bus api
  */
-function * postToBusApi (payload) {
+function* postToBusApi(payload) {
   const busApiClient = getBusApiClient()
   const originalTopic = payload.topic
 
@@ -639,7 +668,7 @@ function * postToBusApi (payload) {
  * @param  {Array} reviews The reviews to remove metadata from
  * @param  {Object} authUser The authenticated user details
  */
-function cleanseReviews (reviews, authUser) {
+function cleanseReviews(reviews, authUser) {
   // Not a machine user
   if (!authUser.scopes) {
     const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
@@ -672,7 +701,7 @@ function cleanseReviews (reviews, authUser) {
  * Function to get role id to role name map
  * @returns {Object|null} <Role Id, Role Name> map
  */
-function * getRoleIdToRoleNameMap () {
+function* getRoleIdToRoleNameMap() {
   let resourceRoles
   let resourceRolesMap = null
   const token = yield getM2Mtoken()
@@ -700,7 +729,7 @@ function * getRoleIdToRoleNameMap () {
  * @param {Object} challengeDetails the challenge details
  * @returns {('Scheduled' | 'Open' | 'Closed' | 'Invalid')} status of the phase
  */
-function getPhaseStatus (phaseName, challengeDetails) {
+function getPhaseStatus(phaseName, challengeDetails) {
   const { phases } = challengeDetails
   const queriedPhaseIndex = _.findIndex(phases, phase => {
     return phase.name === phaseName
