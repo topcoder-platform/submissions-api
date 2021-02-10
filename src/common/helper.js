@@ -31,8 +31,8 @@ let busApiClient
  * @param {Function} fn the generator function
  * @returns {Function} the wrapped function
  */
-function wrapExpress(fn) {
-  return function wrap(req, res, next) {
+function wrapExpress (fn) {
+  return function wrap (req, res, next) {
     co(fn(req, res, next)).catch(next)
   }
 }
@@ -42,7 +42,7 @@ function wrapExpress(fn) {
  * @param obj the object (controller exports)
  * @returns {Object|Array} the wrapped object
  */
-function autoWrapExpress(obj) {
+function autoWrapExpress (obj) {
   if (_.isArray(obj)) {
     return obj.map(autoWrapExpress)
   }
@@ -62,7 +62,7 @@ function autoWrapExpress(obj) {
  * Get Bus API Client
  * @return {Object} Bus API Client Instance
 */
-function getBusApiClient() {
+function getBusApiClient () {
   // If there is no Client instance, Create a new instance
   if (!busApiClient) {
     logger.debug(`Creating Bus API client for ${config.BUSAPI_URL} `)
@@ -80,7 +80,7 @@ function getBusApiClient() {
  * Get ES Client
  * @return {Object} Elastic Host Client Instance
  */
-function getEsClient() {
+function getEsClient () {
   const esHost = config.get('esConfig.HOST')
   if (!esClients.client) {
     // AWS ES configuration is different from other providers
@@ -109,7 +109,7 @@ function getEsClient() {
  * @param str Input string
  * @returns string String converted into camelCase
  */
-function camelize(str) {
+function camelize (str) {
   return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
     if (+match === 0) return '' // or if (/\s+/.test(match)) for white spaces
     return index === 0 ? match.toLowerCase() : match.toUpperCase()
@@ -122,7 +122,7 @@ function camelize(str) {
  * @param  {String} actResource Resource name in ES
  * @return {Object} search request body that can be passed to ES
  */
-function prepESFilter(query, actResource) {
+function prepESFilter (query, actResource) {
   const pageSize = query.perPage || config.get('PAGE_SIZE')
   const page = query.page || 1
   const { sortBy, orderBy } = query
@@ -220,7 +220,7 @@ function prepESFilter(query, actResource) {
  * @param  {String} resource Resource name in ES
  * @return {Object} Data fetched from ES based on the filters
  */
-function* fetchFromES(query, resource) {
+function * fetchFromES (query, resource) {
   const esClient = getEsClient()
   // Construct ES filter
   const filter = prepESFilter(query, resource)
@@ -244,7 +244,7 @@ function* fetchFromES(query, resource) {
  * @param res HTTP response
  * @param {Object} data Data for which pagination need to be applied
  */
-function setPaginationHeaders(req, res, data) {
+function setPaginationHeaders (req, res, data) {
   const totalPages = Math.ceil(data.total / data.pageSize)
   let fullUrl = req.protocol + '://' + req.get('host') + req.url.replace(`&page=${data.page}`, '')
   // URL formatting to add pagination parameters accordingly
@@ -295,7 +295,7 @@ function setPaginationHeaders(req, res, data) {
 /* Function to get M2M token
  * @returns {Promise}
  */
-function* getM2Mtoken() {
+function * getM2Mtoken () {
   return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
 }
 
@@ -304,7 +304,7 @@ function* getM2Mtoken() {
  * @param {String} challengeId Challenge ID
  * @returns {String} Legacy Challenge ID of the given challengeId
  */
-function* getLegacyChallengeId(challengeId) {
+function * getLegacyChallengeId (challengeId) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
     const token = yield getM2Mtoken()
@@ -328,7 +328,7 @@ function* getLegacyChallengeId(challengeId) {
  * @param {Integer} challengeId Challenge ID
  * @returns {String} v5 uuid Challenge ID of the given challengeId
  */
-function* getV5ChallengeId(challengeId) {
+function * getV5ChallengeId (challengeId) {
   if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId))) {
     logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
     const token = yield getM2Mtoken()
@@ -336,7 +336,7 @@ function* getV5ChallengeId(challengeId) {
       const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
-      const v5Uuid = _.get(response, 'body.id')
+      const v5Uuid = _.get(response, 'body[0].id')
       logger.debug(`V5 challenge id is ${v5Uuid} for legacy challenge id ${challengeId}`)
       return v5Uuid
     } catch (err) {
@@ -352,7 +352,7 @@ function* getV5ChallengeId(challengeId) {
  * @param challengeId Challenge ID
  * @returns {Integer} Submission phase ID of the given challengeId
  */
-function* getSubmissionPhaseId(challengeId) {
+function * getSubmissionPhaseId (challengeId) {
   let phaseId = null
   let response
   challengeId = getV5ChallengeId(challengeId)
@@ -391,7 +391,7 @@ function* getSubmissionPhaseId(challengeId) {
  * @param subEntity Submission Entity
  * @returns {Promise}
  */
-function* checkCreateAccess(authUser, subEntity) {
+function * checkCreateAccess (authUser, subEntity) {
   let challengeDetails
   let resources
 
@@ -478,7 +478,7 @@ function* checkCreateAccess(authUser, subEntity) {
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function* checkGetAccess(authUser, submission) {
+function * checkGetAccess (authUser, submission) {
   let resources
   let challengeDetails
   // Allow downloading Own submission
@@ -595,7 +595,7 @@ function* checkGetAccess(authUser, submission) {
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function* checkReviewGetAccess(authUser, submission) {
+function * checkReviewGetAccess (authUser, submission) {
   let challengeDetails
   const token = yield getM2Mtoken()
   const challengeId = getV5ChallengeId(submission.challengeId)
@@ -635,7 +635,7 @@ function* checkReviewGetAccess(authUser, submission) {
  * @param{String} fileURL S3 URL of the file to be downloaded
  * @returns {Buffer} Buffer of downloaded file
  */
-function* downloadFile(fileURL) {
+function * downloadFile (fileURL) {
   const { bucket, key } = AmazonS3URI(fileURL)
   logger.info(`downloadFile(): file is on S3 ${bucket} / ${key}`)
   const downloadedFile = yield s3.getObject({ Bucket: bucket, Key: key }).promise()
@@ -648,7 +648,7 @@ function* downloadFile(fileURL) {
  * Also stores the original topic in the payload
  * @param {Object} payload Data that needs to be posted to the bus api
  */
-function* postToBusApi(payload) {
+function * postToBusApi (payload) {
   const busApiClient = getBusApiClient()
   const originalTopic = payload.topic
 
@@ -668,7 +668,7 @@ function* postToBusApi(payload) {
  * @param  {Array} reviews The reviews to remove metadata from
  * @param  {Object} authUser The authenticated user details
  */
-function cleanseReviews(reviews, authUser) {
+function cleanseReviews (reviews, authUser) {
   // Not a machine user
   if (!authUser.scopes) {
     const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
@@ -701,7 +701,7 @@ function cleanseReviews(reviews, authUser) {
  * Function to get role id to role name map
  * @returns {Object|null} <Role Id, Role Name> map
  */
-function* getRoleIdToRoleNameMap() {
+function * getRoleIdToRoleNameMap () {
   let resourceRoles
   let resourceRolesMap = null
   const token = yield getM2Mtoken()
@@ -729,7 +729,7 @@ function* getRoleIdToRoleNameMap() {
  * @param {Object} challengeDetails the challenge details
  * @returns {('Scheduled' | 'Open' | 'Closed' | 'Invalid')} status of the phase
  */
-function getPhaseStatus(phaseName, challengeDetails) {
+function getPhaseStatus (phaseName, challengeDetails) {
   const { phases } = challengeDetails
   const queriedPhaseIndex = _.findIndex(phases, phase => {
     return phase.name === phaseName
@@ -772,5 +772,6 @@ module.exports = {
   downloadFile,
   postToBusApi,
   cleanseReviews,
-  getRoleIdToRoleNameMap
+  getRoleIdToRoleNameMap,
+  getV5ChallengeId
 }

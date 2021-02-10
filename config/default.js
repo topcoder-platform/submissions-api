@@ -37,5 +37,7 @@ module.exports = {
   PAGE_SIZE: process.env.PAGE_SIZE || 20,
   MAX_PAGE_SIZE: parseInt(process.env.MAX_PAGE_SIZE) || 100,
   ES_BATCH_SIZE: process.env.ES_BATCH_SIZE || 250,
+  UPDATE_V5_CHALLENGE_BATCH_SIZE: process.env.UPDATE_V5_CHALLENGE_BATCH_SIZE || 250,
+  SUBMISSION_TABLE_NAME: process.env.SUBMISSION_TABLE_NAME || 'Submission',
   AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL
 }
