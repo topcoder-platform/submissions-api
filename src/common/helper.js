@@ -355,7 +355,7 @@ function * getV5ChallengeId (challengeId) {
 function * getSubmissionPhaseId (challengeId) {
   let phaseId = null
   let response
-  challengeId = getV5ChallengeId(challengeId)
+  challengeId = yield getV5ChallengeId(challengeId)
 
   try {
     logger.info(`Calling to challenge API to find submission phase Id for ${challengeId}`)
@@ -395,7 +395,7 @@ function * checkCreateAccess (authUser, subEntity) {
   let challengeDetails
   let resources
 
-  const challengeId = getV5ChallengeId(subEntity.challengeId)
+  const challengeId = yield getV5ChallengeId(subEntity.challengeId)
 
   // User can only create submission for themselves
   if (authUser.userId !== subEntity.memberId) {
@@ -487,7 +487,7 @@ function * checkGetAccess (authUser, submission) {
   }
 
   const token = yield getM2Mtoken()
-  const challengeId = getV5ChallengeId(submission.challengeId)
+  const challengeId = yield getV5ChallengeId(submission.challengeId)
 
   try {
     resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
@@ -598,7 +598,7 @@ function * checkGetAccess (authUser, submission) {
 function * checkReviewGetAccess (authUser, submission) {
   let challengeDetails
   const token = yield getM2Mtoken()
-  const challengeId = getV5ChallengeId(submission.challengeId)
+  const challengeId = yield getV5ChallengeId(submission.challengeId)
 
   try {
     challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
@@ -757,6 +757,17 @@ function getPhaseStatus (phaseName, challengeDetails) {
   }
 }
 
+/**
+ * Change challengeId to v5ChallengeId and legacyChallengeId to challengeId
+ * @param {Object} submission
+ */
+function adjustSubmissionChallengeId (submission) {
+  if (submission.challengeId && submission.legacyChallengeId) {
+    submission.v5ChallengeId = submission.challengeId
+    submission.challengeId = submission.legacyChallengeId
+  }
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -773,5 +784,6 @@ module.exports = {
   postToBusApi,
   cleanseReviews,
   getRoleIdToRoleNameMap,
-  getV5ChallengeId
+  getV5ChallengeId,
+  adjustSubmissionChallengeId
 }
