@@ -183,9 +183,9 @@ function * downloadSubmission (authUser, submissionId) {
  */
 function * listSubmissions (authUser, query) {
   if (query.challengeId) {
-    // Submission api only works with legacy challenge id
-    // If it is a v5 challenge id, get the associated legacy challenge id
-    query.challengeId = yield helper.getLegacyChallengeId(query.challengeId)
+    // Submission api now only works with v5 challenge id
+    // If it is a legacy challenge id, get the associated v5 challenge id
+    query.challengeId = yield helper.getV5ChallengeId(query.challengeId)
   }
 
   const data = yield helper.fetchFromES(query, helper.camelize(table))
