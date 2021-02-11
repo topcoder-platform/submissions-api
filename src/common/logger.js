@@ -10,7 +10,7 @@ const config = require('config')
 const getParams = require('get-parameter-names')
 
 const transports = []
-if (!config.DISABLE_LOGGING) {
+if (!JSON.parse(config.DISABLE_LOGGING)) {
   transports.push(new (winston.transports.Console)({ level: config.LOG_LEVEL }))
 }
 const logger = new (winston.Logger)({ transports })
