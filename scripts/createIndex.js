@@ -18,6 +18,7 @@ co(function * createIndex () {
     properties: {
       resource: { type: 'keyword' },
       challengeId: { type: 'keyword' },
+      legacyChallengeId: { type: 'keyword' },
       memberId: { type: 'keyword' },
       type: { type: 'keyword' },
       isFileSubmission: { type: 'boolean' },

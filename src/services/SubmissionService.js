@@ -154,6 +154,7 @@ function * getSubmission (authUser, submissionId) {
 
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
+  helper.adjustSubmissionChallengeId(submissionRecord)
   return submissionRecord
 }
 
@@ -194,6 +195,7 @@ function * listSubmissions (authUser, query) {
     if (submission.review) {
       submission.review = helper.cleanseReviews(submission.review, authUser)
     }
+    helper.adjustSubmissionChallengeId(submission)
     return submission
   })
   return data
@@ -270,8 +272,8 @@ function * createSubmission (authUser, files, entity) {
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
-  const challengeId = yield helper.getLegacyChallengeId(entity.challengeId)
-
+  const challengeId = yield helper.getV5ChallengeId(entity.challengeId)
+  const legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
   const currDate = (new Date()).toISOString()
 
   const item = {
@@ -279,7 +281,8 @@ function * createSubmission (authUser, files, entity) {
     type: entity.type,
     url: url,
     memberId: entity.memberId,
-    challengeId: challengeId,
+    challengeId,
+    legacyChallengeId,
     created: currDate,
     updated: currDate,
     createdBy: authUser.handle || authUser.sub,
@@ -297,7 +300,7 @@ function * createSubmission (authUser, files, entity) {
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
   } else {
-    item.submissionPhaseId = yield helper.getSubmissionPhaseId(challengeId)
+    item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
   }
 
   if (entity.fileType) {
@@ -328,6 +331,9 @@ function * createSubmission (authUser, files, entity) {
 
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
   yield dbhelper.insertRecord(record)
+
+  // After save to db, adjust challengeId to busApi and response
+  helper.adjustSubmissionChallengeId(item)
 
   // Push Submission created event to Bus API
   // Request body for Posting to Bus API
@@ -391,13 +397,13 @@ function * _updateSubmission (authUser, submissionId, entity) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
-  if (entity.challengeId) {
-    // Submission api only works with legacy challenge id
-    // If it is a v5 challenge id, get the associated legacy challenge id
-    entity.challengeId = yield helper.getLegacyChallengeId(entity.challengeId)
-  }
-
   const currDate = (new Date()).toISOString()
+  let challengeId = exist.challengeId
+  let legacyChallengeId = exist.legacyChallengeId
+  if (entity.challengeId) {
+    challengeId = yield helper.getV5ChallengeId(entity.challengeId)
+    legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
+  }
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -405,12 +411,13 @@ function * _updateSubmission (authUser, submissionId, entity) {
       id: submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
-                        updated = :ua, updatedBy = :ub, submittedDate = :sb`,
+                        legacyChallengeId = :lc, updated = :ua, updatedBy = :ub, submittedDate = :sb`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
       ':m': entity.memberId || exist.memberId,
-      ':c': entity.challengeId || exist.challengeId,
+      ':c': challengeId,
+      ':lc': legacyChallengeId,
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub,
       ':sb': entity.submittedDate || exist.submittedDate || exist.created
@@ -444,6 +451,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   yield dbhelper.updateRecord(record)
   const updatedSub = yield _getSubmission(submissionId)
 
+  helper.adjustSubmissionChallengeId(updatedSub)
   // Push Submission updated event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
@@ -455,6 +463,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
       resource: helper.camelize(table),
       id: submissionId,
       challengeId: updatedSub.challengeId,
+      v5ChallengeId: updatedSub.v5ChallengeId,
       memberId: updatedSub.memberId,
       submissionPhaseId: updatedSub.submissionPhaseId,
       type: updatedSub.type,
@@ -473,7 +482,9 @@ function * _updateSubmission (authUser, submissionId, entity) {
     {
       updated: currDate,
       updatedBy: authUser.handle || authUser.sub,
-      submittedDate: updatedSub.submittedDate
+      submittedDate: updatedSub.submittedDate,
+      challengeId: updatedSub.challengeId,
+      v5ChallengeId: updatedSub.v5ChallengeId
     }
   )
 }
