@@ -225,6 +225,7 @@ function * fetchFromES (query, resource) {
   // Construct ES filter
   const filter = prepESFilter(query, resource)
   // Search with constructed filter
+  logger.debug(`The elasticsearch query is ${JSON.stringify(filter)}`)
   const docs = yield esClient.search(filter)
   // Extract data from hits
   const rows = _.map(docs.hits.hits, single => single._source)
