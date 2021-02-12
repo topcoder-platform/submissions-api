@@ -17,7 +17,7 @@ const esClient = helper.getEsClient()
  * @returns {Promise}
  */
 function * migrateRecords (tableName) {
-  let promises = []
+  let body = []
   let batchCounter = 1
   const params = {
     TableName: tableName
@@ -28,21 +28,23 @@ function * migrateRecords (tableName) {
     logger.debug(`Number of ${tableName}s currently fetched from DB - ` + records.Items.length)
     let i = 0
     for (const item of records.Items) {
-      const record = {
-        index: config.get('esConfig.ES_INDEX'),
-        type: config.get('esConfig.ES_TYPE'),
-        id: item.id,
-        body: {
-          doc: _.extend({ resource: helper.camelize(tableName) }, item),
-          doc_as_upsert: true
+      // action
+      body.push({
+        index: {
+          _id: item.id
         }
-      }
-      promises.push(esClient.update(record))
+      })
+      // data
+      body.push(_.extend({ resource: helper.camelize(tableName) }, item))
 
       if (i % config.ES_BATCH_SIZE === 0) {
         logger.debug(`${tableName} - Processing batch # ` + batchCounter)
-        yield promises
-        promises = []
+        yield esClient.bulk({
+          index: config.get('esConfig.ES_INDEX'),
+          type: config.get('esConfig.ES_TYPE'),
+          body
+        })
+        body = []
         batchCounter++
       }
       i++
@@ -52,8 +54,13 @@ function * migrateRecords (tableName) {
     if (typeof records.LastEvaluatedKey !== 'undefined') {
       params.ExclusiveStartKey = records.LastEvaluatedKey
     } else {
-      if (promises.length > 0) {
-        yield promises
+      if (body.length > 0) {
+        logger.debug(`${tableName} - Final batch processing...`)
+        yield esClient.bulk({
+          index: config.get('esConfig.ES_INDEX'),
+          type: config.get('esConfig.ES_TYPE'),
+          body
+        })
       }
       break // If there are no more records to process, exit the loop
     }

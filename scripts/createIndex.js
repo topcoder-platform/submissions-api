@@ -33,7 +33,7 @@ co(function * createIndex () {
       aggregateScore: { type: 'float' },
       isPassing: { type: 'boolean' },
       legacySubmissionId: { type: 'keyword' },
-      submissionPhaseId: { type: 'long' },
+      submissionPhaseId: { type: 'keyword' },
       fileType: { type: 'keyword' },
       filename: { type: 'keyword' },
       review: { type: 'nested' },
