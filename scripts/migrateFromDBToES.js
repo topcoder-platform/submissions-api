@@ -25,15 +25,15 @@ function * migrateRecords (tableName) {
   // Process until all the records from DB is fetched
   while (true) {
     const records = yield dbhelper.scanRecords(params)
-    const totalRecords = records.Items.length
-    logger.debug(`Number of ${tableName}s fetched from DB - ` + totalRecords)
-    for (let i = 0; i < totalRecords; i++) {
+    logger.debug(`Number of ${tableName}s currently fetched from DB - ` + records.Items.length)
+    let i = 0
+    for (const item of records.Items) {
       const record = {
         index: config.get('esConfig.ES_INDEX'),
         type: config.get('esConfig.ES_TYPE'),
-        id: records.Items[i].id,
+        id: item.id,
         body: {
-          doc: _.extend({ resource: helper.camelize(tableName) }, records.Items[i]),
+          doc: _.extend({ resource: helper.camelize(tableName) }, item),
           doc_as_upsert: true
         }
       }
@@ -45,12 +45,16 @@ function * migrateRecords (tableName) {
         promises = []
         batchCounter++
       }
+      i++
     }
 
     // Continue fetching the remaining records from Database
     if (typeof records.LastEvaluatedKey !== 'undefined') {
       params.ExclusiveStartKey = records.LastEvaluatedKey
     } else {
+      if (promises.length > 0) {
+        yield promises
+      }
       break // If there are no more records to process, exit the loop
     }
   }
