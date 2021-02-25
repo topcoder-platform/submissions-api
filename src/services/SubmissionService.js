@@ -154,6 +154,7 @@ function * getSubmission (authUser, submissionId) {
 
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
+  helper.adjustSubmissionChallengeId(submissionRecord)
   return submissionRecord
 }
 
@@ -182,9 +183,9 @@ function * downloadSubmission (authUser, submissionId) {
  */
 function * listSubmissions (authUser, query) {
   if (query.challengeId) {
-    // Submission api only works with legacy challenge id
-    // If it is a v5 challenge id, get the associated legacy challenge id
-    query.challengeId = yield helper.getLegacyChallengeId(query.challengeId)
+    // Submission api now only works with v5 challenge id
+    // If it is a legacy challenge id, get the associated v5 challenge id
+    query.challengeId = yield helper.getV5ChallengeId(query.challengeId)
   }
 
   const data = yield helper.fetchFromES(query, helper.camelize(table))
@@ -194,6 +195,7 @@ function * listSubmissions (authUser, query) {
     if (submission.review) {
       submission.review = helper.cleanseReviews(submission.review, authUser)
     }
+    helper.adjustSubmissionChallengeId(submission)
     return submission
   })
   return data
@@ -270,8 +272,8 @@ function * createSubmission (authUser, files, entity) {
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
-  const challengeId = yield helper.getLegacyChallengeId(entity.challengeId)
-
+  const challengeId = yield helper.getV5ChallengeId(entity.challengeId)
+  const legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
   const currDate = (new Date()).toISOString()
 
   const item = {
@@ -279,7 +281,8 @@ function * createSubmission (authUser, files, entity) {
     type: entity.type,
     url: url,
     memberId: entity.memberId,
-    challengeId: challengeId,
+    challengeId,
+    legacyChallengeId,
     created: currDate,
     updated: currDate,
     createdBy: authUser.handle || authUser.sub,
@@ -297,7 +300,7 @@ function * createSubmission (authUser, files, entity) {
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
   } else {
-    item.submissionPhaseId = yield helper.getSubmissionPhaseId(challengeId)
+    item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
   }
 
   if (entity.fileType) {
@@ -310,9 +313,15 @@ function * createSubmission (authUser, files, entity) {
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
     yield helper.checkCreateAccess(authUser, item)
+
+    if (entity.submittedDate) {
+      throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')
+    }
   } else {
     logger.info(`No need to call checkCreateAccess for ${JSON.stringify(authUser)}`)
   }
+
+  item.submittedDate = entity.submittedDate || item.created
 
   // Prepare record to be inserted
   const record = {
@@ -322,6 +331,9 @@ function * createSubmission (authUser, files, entity) {
 
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
   yield dbhelper.insertRecord(record)
+
+  // After save to db, adjust challengeId to busApi and response
+  helper.adjustSubmissionChallengeId(item)
 
   // Push Submission created event to Bus API
   // Request body for Posting to Bus API
@@ -363,7 +375,8 @@ createSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.id()
+    submissionPhaseId: joi.id(),
+    submittedDate: joi.string()
   }).required()
 }
 
@@ -384,13 +397,13 @@ function * _updateSubmission (authUser, submissionId, entity) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
-  if (entity.challengeId) {
-    // Submission api only works with legacy challenge id
-    // If it is a v5 challenge id, get the associated legacy challenge id
-    entity.challengeId = yield helper.getLegacyChallengeId(entity.challengeId)
-  }
-
   const currDate = (new Date()).toISOString()
+  let challengeId = exist.challengeId
+  let legacyChallengeId = exist.legacyChallengeId
+  if (entity.challengeId) {
+    challengeId = yield helper.getV5ChallengeId(entity.challengeId)
+    legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
+  }
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -398,14 +411,16 @@ function * _updateSubmission (authUser, submissionId, entity) {
       id: submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
-                        updated = :ua, updatedBy = :ub`,
+                        legacyChallengeId = :lc, updated = :ua, updatedBy = :ub, submittedDate = :sb`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
       ':m': entity.memberId || exist.memberId,
-      ':c': entity.challengeId || exist.challengeId,
+      ':c': challengeId,
+      ':lc': legacyChallengeId,
       ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub
+      ':ub': authUser.handle || authUser.sub,
+      ':sb': entity.submittedDate || exist.submittedDate || exist.created
     },
     ExpressionAttributeNames: {
       '#type': 'type',
@@ -436,6 +451,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   yield dbhelper.updateRecord(record)
   const updatedSub = yield _getSubmission(submissionId)
 
+  helper.adjustSubmissionChallengeId(updatedSub)
   // Push Submission updated event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
@@ -447,9 +463,11 @@ function * _updateSubmission (authUser, submissionId, entity) {
       resource: helper.camelize(table),
       id: submissionId,
       challengeId: updatedSub.challengeId,
+      v5ChallengeId: updatedSub.v5ChallengeId,
       memberId: updatedSub.memberId,
       submissionPhaseId: updatedSub.submissionPhaseId,
-      type: updatedSub.type
+      type: updatedSub.type,
+      submittedDate: updatedSub.submittedDate
     }, entity)
   }
 
@@ -458,7 +476,17 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, { updated: currDate, updatedBy: authUser.handle || authUser.sub })
+  return _.extend(
+    exist,
+    entity,
+    {
+      updated: currDate,
+      updatedBy: authUser.handle || authUser.sub,
+      submittedDate: updatedSub.submittedDate,
+      challengeId: updatedSub.challengeId,
+      v5ChallengeId: updatedSub.v5ChallengeId
+    }
+  )
 }
 
 /**
@@ -482,7 +510,8 @@ updateSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.id()
+    submissionPhaseId: joi.id(),
+    submittedDate: joi.string()
   }).required()
 }
 
@@ -507,7 +536,8 @@ patchSubmission.schema = {
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    submissionPhaseId: joi.id()
+    submissionPhaseId: joi.id(),
+    submittedDate: joi.string()
   })
 }
 
