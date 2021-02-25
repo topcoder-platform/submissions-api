@@ -12,10 +12,18 @@ const helper = require('../src/common/helper')
 /**
  * Update Submission's challenge id to v5
  * @param {Object} submission The submission record
+ * @param {Array} failedContainer The failed records container
  * @returns {Promise}
  */
-function * updateRecord (submission) {
-  const v5challengeId = yield helper.getV5ChallengeId(submission.challengeId)
+function * updateRecord (submission, failedContainer) {
+  let v5challengeId
+  try {
+    v5challengeId = yield helper.getV5ChallengeId(submission.challengeId)
+  } catch (err) {
+    logger.error(`fetching the details of the challenge(${submission.challengeId}) failed, ${err.message}`)
+    failedContainer.push(submission)
+    return
+  }
   const record = {
     TableName: 'Submission',
     Key: {
@@ -29,7 +37,7 @@ function * updateRecord (submission) {
   }
   if (!v5challengeId) {
     logger.warn(`the challengeId: ${submission.challengeId} is not having a v5 challengeId`)
-
+    failedContainer.push(submission)
     return
   } else if (v5challengeId === submission.challengeId) {
     logger.info(`the challengeId: ${submission.challengeId} is already a v5 challengeId`)
@@ -44,18 +52,21 @@ function * updateRecord (submission) {
  */
 function * updateRecords () {
   const tableName = config.SUBMISSION_TABLE_NAME
-  let promises = []
+  const promises = []
+  const failedRecords = []
   const params = {
     TableName: tableName
   }
   // Process until all the records from DB is fetched
-  while (true) {
+  let i = 20
+  while (i > 10) {
+    i--
     const records = yield dbhelper.scanRecords(params)
     const totalRecords = records.Items.length
     logger.debug(`Number of ${tableName}s fetched from DB - ${totalRecords}. More fetch iterations may follow (pagination in progress)`)
     for (let i = 0; i < totalRecords; i++) {
       const record = records.Items[i]
-      promises.push(updateRecord(record))
+      promises.push(updateRecord(record, failedRecords))
     }
     // Continue fetching the remaining records from Database
     if (typeof records.LastEvaluatedKey !== 'undefined') {
@@ -68,6 +79,11 @@ function * updateRecords () {
   const paraRecords = _.chunk(promises, config.UPDATE_V5_CHALLENGE_BATCH_SIZE)
   for (const rs of paraRecords) {
     yield rs
+  }
+  logger.info(`Processed ${promises.length - failedRecords.length} records successfully`)
+  if (failedRecords.length > 0) {
+    logger.warn(`Processing of ${failedRecords.length} records failed`)
+    logger.info(`Failed records: ${_.join(_.map(failedRecords, f => JSON.stringify(_.pick(f, ['id', 'challengeId'])), ','))}`)
   }
 }
 
