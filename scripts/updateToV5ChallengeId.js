@@ -58,9 +58,7 @@ function * updateRecords () {
     TableName: tableName
   }
   // Process until all the records from DB is fetched
-  let i = 20
-  while (i > 10) {
-    i--
+  while (true) {
     const records = yield dbhelper.scanRecords(params)
     const totalRecords = records.Items.length
     logger.debug(`Number of ${tableName}s fetched from DB - ${totalRecords}. More fetch iterations may follow (pagination in progress)`)
