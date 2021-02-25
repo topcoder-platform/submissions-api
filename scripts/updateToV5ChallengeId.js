@@ -38,12 +38,11 @@ function * updateRecord (submission, failedContainer) {
   if (!v5challengeId) {
     logger.warn(`the challengeId: ${submission.challengeId} is not having a v5 challengeId`)
     failedContainer.push(submission)
-    return
   } else if (v5challengeId === submission.challengeId) {
     logger.info(`the challengeId: ${submission.challengeId} is already a v5 challengeId`)
+  } else {
+    yield dbhelper.updateRecord(record)
   }
-
-  yield dbhelper.updateRecord(record)
 }
 
 /*
