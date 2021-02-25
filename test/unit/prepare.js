@@ -34,16 +34,6 @@ prepare(function (done) {
     }
   })
 
-  AWS.mock('DynamoDB.DocumentClient', 'query', (params, callback) => {
-    if (params.ExpressionAttributeValues[':p_submissionId'] === testData.nonExSubmissionId) {
-      callback(null, {
-        Count: 0
-      })
-    } else if (params.ExpressionAttributeValues[':p_submissionId'] === testData.testSubmission.Item.id) {
-      callback(null, [])
-    }
-  })
-
   AWS.mock('DynamoDB.DocumentClient', 'put', (params, callback) => {
     callback(null, {})
   })
@@ -80,9 +70,7 @@ prepare(function (done) {
   // Mock Posting to Bus API and ES interactions
   const authUrl = URL.parse(config.AUTH0_URL)
   const busUrl = URL.parse(config.BUSAPI_EVENTS_URL)
-  const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_V5_URL}/c3564180-65aa-42ec-a945-5fd21dec0502`)
-  const resourcesApi = URL.parse(`${config.BUSAPI_URL}/resources?challengeId=c3564180-65aa-42ec-a945-5fd21dec0502`)
-  const resourceRolesApi = URL.parse(`${config.BUSAPI_URL}/resource-roles`)
+  const challengeApiUrl = URL.parse(`${config.CHALLENGEAPI_URL}/30049360/phases`)
 
   nock(/.com/)
     .persist()
@@ -103,15 +91,11 @@ prepare(function (done) {
       return body
     })
     .post(authUrl.path)
-    .reply(200, { access_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2FwaS50b3Bjb2Rlci5jb20nIiwiaWF0IjoxNjEyMjg0NDIyLCJleHAiOjE2MTIyODgyODEsInVzZXJJZCI6IjQwNDMzMjg4IiwiZW1haWwiOiJhZG1pbkB0b3Bjb2Rlci5jb20iLCJqdGkiOiJjM2FjNjA4YS01NmJlLTQ1ZDAtOGY2YS0zMWZlOTRiOTU2MWMiLCJyb2xlcyI6IltcIkFkbWluaXN0cmF0b3JcIl0iLCJoYW5kbGUiOiJUb255SiJ9.7MLAeTtAxS-RvQWA2fEoS2va7mOLd_n-COnDWzLVQ_s' })
+    .reply(200, { access_token: 'test' })
     .post(busUrl.path)
     .reply(204)
     .get(challengeApiUrl.path)
     .reply(200, testData.testChallengeAPIResponse)
-    .get(resourcesApi.path)
-    .reply(200, testData.testChallengeResources)
-    .get(resourceRolesApi.path)
-    .reply(200, testData.testResourceRoles)
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'reviewType')
     .query(true)
     .reply(200, testData.testReviewTypesES)

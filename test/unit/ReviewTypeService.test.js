@@ -429,12 +429,13 @@ describe('ReviewType Service tests', () => {
         })
     })
 
-    it('Getting review types with user token should return 200', (done) => {
+    it('Getting review types with user token should throw 403', (done) => {
       chai.request(app)
         .get(`${config.API_VERSION}/reviewTypes`)
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
-          res.should.have.status(200)
+          res.should.have.status(403)
+          res.body.message.should.be.eql('You are not allowed to perform this action!')
           done()
         })
     })

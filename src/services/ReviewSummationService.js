@@ -102,14 +102,6 @@ function * createReviewSummation (authUser, entity) {
     item.isFinal = entity.isFinal
   }
 
-  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
-    if (entity.reviewedDate) {
-      throw new errors.HttpStatusError(403, 'You are not allowed to set the `reviewedDate` attribute on a review summation')
-    }
-  }
-
-  item.reviewedDate = entity.reviewedDate || item.created
-
   const record = {
     TableName: table,
     Item: item
@@ -143,8 +135,7 @@ createReviewSummation.schema = {
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
     isFinal: joi.boolean(),
-    metadata: joi.object(),
-    reviewedDate: joi.string()
+    metadata: joi.object()
   }).required()
 }
 
@@ -182,15 +173,14 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       id: reviewSummationId
     },
     UpdateExpression: `set aggregateScore = :s, scoreCardId = :sc, submissionId = :su, 
-                        isPassing = :ip, updated = :ua, updatedBy = :ub, reviewedDate = :rd`,
+                        isPassing = :ip, updated = :ua, updatedBy = :ub`,
     ExpressionAttributeValues: {
       ':s': entity.aggregateScore || exist.aggregateScore,
       ':sc': entity.scoreCardId || exist.scoreCardId,
       ':su': entity.submissionId || exist.submissionId,
       ':ip': isPassing,
       ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub,
-      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created
+      ':ub': authUser.handle || authUser.sub
     }
   }
 
@@ -227,8 +217,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       resource: helper.camelize(table),
       id: reviewSummationId,
       updated: currDate,
-      updatedBy: authUser.handle || authUser.sub,
-      reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
+      updatedBy: authUser.handle || authUser.sub
     }, entity)
   }
 
@@ -237,15 +226,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(
-    exist,
-    entity,
-    {
-      updated: currDate,
-      updatedBy: authUser.handle || authUser.sub,
-      reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
-    }
-  )
+  return _.extend(exist, entity, { updated: currDate, updatedBy: authUser.handle || authUser.sub })
 }
 
 /**
@@ -268,8 +249,7 @@ updateReviewSummation.schema = {
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
     isFinal: joi.boolean(),
-    metadata: joi.object(),
-    reviewedDate: joi.string()
+    metadata: joi.object()
   }).required()
 }
 
@@ -293,8 +273,7 @@ patchReviewSummation.schema = {
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
     isFinal: joi.boolean(),
-    metadata: joi.object(),
-    reviewedDate: joi.string()
+    metadata: joi.object()
   })
 }
 

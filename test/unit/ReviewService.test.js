@@ -75,7 +75,8 @@ describe('Review Service tests', () => {
         .get(`${config.API_VERSION}/reviews/${testReview.Item.id}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
         .end((err, res) => {
-          res.body.should.have.all.keys(Object.keys(_.omit(testReview.Item, ['reviewedDate'])))
+          res.should.have.status(200)
+          res.body.should.have.all.keys(Object.keys(testReview.Item))
           res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)
@@ -98,7 +99,7 @@ describe('Review Service tests', () => {
         .send({})
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql('"typeId" is required')
+          res.body.message.should.be.eql('"score" is required')
           done()
         })
     })

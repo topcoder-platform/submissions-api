@@ -95,7 +95,6 @@ paths:
                 legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 submissionPhaseId: 764567
-                submittedDate: '2018-05-20T07:00:30.123Z'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'topcoder user'
@@ -108,7 +107,6 @@ paths:
                 legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
                 submissionPhaseId: 764567
-                submittedDate: '2018-05-20T08:00:30.000Z'
                 created: '2018-05-20T08:00:30.000Z'
                 updated: '2018-06-01T09:23:00.178Z'
                 createdBy: 'topcoder user'
@@ -207,7 +205,6 @@ paths:
         Create a new submission.
 
         **Authorization:** Submission creation is accessible by roles `topcoder user`, `admin` and `copilot`.
-        **Note** Value for `submittedDate` attribute can only be provided by users with `admin` role
       tags:
         - Submissions
       operationId: createSubmission
@@ -265,11 +262,6 @@ paths:
           name: submissionPhaseId
           type: integer
           description: Submission Phase Id
-        - in: formData
-          name: submittedDate
-          type: string
-          format: date-time
-          description: Date of submission (defaults to submission creation date if none passed)
       responses:
         201:
           description: Created - The request was successful and the resource is returned.
@@ -620,7 +612,6 @@ paths:
                 scoreCardId: 123456789
                 isPassing: false
                 isFinal: false
-                reviewedDate: '2018-05-20T07:00:30.123Z'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: copilot
@@ -631,7 +622,6 @@ paths:
                 scoreCardId: 123456789
                 isPassing: true
                 isFinal: true
-                reviewedDate: '2018-05-20T07:00:30.123Z'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: copilot
@@ -728,8 +718,6 @@ paths:
         Create a new review summation.
 
         **Authorization:** Review summation creation is accessible by roles `admin` and `copilot`.
-
-        **Note** Value for `reviewedDate` attribute can only be provided by users with `admin` role
       tags:
         - 'Review summations'
       operationId: createReviewSummation
@@ -943,7 +931,6 @@ paths:
                 scoreCardId: 123456789
                 submissionId: 'd67a4180-65aa-42ec-a945-5fd21dec0503'
                 status: 'queued'
-                reviewedDate: '2018-05-20T07:00:30.123Z'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'admin'
@@ -955,7 +942,6 @@ paths:
                 scoreCardId: 123456789
                 submissionId: 'd23a4180-65aa-42ec-a945-5fd21dec0503'
                 status: 'completed'
-                reviewedDate: '2018-05-20T07:00:30.123Z'
                 created: '2018-05-20T07:00:30.123Z'
                 updated: '2018-06-01T07:36:28.178Z'
                 createdBy: 'admin'
@@ -1052,8 +1038,6 @@ paths:
         Create a new review.
 
         **Authorization:** Review creation is accessible by roles `admin` and `copilot`.
-
-        **Note** Value for `reviewedDate` attribute can only be provided by users with `admin` role
       tags:
         - 'Reviews'
       operationId: createReview
@@ -1896,11 +1880,6 @@ definitions:
         type: integer
         description: The submission phase id.
         example: '5dea6d9e-161a-4c7a-b316-597c73a7b8f4'
-      submittedDate:
-        type: string
-        format: date-time
-        description: Date of submission (defaults to submission creation date if none passed)
-        example: '2018-05-20T07:00:30.123Z'
 
   UpdatableSubmission:
     description: The submission entity fields that updates whole entity.
@@ -1960,11 +1939,6 @@ definitions:
       metadata:
         type: object
         description: Review summation metadata in JSON format
-      reviewedDate:
-        type: string
-        format: date-time
-        description: Date of review summation (defaults to review summation creation date if none passed)
-        example: '2018-05-20T07:00:30.123Z'
 
   UpdatableReviewSummation:
     description: The review summation entity fields that updates whole entity.
@@ -2032,11 +2006,6 @@ definitions:
       metadata:
         type: object
         description: Review Metadata in JSON format
-      reviewedDate:
-        type: string
-        format: date-time
-        description: Date of review (defaults to review creation date if none passed)
-        example: '2018-05-20T07:00:30.123Z'
 
   UpdatableReview:
     description: The review entity fields that updates whole entity.

@@ -17,8 +17,7 @@ co(function * createIndex () {
     // fields not specified below will be 'text' by default
     properties: {
       resource: { type: 'keyword' },
-      challengeId: { type: 'keyword' },
-      legacyChallengeId: { type: 'keyword' },
+      challengeId: { type: 'long' },
       memberId: { type: 'keyword' },
       type: { type: 'keyword' },
       isFileSubmission: { type: 'boolean' },
@@ -33,7 +32,7 @@ co(function * createIndex () {
       aggregateScore: { type: 'float' },
       isPassing: { type: 'boolean' },
       legacySubmissionId: { type: 'keyword' },
-      submissionPhaseId: { type: 'keyword' },
+      submissionPhaseId: { type: 'long' },
       fileType: { type: 'keyword' },
       filename: { type: 'keyword' },
       review: { type: 'nested' },

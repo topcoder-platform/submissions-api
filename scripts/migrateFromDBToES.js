@@ -17,7 +17,7 @@ const esClient = helper.getEsClient()
  * @returns {Promise}
  */
 function * migrateRecords (tableName) {
-  let body = []
+  let promises = []
   let batchCounter = 1
   const params = {
     TableName: tableName
@@ -25,43 +25,32 @@ function * migrateRecords (tableName) {
   // Process until all the records from DB is fetched
   while (true) {
     const records = yield dbhelper.scanRecords(params)
-    logger.debug(`Number of ${tableName}s currently fetched from DB - ` + records.Items.length)
-    let i = 0
-    for (const item of records.Items) {
-      // action
-      body.push({
-        index: {
-          _id: item.id
+    const totalRecords = records.Items.length
+    logger.debug(`Number of ${tableName}s fetched from DB - ` + totalRecords)
+    for (let i = 0; i < totalRecords; i++) {
+      const record = {
+        index: config.get('esConfig.ES_INDEX'),
+        type: config.get('esConfig.ES_TYPE'),
+        id: records.Items[i].id,
+        body: {
+          doc: _.extend({ resource: helper.camelize(tableName) }, records.Items[i]),
+          doc_as_upsert: true
         }
-      })
-      // data
-      body.push(_.extend({ resource: helper.camelize(tableName) }, item))
+      }
+      promises.push(esClient.update(record))
 
       if (i % config.ES_BATCH_SIZE === 0) {
         logger.debug(`${tableName} - Processing batch # ` + batchCounter)
-        yield esClient.bulk({
-          index: config.get('esConfig.ES_INDEX'),
-          type: config.get('esConfig.ES_TYPE'),
-          body
-        })
-        body = []
+        yield promises
+        promises = []
         batchCounter++
       }
-      i++
     }
 
     // Continue fetching the remaining records from Database
     if (typeof records.LastEvaluatedKey !== 'undefined') {
       params.ExclusiveStartKey = records.LastEvaluatedKey
     } else {
-      if (body.length > 0) {
-        logger.debug(`${tableName} - Final batch processing...`)
-        yield esClient.bulk({
-          index: config.get('esConfig.ES_INDEX'),
-          type: config.get('esConfig.ES_TYPE'),
-          body
-        })
-      }
       break // If there are no more records to process, exit the loop
     }
   }
