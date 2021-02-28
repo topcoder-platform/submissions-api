@@ -180,6 +180,8 @@ To update the existing challengeId data on submissions in DynamoDB to v5 challen
 ```bash
 SUBMISSION_TABLE_NAME // Table name of the submission records. Defaults to 'Submission'
 UPDATE_V5_CHALLENGE_BATCH_SIZE // Number of records that are updated simultaneously. Defaults to 250
+FETCH_CREATED_DATE_START // The start day of fetch latest challenges. Defaults to '2021-01-01'
+FETCH_PAGE_SIZE // The page size of each api request. Defaults to 500
 ```
 
 

@@ -769,6 +769,32 @@ function adjustSubmissionChallengeId (submission) {
   }
 }
 
+/**
+ * Get all latest challenges
+ * @param {Number} page page index
+ * @returns {Array} an array of challenge
+ */
+function * getLatestChallenges (page) {
+  page = page || 1
+  const token = yield getM2Mtoken()
+  const url = `${config.CHALLENGEAPI_V5_URL}?createdDateStart=${config.FETCH_CREATED_DATE_START}&page=${page}&perPage=${config.FETCH_PAGE_SIZE}&isLightweight=true`
+  try {
+    const response = yield request.get(url)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+    const challenges = _.map(_.filter(_.get(response, 'body'), 'legacyId'), c => _.pick(c, 'id', 'legacyId'))
+    logger.debug(`Fetched ${challenges.length} challenges in this iteration. More may follow...`)
+    if (_.get(response, 'headers.x-total-pages') > page) {
+      const leftChallenges = yield getLatestChallenges(page + 1)
+      challenges.push(...leftChallenges)
+    }
+    return challenges
+  } catch (err) {
+    logger.error(`Error while accessing ${url}, message: ${err.message}`)
+    return []
+  }
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -786,5 +812,6 @@ module.exports = {
   cleanseReviews,
   getRoleIdToRoleNameMap,
   getV5ChallengeId,
-  adjustSubmissionChallengeId
+  adjustSubmissionChallengeId,
+  getLatestChallenges
 }
