@@ -15,6 +15,7 @@
     "init-es": "node scripts/loadES.js",
     "db-to-es": "node scripts/migrateFromDBToES.js",
     "update-to-v5-challengeId": "node scripts/updateToV5ChallengeId.js",
+    "update-to-v5-challengeId-v2": "node scripts/updateToV5ChallengeIdV2.js",
     "test": "mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
     "e2e": "mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit",
     "cov": "nyc --reporter=html --reporter=text mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
