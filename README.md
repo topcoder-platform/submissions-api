@@ -135,7 +135,6 @@ Please ensure to create the index `submission-test` or the index specified in th
 export ES_INDEX=submission-test
 ```
 
-
 #### Running unit tests and coverage
 
 To run unit tests alone
@@ -170,6 +169,26 @@ To migrate the existing data from DynamoDB to ES, run the following script
 
 ```
 npm run db-to-es
+```
+
+#### Store v5 challenge id for current records
+
+Submission API started off using the legacy challenge ids. With the v5 upgrade to the challenge api, we now need to make use of the v5 challenge ids. We have thus created a script to update existing `challengeId` attribute on submissions to v5 and store the older challenge ids in the `legacyChallengeId` attribute.
+
+To update the existing challengeId data on submissions in DynamoDB to v5 challengeId, set the following env variables:
+
+```bash
+SUBMISSION_TABLE_NAME // Table name of the submission records. Defaults to 'Submission'
+UPDATE_V5_CHALLENGE_BATCH_SIZE // Number of records that are updated simultaneously. Defaults to 250
+FETCH_CREATED_DATE_START // The start day of fetch latest challenges. Defaults to '2021-01-01'
+FETCH_PAGE_SIZE // The page size of each api request. Defaults to 500
+```
+
+
+and then run the following script
+
+```
+npm run update-to-v5-challengeId
 ```
 
 #### Swagger UI
