@@ -376,11 +376,11 @@ function * getSubmissionPhaseId (challengeId) {
     const submissionPh = _.filter(phases, { name: 'Submission', isOpen: true })
     const finalFixPh = _.filter(phases, { name: 'Final Fix', isOpen: true })
     if (checkPoint.length !== 0) {
-      phaseId = checkPoint[0].id
+      phaseId = _.get('checkPoint[0]', 'phaseId', null)
     } else if (submissionPh.length !== 0) {
-      phaseId = submissionPh[0].id
+      phaseId = _.get('submissionPh[0]', 'phaseId', null)
     } else if (finalFixPh.length !== 0) {
-      phaseId = finalFixPh[0].id
+      phaseId = _.get('finalFixPh[0]', 'phaseId', null)
     }
   }
   return phaseId
