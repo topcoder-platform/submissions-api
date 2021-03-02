@@ -459,7 +459,7 @@ function * checkCreateAccess (authUser, subEntity) {
       throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
     }
 
-    const currPhase = _.filter(phases, { id: submissionPhaseId })
+    const currPhase = _.filter(phases, { phaseId: submissionPhaseId })
 
     if (currPhase[0].name === 'Final Fix') {
       if (!authUser.handle.equals(winner[0].handle)) {
