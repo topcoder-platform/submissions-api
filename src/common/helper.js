@@ -376,11 +376,11 @@ function * getSubmissionPhaseId (challengeId) {
     const submissionPh = _.filter(phases, { name: 'Submission', isOpen: true })
     const finalFixPh = _.filter(phases, { name: 'Final Fix', isOpen: true })
     if (checkPoint.length !== 0) {
-      phaseId = checkPoint[0].id
+      phaseId = checkPoint[0].phaseId
     } else if (submissionPh.length !== 0) {
-      phaseId = submissionPh[0].id
+      phaseId = submissionPh[0].phaseId
     } else if (finalFixPh.length !== 0) {
-      phaseId = finalFixPh[0].id
+      phaseId = finalFixPh[0].phaseId
     }
   }
   return phaseId
@@ -459,7 +459,7 @@ function * checkCreateAccess (authUser, subEntity) {
       throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
     }
 
-    const currPhase = _.filter(phases, { id: submissionPhaseId })
+    const currPhase = _.filter(phases, { phaseId: submissionPhaseId })
 
     if (currPhase[0].name === 'Final Fix') {
       if (!authUser.handle.equals(winner[0].handle)) {
