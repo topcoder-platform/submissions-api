@@ -87,6 +87,12 @@ co(function * () {
   yield migrateRecords('Submission', t => {
     t.review = _.map(_.filter(reviews, ['submissionId', t.id]), r => _.omit(r, ['resource']))
     t.reviewSummation = _.map(_.filter(reviewSummations, ['submissionId', t.id]), r => _.omit(r, ['resource']))
+    if (_.isEmpty(t.review)) {
+      t = _.omit(t, ['review'])
+    }
+    if (_.isEmpty(t.reviewSummation)) {
+      t = _.omit(t, ['reviewSummation'])
+    }
     return t
   })
 }).catch((err) => {
