@@ -14,9 +14,10 @@ const esClient = helper.getEsClient()
 /*
  * Migrate records from DB to ES
  * @param tableName {String} DynamoDB table name
+ * @param customFunction {Function} custom function to handle record
  * @returns {Promise}
  */
-function * migrateRecords (tableName) {
+function * migrateRecords (tableName, customFunction) {
   let body = []
   let batchCounter = 1
   const params = {
@@ -27,7 +28,8 @@ function * migrateRecords (tableName) {
     const records = yield dbhelper.scanRecords(params)
     logger.debug(`Number of ${tableName}s currently fetched from DB - ` + records.Items.length)
     let i = 0
-    for (const item of records.Items) {
+    for (const recordItem of records.Items) {
+      const item = customFunction(recordItem)
       // action
       body.push({
         index: {
@@ -69,12 +71,30 @@ function * migrateRecords (tableName) {
 
 co(function * () {
   const promises = []
-  promises.push(migrateRecords('ReviewType'))
-  promises.push(migrateRecords('Submission'))
-  promises.push(migrateRecords('Review'))
-  promises.push(migrateRecords('ReviewSummation'))
+  const reviews = []
+  const reviewSummations = []
+  promises.push(migrateRecords('ReviewType', t => t))
+  promises.push(migrateRecords('Review', t => {
+    reviews.push(t)
+    return t
+  }))
+  promises.push(migrateRecords('ReviewSummation', t => {
+    reviewSummations.push(t)
+    return t
+  }))
   // Process migration in parallel
   yield promises
+  yield migrateRecords('Submission', t => {
+    t.review = _.map(_.filter(reviews, ['submissionId', t.id]), r => _.omit(r, ['resource']))
+    t.reviewSummation = _.map(_.filter(reviewSummations, ['submissionId', t.id]), r => _.omit(r, ['resource']))
+    if (_.isEmpty(t.review)) {
+      t = _.omit(t, ['review'])
+    }
+    if (_.isEmpty(t.reviewSummation)) {
+      t = _.omit(t, ['reviewSummation'])
+    }
+    return t
+  })
 }).catch((err) => {
   logger.logFullError(err)
 })
