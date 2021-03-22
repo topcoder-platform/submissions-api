@@ -71,7 +71,7 @@ function* updateRecords() {
   const queryParams = _.fromPairs(_.map(legacyChallengeIds, (c, i) => [`:challengeId${i}`, c]))
   const params = {
     TableName: tableName,
-    FilterExpression: `#challengeId IN (${_.join(_.keys(legacyChallengeIds), ',')})`,
+    FilterExpression: `#challengeId IN (${_.join(_.keys(queryParams), ',')})`,
     ExpressionAttributeNames: {
       '#challengeId': 'challengeId'
     },
