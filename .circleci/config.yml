@@ -67,7 +67,7 @@ workflows:
           context : org-global
           filters:
             branches:
-              only: ['develop']
+              only: ['develop', 'feature/migrate-small-chunks']
       - "build-prod":
           context : org-global
           filters:

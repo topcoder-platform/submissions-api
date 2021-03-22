@@ -17,7 +17,7 @@ const esClient = helper.getEsClient()
  * @param {Array} failedContainer The failed records container
  * @returns {Promise}
  */
-function * updateRecord (submission, failedContainer) {
+function* updateRecord(submission, failedContainer) {
   let v5challengeId
   try {
     v5challengeId = yield helper.getV5ChallengeId(submission.challengeId)
@@ -47,23 +47,23 @@ function * updateRecord (submission, failedContainer) {
 
   yield dbhelper.updateRecord(record)
   try {
-  const response = yield esClient.update({
-    index: config.get('esConfig.ES_INDEX'),
-    type: config.get('esConfig.ES_TYPE'),
-    id: submission.id,
-    body: { doc: {challengeId: v5challengeId, legacyChallengeId: submission.challengeId} }
-  })
-  logger.info(`updated ES for submission ${submission.id}, response: ${JSON.stringify(response)}`)
-} catch (error) {
-  logger.error(error.message)
-}
+    const response = yield esClient.update({
+      index: config.get('esConfig.ES_INDEX'),
+      type: config.get('esConfig.ES_TYPE'),
+      id: submission.id,
+      body: { doc: { challengeId: v5challengeId, legacyChallengeId: submission.challengeId } }
+    })
+    logger.info(`updated ES for submission ${submission.id}, response: ${JSON.stringify(response)}`)
+  } catch (error) {
+    logger.error(error.message)
+  }
 }
 
 /*
  * Update all submission's challenge id to v5
  * @returns {Promise}
  */
-function * updateRecords () {
+function* updateRecords() {
   const tableName = config.SUBMISSION_TABLE_NAME
   const promises = []
   const failedRecords = []
@@ -105,7 +105,7 @@ function * updateRecords () {
   }
 }
 
-co(function * () {
+co(function* () {
   yield updateRecords()
 }).catch((err) => {
   logger.logFullError(err)
