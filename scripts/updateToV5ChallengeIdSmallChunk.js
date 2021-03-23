@@ -67,7 +67,7 @@ function* updateRecords() {
   const tableName = config.SUBMISSION_TABLE_NAME
   const promises = []
   const failedRecords = []
-  const legacyChallengeIds = config.MIGRATE_CHALLENGES
+  const legacyChallengeIds = JSON.parse(config.MIGRATE_CHALLENGES)
   const queryParams = _.fromPairs(_.map(legacyChallengeIds, (c, i) => [`:challengeId${i}`, c]))
   const params = {
     TableName: tableName,
