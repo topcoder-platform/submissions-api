@@ -38,7 +38,7 @@
     "http-aws-es": "^6.0.0",
     "http-status": "^1.2.0",
     "joi": "^13.4.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "memwatch-next": "^0.3.0",
     "superagent": "^3.8.3",
     "swagger-ui-express": "^4.1.6",
