@@ -1,6 +1,6 @@
-swagger: '2.0'
+openapi: 3.0.0
 info:
-  description: |
+  description: >
     REST API for Topcoder Submissions.
 
     ### Pagination
@@ -9,339 +9,341 @@ info:
       size up to 100 with the `perPage` parameter.
 
       Pagination response data is included in http headers. By Default, the response header contains links with `next`, `last`, `first`, `prev` resource links.
-  version: '5.0.0'
-  title: 'Topcoder Submissions REST API'
-  termsOfService: 'http://topcoder.com/terms/'
-
+  version: 5.0.0
+  title: Topcoder Submissions REST API
+  termsOfService: http://topcoder.com/terms/
   contact:
-    url: 'http://www.topcoder.com/support'
+    url: http://www.topcoder.com/support
     email: support@topcoder.com
-
-schemes:
-  - https
-  - http
-produces:
-  - application/json
-consumes:
-  - application/json
 tags:
-  - name: 'Submissions'
+  - name: Submissions
     description: Everything about submissions.
-  - name: 'Review summations'
+  - name: Review summations
     description: Everything about review summations.
-  - name: 'Reviews'
+  - name: Reviews
     description: Everything about reviews.
-  - name: 'Review types'
+  - name: Review types
     description: Everything about review types.
-
-securityDefinitions:
-  Bearer:
-    type: apiKey
-    in: header
-    name: Authorization
-
 security:
   - Bearer: []
-
 paths:
   /submissions:
     get:
       summary: Get all submissions.
-      description: |
-        Get all submissions. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      description: >
+        Get all submissions. Link headers are sent back and they have rel set to
+        prev, next, first, last and contain the relevant URL.
+
 
         Resulted collection of submissions can be filtered using filter parameters `type`, `url`, `memberId`, `challengeId` (all filter parameters are optional and combined by the logical operation `AND`).
+
 
         **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
       tags:
         - Submissions
       operationId: getSubmissions
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        - $ref: '#/parameters/orderBy'
-        - $ref: '#/parameters/sortBy'
-        # filter parameters
-        - $ref: '#/parameters/filterSubmissionType'
-        - $ref: '#/parameters/filterSubmissionUrl'
-        - $ref: '#/parameters/filterSubmissionMemberId'
-        - $ref: '#/parameters/filterSubmissionChallengeId'
-        - $ref: '#/parameters/filterSubmissionLegacySubmissionId'
-        - $ref: '#/parameters/filterSubmissionLegacyUploadId'
-        - $ref: '#/parameters/filterSubmissionSubmissionPhaseId'
-        - $ref: '#/parameters/filterSubmissionReviewScore'
-        - $ref: '#/parameters/filterSubmissionReviewTypeId'
-        - $ref: '#/parameters/filterSubmissionReviewReviewerId'
-        - $ref: '#/parameters/filterSubmissionReviewScoreCardId'
-        - $ref: '#/parameters/filterSubmissionReviewSubmissionId'
-        - $ref: '#/parameters/filterSubmissionReviewStatus'
-        - $ref: '#/parameters/filterSubmissionReviewSummationScoreCardId'
-        - $ref: '#/parameters/filterSubmissionReviewSummationSubmissionId'
-        - $ref: '#/parameters/filterSubmissionReviewSummationAggregateScore'
-        - $ref: '#/parameters/filterSubmissionReviewSummationIsPassing'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/orderBy"
+        - $ref: "#/components/parameters/sortBy"
+        - $ref: "#/components/parameters/filterSubmissionType"
+        - $ref: "#/components/parameters/filterSubmissionUrl"
+        - $ref: "#/components/parameters/filterSubmissionMemberId"
+        - $ref: "#/components/parameters/filterSubmissionChallengeId"
+        - $ref: "#/components/parameters/filterSubmissionLegacySubmissionId"
+        - $ref: "#/components/parameters/filterSubmissionLegacyUploadId"
+        - $ref: "#/components/parameters/filterSubmissionSubmissionPhaseId"
+        - $ref: "#/components/parameters/filterSubmissionReviewScore"
+        - $ref: "#/components/parameters/filterSubmissionReviewTypeId"
+        - $ref: "#/components/parameters/filterSubmissionReviewReviewerId"
+        - $ref: "#/components/parameters/filterSubmissionReviewScoreCardId"
+        - $ref: "#/components/parameters/filterSubmissionReviewSubmissionId"
+        - $ref: "#/components/parameters/filterSubmissionReviewStatus"
+        - $ref: "#/components/parameters/filterSubmissionReviewSummationScoreCardId"
+        - $ref: "#/components/parameters/filterSubmissionReviewSummationSubmissionId"
+        - $ref: "#/components/parameters/filterSubmissionReviewSummationAggregateScore"
+        - $ref: "#/components/parameters/filterSubmissionReviewSummationIsPassing"
       responses:
-        200:
-          description: OK - the request was successful, the submissions resource are returned.
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Submission'
-            example:
-              - id: 'a12a4180-65aa-42ec-a945-5fd21dec0503'
-                type: ContestSubmission
-                url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456'
-                memberId: 'a12a4180-65aa-42ec-a945-5fd21dec0501'
-                challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                submissionPhaseId: 764567
-                submittedDate: '2018-05-20T07:00:30.123Z'
-                created: '2018-05-20T07:00:30.123Z'
-                updated: '2018-06-01T07:36:28.178Z'
-                createdBy: 'topcoder user'
-                updatedBy: 'topcoder user'
-              - id: 'a12a4180-65aa-42ec-a945-5fd21dec0513'
-                type: ContestSubmission
-                url: 'https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457'
-                memberId: 'a12a4180-65aa-42ec-a945-5fd21dec0552'
-                challengeId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                legacySubmissionId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                legacyUploadId: 'a12a4180-65aa-42ec-a945-5fd21dec0502'
-                submissionPhaseId: 764567
-                submittedDate: '2018-05-20T08:00:30.000Z'
-                created: '2018-05-20T08:00:30.000Z'
-                updated: '2018-06-01T09:23:00.178Z'
-                createdBy: 'topcoder user'
-                updatedBy: 'topcoder user'
+        "200":
+          description: OK - the request was successful, the submissions resource are
+            returned.
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        500:
-          $ref: '#/definitions/ServerError'
-
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Submission"
+                example:
+                  - id: a12a4180-65aa-42ec-a945-5fd21dec0503
+                    type: ContestSubmission
+                    url: https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123456
+                    memberId: a12a4180-65aa-42ec-a945-5fd21dec0501
+                    challengeId: a12a4180-65aa-42ec-a945-5fd21dec0502
+                    legacySubmissionId: a12a4180-65aa-42ec-a945-5fd21dec0502
+                    legacyUploadId: a12a4180-65aa-42ec-a945-5fd21dec0502
+                    submissionPhaseId: 764567
+                    submittedDate: 2018-05-20T07:00:30.123Z
+                    created: 2018-05-20T07:00:30.123Z
+                    updated: 2018-06-01T07:36:28.178Z
+                    createdBy: topcoder user
+                    updatedBy: topcoder user
+                  - id: a12a4180-65aa-42ec-a945-5fd21dec0513
+                    type: ContestSubmission
+                    url: https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123457
+                    memberId: a12a4180-65aa-42ec-a945-5fd21dec0552
+                    challengeId: a12a4180-65aa-42ec-a945-5fd21dec0502
+                    legacySubmissionId: a12a4180-65aa-42ec-a945-5fd21dec0502
+                    legacyUploadId: a12a4180-65aa-42ec-a945-5fd21dec0502
+                    submissionPhaseId: 764567
+                    submittedDate: 2018-05-20T08:00:30.000Z
+                    created: 2018-05-20T08:00:30.000Z
+                    updated: 2018-06-01T09:23:00.178Z
+                    createdBy: topcoder user
+                    updatedBy: topcoder user
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. Link
+        headers are sent back and they have rel set to prev, next, first, last
+        and contain the relevant URL.
+
 
         Requested submissions can be filtered using filter parameters `type`, `url`, `memberId`, `challengeId` (all filter parameters are optional and combined by the logical operation `AND`).
+
 
         **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
       tags:
         - Submissions
       operationId: headSubmissions
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        # filter parameters
-        - $ref: '#/parameters/filterSubmissionType'
-        - $ref: '#/parameters/filterSubmissionUrl'
-        - $ref: '#/parameters/filterSubmissionMemberId'
-        - $ref: '#/parameters/filterSubmissionChallengeId'
-        - $ref: '#/parameters/filterSubmissionLegacySubmissionId'
-        - $ref: '#/parameters/filterSubmissionLegacyUploadId'
-        - $ref: '#/parameters/filterSubmissionSubmissionPhaseId'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/filterSubmissionType"
+        - $ref: "#/components/parameters/filterSubmissionUrl"
+        - $ref: "#/components/parameters/filterSubmissionMemberId"
+        - $ref: "#/components/parameters/filterSubmissionChallengeId"
+        - $ref: "#/components/parameters/filterSubmissionLegacySubmissionId"
+        - $ref: "#/components/parameters/filterSubmissionLegacyUploadId"
+        - $ref: "#/components/parameters/filterSubmissionSubmissionPhaseId"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     post:
       summary: Create a submission.
-      description: |
+      description: >
         Create a new submission.
 
+
         **Authorization:** Submission creation is accessible by roles `topcoder user`, `admin` and `copilot`.
+
         **Note** Value for `submittedDate` attribute can only be provided by users with `admin` role
       tags:
         - Submissions
       operationId: createSubmission
-      consumes:
-         - multipart/form-data
-      parameters:
-        - in: formData
-          name: submission
-          type: file
-          required: false
-          description: The submission file to upload.
-        - in: formData
-          name: url
-          type: string
-          required: false
-          description: Submission file url.
-        - in: formData
-          name: fileType
-          type: string
-          description: File type of uploaded file or URL provided, Defaults to zip if not provided
-        - in: formData
-          name: type
-          type: string
-          required: true
-          description: Submission type.
-          enum:
-            - ContestSubmission
-        - in: formData
-          name: memberId
-          oneOf:
-            - type: string
-            - type: integer
-          required: true
-          description: Member Id.
-        - in: formData
-          name: challengeId
-          oneOf:
-            - type: string
-            - type: integer
-          required: true
-          description: Challenge Id.
-        - in: formData
-          name: legacySubmissionId
-          oneOf:
-            - type: string
-            - type: integer
-          description: Legacy Submission Id
-        - in: formData
-          name: legacyUploadId
-          oneOf:
-            - type: string
-            - type: integer
-          description: Legacy Submission Id
-        - in: formData
-          name: submissionPhaseId
-          type: integer
-          description: Submission Phase Id
-        - in: formData
-          name: submittedDate
-          type: string
-          format: date-time
-          description: Date of submission (defaults to submission creation date if none passed)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                submission:
+                  description: The submission file to upload.
+                  type: string
+                  format: binary
+                url:
+                  description: Submission file url.
+                  type: string
+                fileType:
+                  description: File type of uploaded file or URL provided, Defaults to zip
+                    if not provided
+                  type: string
+                type:
+                  description: Submission type.
+                  type: string
+                  enum:
+                    - ContestSubmission
+                memberId:
+                  description: Member Id.
+                  type: string
+                challengeId:
+                  description: Challenge Id.
+                  type: string
+                legacySubmissionId:
+                  description: Legacy Submission Id
+                  type: string
+                legacyUploadId:
+                  description: Legacy Submission Id
+                  type: string
+                submissionPhaseId:
+                  description: Submission Phase Id
+                  type: integer
+                submittedDate:
+                  description: Date of submission (defaults to submission creation date if
+                    none passed)
+                  type: string
+                  format: date-time
+              required:
+                - type
+                - memberId
+                - challengeId
       responses:
-        201:
+        "201":
           description: Created - The request was successful and the resource is returned.
-          schema:
-            $ref: '#/definitions/Submission'
           headers:
             Location:
-              type: string
-              description: The Location response header indicates the URL to redirect a page to or created resource. It only provides a meaning when served with a 3xx (redirection) or 201 (created) status response.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        409:
-          $ref: '#/definitions/Conflict'
-        500:
-          $ref: '#/definitions/ServerError'
-
-  /submissions/{submissionId}:
+              description: The Location response header indicates the URL to redirect a
+                page to or created resource. It only provides a meaning when
+                served with a 3xx (redirection) or 201 (created) status
+                response.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "409":
+          $ref: "#/components/schemas/Conflict"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/submissions/{submissionId}":
     get:
       summary: Get the submission.
-      description: |
+      description: >
         Get the submission by id.
+
 
         **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
       tags:
         - Submissions
       operationId: getSubmission
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
+        - $ref: "#/components/parameters/submissionIdParam"
       responses:
-        200:
+        "200":
           description: OK - the request was successful and the submission is returned.
-          schema:
-            $ref: '#/definitions/Submission'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. It does not contain response body.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. It does
+        not contain response body.
+
 
         **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
       tags:
         - Submissions
       operationId: headSubmission
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
+        - $ref: "#/components/parameters/submissionIdParam"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     put:
       summary: Update the submission.
       description: |
@@ -352,739 +354,817 @@ paths:
         - Submissions
       operationId: updateSubmission
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatableSubmission'
+        - $ref: "#/components/parameters/submissionIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatableSubmission"
+        required: true
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-
-          schema:
-            $ref: '#/definitions/Submission'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     patch:
       summary: Partially update the submission.
-      description: |
-        Allows to partially modify the submission with the provided request body properties.
+      description: >
+        Allows to partially modify the submission with the provided request body
+        properties.
+
 
         **Authorization:** Partially modify of submission is accessible only by `admin` role.
       tags:
         - Submissions
       operationId: partiallyUpdateSubmission
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PartiallySubmission'
+        - $ref: "#/components/parameters/submissionIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartiallySubmission"
+        required: true
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-
-          schema:
-            $ref: '#/definitions/Submission'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     delete:
       summary: Delete the submission.
-      description: |
+      description: >
         Delete the submission.
+
 
         **Authorization:** Submission deletion is accessible only by `admin` role.
       tags:
         - Submissions
       operationId: deleteSubmission
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
+        - $ref: "#/components/parameters/submissionIdParam"
       responses:
-        204:
-          $ref: '#/definitions/NoContent'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
-  /submissions/{submissionId}/download:
+        "204":
+          $ref: "#/components/schemas/NoContent"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/submissions/{submissionId}/download":
     get:
       summary: Download the Submission from S3
-      description: |
+      description: >
         Download the submission from S3 using id.
+
 
         **Authorization:** Submission is accessible by roles `topcoder user`, `admin` and `copilot`.
       tags:
         - Submissions
       operationId: downloadSubmission
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
+        - $ref: "#/components/parameters/submissionIdParam"
       responses:
-        200:
+        "200":
           description: Submission downloaded successfully
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-  /submissions/{submissionId}/artifacts:
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/submissions/{submissionId}/artifacts":
     post:
       summary: Create artifact for the given submission ID
-      description: |
+      description: >
         Create artifact in S3
-        
+
+
         **Authorization:** Create artifact follows the same authorization rules as Create submission
       tags:
         - Submissions
       operationId: createArtifact
-      consumes:
-         - multipart/form-data
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
-        - in: formData
-          name: artifact
-          type: file
-          required: true
-          description: Artifact to be uploaded. Pass the name of the artifact along with the data
+        - $ref: "#/components/parameters/submissionIdParam"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                artifact:
+                  description: Artifact to be uploaded. Pass the name of the artifact along
+                    with the data
+                  type: string
+                  format: binary
+              required:
+                - artifact
       responses:
-        200:
+        "200":
           description: Artifact created successfully
-          schema:
-            type: object
-            properties:
-              artifact:
-                type: string
-                description: Uploaded artifact name
-                example: c56a4180-65aa-42ec-a945-5fd21dec0503.json
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artifact:
+                    type: string
+                    description: Uploaded artifact name
+                    example: c56a4180-65aa-42ec-a945-5fd21dec0503.json
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     get:
       summary: List artifacts for the given Submission ID
-      description: |
+      description: >
         List artifacts for given Submission ID from S3
-        
+
+
         **Authorization:** List artifact follows the same authorization rules as Get submission
       tags:
         - Submissions
       operationId: listArtifacts
       parameters:
-         - $ref: '#/parameters/submissionIdParam'
+        - $ref: "#/components/parameters/submissionIdParam"
       responses:
-        200:
+        "200":
           description: Artifacts from S3 listed successfully
-          schema:
-            type: object
-            properties:
-              artifacts:
-                type: array
-                description: Artifact IDs list
-                items:
-                  type: string
-                  example: c56a4180-65aa-42ec-a945-5fd21dec0503
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-  /submissions/{submissionId}/artifacts/{file}/download:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  artifacts:
+                    type: array
+                    description: Artifact IDs list
+                    items:
+                      type: string
+                      example: c56a4180-65aa-42ec-a945-5fd21dec0503
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/submissions/{submissionId}/artifacts/{file}/download":
     get:
       summary: Download artifact from S3
-      description: |
+      description: >
         Download artifact from S3 using Submission ID and Artifact ID
+
 
         **Authorization:** Download artifact follows same authorization rules as Download submission
       tags:
         - Submissions
       operationId: downloadArtifact
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
-        - $ref: '#/parameters/fileParam'
+        - $ref: "#/components/parameters/submissionIdParam"
+        - $ref: "#/components/parameters/fileParam"
       responses:
-        200:
+        "200":
           description: Artifact from S3 downloaded successfully
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-  /submissions/{submissionId}/artifacts/{file}:
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/submissions/{submissionId}/artifacts/{file}":
     delete:
       summary: Delete artifact from S3
-      description: |
+      description: >
         Delete artifact from S3 using Submission ID and Artifact ID
+
 
         **Authorization:** Delete artifact follows same authorization rules as Delete submission
       tags:
         - Submissions
       operationId: deleteArtifact
       parameters:
-        - $ref: '#/parameters/submissionIdParam'
-        - $ref: '#/parameters/fileParam'
+        - $ref: "#/components/parameters/submissionIdParam"
+        - $ref: "#/components/parameters/fileParam"
       responses:
-        204:
+        "204":
           description: Artifact from S3 deleted successfully
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
   /reviewSummations:
     get:
       summary: Get all review summations.
-      description: |
-        Get all review summations. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      description: >
+        Get all review summations. Link headers are sent back and they have rel
+        set to prev, next, first, last and contain the relevant URL.
+
 
         Resulted collection of review summations can be filtered using filter parameters `submissionId`, `aggregateScore`, `scoreCardId`, `isPassing` (all filter parameters are optional and combined by the logical operation `AND`).
 
+
         **Authorization:** Review summation is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: getReviewSummations
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        - $ref: '#/parameters/orderBy'
-        - $ref: '#/parameters/sortBy'
-        # filter parameters
-        - $ref: '#/parameters/filterReviewSummationSubmissionId'
-        - $ref: '#/parameters/filterReviewSummationAaggregateScore'
-        - $ref: '#/parameters/filterReviewSummationScoreCardId'
-        - $ref: '#/parameters/filterReviewSummationIsPassing'
-        - $ref: '#/parameters/filterReviewSummationIsFinal'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/orderBy"
+        - $ref: "#/components/parameters/sortBy"
+        - $ref: "#/components/parameters/filterReviewSummationSubmissionId"
+        - $ref: "#/components/parameters/filterReviewSummationAaggregateScore"
+        - $ref: "#/components/parameters/filterReviewSummationScoreCardId"
+        - $ref: "#/components/parameters/filterReviewSummationIsPassing"
+        - $ref: "#/components/parameters/filterReviewSummationIsFinal"
       responses:
-        200:
+        "200":
           description: OK - the request was successful, the resource are returned.
-
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/ReviewSummation'
-            example:
-              - id: 'a12a4180-65aa-42ec-a945-5fd21dec1503'
-                submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec1567'
-                aggregateScore: 17.8
-                scoreCardId: 123456789
-                isPassing: false
-                isFinal: false
-                reviewedDate: '2018-05-20T07:00:30.123Z'
-                created: '2018-05-20T07:00:30.123Z'
-                updated: '2018-06-01T07:36:28.178Z'
-                createdBy: copilot
-                updatedBy: copilot
-              - id: 'a12a4180-65aa-42ec-a945-5fd21dec1504'
-                submissionId: 'a12a4180-65aa-42ec-a945-5fd21dec1568'
-                aggregateScore: 97.8
-                scoreCardId: 123456789
-                isPassing: true
-                isFinal: true
-                reviewedDate: '2018-05-20T07:00:30.123Z'
-                created: '2018-05-20T07:00:30.123Z'
-                updated: '2018-06-01T07:36:28.178Z'
-                createdBy: copilot
-                updatedBy: copilot
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        500:
-          $ref: '#/definitions/ServerError'
-
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReviewSummation"
+                example:
+                  - id: a12a4180-65aa-42ec-a945-5fd21dec1503
+                    submissionId: a12a4180-65aa-42ec-a945-5fd21dec1567
+                    aggregateScore: 17.8
+                    scoreCardId: 123456789
+                    isPassing: false
+                    isFinal: false
+                    reviewedDate: 2018-05-20T07:00:30.123Z
+                    created: 2018-05-20T07:00:30.123Z
+                    updated: 2018-06-01T07:36:28.178Z
+                    createdBy: copilot
+                    updatedBy: copilot
+                  - id: a12a4180-65aa-42ec-a945-5fd21dec1504
+                    submissionId: a12a4180-65aa-42ec-a945-5fd21dec1568
+                    aggregateScore: 97.8
+                    scoreCardId: 123456789
+                    isPassing: true
+                    isFinal: true
+                    reviewedDate: 2018-05-20T07:00:30.123Z
+                    created: 2018-05-20T07:00:30.123Z
+                    updated: 2018-06-01T07:36:28.178Z
+                    createdBy: copilot
+                    updatedBy: copilot
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. Link
+        headers are sent back and they have rel set to prev, next, first, last
+        and contain the relevant URL.
+
 
         Requested review summations can be filtered using filter parameters `submissionId`, `aggregateScore`, `scoreCardId`, `isPassing` (all filter parameters are optional and combined by the logical operation `AND`).
 
+
         **Authorization:** Review summation is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: headReviewSummations
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        # filter parameters
-        - $ref: '#/parameters/filterReviewSummationSubmissionId'
-        - $ref: '#/parameters/filterReviewSummationAaggregateScore'
-        - $ref: '#/parameters/filterReviewSummationScoreCardId'
-        - $ref: '#/parameters/filterReviewSummationIsPassing'
-        - $ref: '#/parameters/filterReviewSummationIsFinal'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/filterReviewSummationSubmissionId"
+        - $ref: "#/components/parameters/filterReviewSummationAaggregateScore"
+        - $ref: "#/components/parameters/filterReviewSummationScoreCardId"
+        - $ref: "#/components/parameters/filterReviewSummationIsPassing"
+        - $ref: "#/components/parameters/filterReviewSummationIsFinal"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     post:
       summary: Create a review summation.
-      description: |
+      description: >
         Create a new review summation.
+
 
         **Authorization:** Review summation creation is accessible by roles `admin` and `copilot`.
 
+
         **Note** Value for `reviewedDate` attribute can only be provided by users with `admin` role
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: createReviewSummation
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/ReviewSummation'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewSummation"
+        required: true
       responses:
-        201:
+        "201":
           description: Created - The request was successful and the resource is returned.
-
-          schema:
-            $ref: '#/definitions/ReviewSummation'
           headers:
             Location:
-              type: string
-              description: The Location response header indicates the URL to redirect a page to or created resource. It only provides a meaning when served with a 3xx (redirection) or 201 (created) status response.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        409:
-          $ref: '#/definitions/Conflict'
-        500:
-          $ref: '#/definitions/ServerError'
-
-  /reviewSummations/{reviewSummationId}:
-
+              description: The Location response header indicates the URL to redirect a
+                page to or created resource. It only provides a meaning when
+                served with a 3xx (redirection) or 201 (created) status
+                response.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewSummation"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "409":
+          $ref: "#/components/schemas/Conflict"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/reviewSummations/{reviewSummationId}":
     get:
       summary: Get the review summation.
-      description: |
+      description: >
         Get the review summation by id.
 
+
         **Authorization:** Review summation is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: getReviewSummation
       parameters:
-        - $ref: '#/parameters/reviewSummationIdParam'
+        - $ref: "#/components/parameters/reviewSummationIdParam"
       responses:
-        200:
+        "200":
           description: OK - the request was successful and the review summation is returned.
-          schema:
-            $ref: '#/definitions/ReviewSummation'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewSummation"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. It does not contain response body.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. It does
+        not contain response body.
+
 
         **Authorization:** Review summation is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: headReviewSummation
       parameters:
-        - $ref: '#/parameters/reviewSummationIdParam'
+        - $ref: "#/components/parameters/reviewSummationIdParam"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     put:
       summary: Update the review summation.
-      description: |
+      description: >
         Update the review summation by id.
+
 
         **Authorization:** Review summation update is accessible only by `admin` role.
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: updateReviewSummation
       parameters:
-        - $ref: '#/parameters/reviewSummationIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatableReviewSummation'
+        - $ref: "#/components/parameters/reviewSummationIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatableReviewSummation"
+        required: true
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-
-          schema:
-            $ref: '#/definitions/ReviewSummation'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewSummation"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     patch:
       summary: Partially update the review summation.
-      description: |
-        Allows to partially modify the review summation with the provided request body properties.
+      description: >
+        Allows to partially modify the review summation with the provided
+        request body properties.
+
 
         **Authorization:** Partially modify of review summation is accessible only by `admin` role.
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: partiallyUpdateReviewSummation
       parameters:
-        - $ref: '#/parameters/reviewSummationIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PartiallyReviewSummation'
+        - $ref: "#/components/parameters/reviewSummationIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartiallyReviewSummation"
+        required: true
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-          schema:
-            $ref: '#/definitions/ReviewSummation'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewSummation"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     delete:
       summary: Delete the review summation.
-      description: |
+      description: >
         Delete the review summation.
+
 
         **Authorization:** Review summation deletion is accessible only by `admin` role.
       tags:
-        - 'Review summations'
+        - Review summations
       operationId: deleteReviewSummation
       parameters:
-        - $ref: '#/parameters/reviewSummationIdParam'
+        - $ref: "#/components/parameters/reviewSummationIdParam"
       responses:
-        204:
-          $ref: '#/definitions/NoContent'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+        "204":
+          $ref: "#/components/schemas/NoContent"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
   /reviews:
     get:
       summary: Get all reviews.
-      description: |
-        Get all reviews. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      description: >
+        Get all reviews. Link headers are sent back and they have rel set to
+        prev, next, first, last and contain the relevant URL.
+
 
         Resulted collection of reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
+
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: getReviews
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        - $ref: '#/parameters/orderBy'
-        - $ref: '#/parameters/sortBy'
-        # filter parameters
-        - $ref: '#/parameters/filterReviewScore'
-        - $ref: '#/parameters/filterReviewTypeId'
-        - $ref: '#/parameters/filterReviewReviewerId'
-        - $ref: '#/parameters/filterReviewScoreCardId'
-        - $ref: '#/parameters/filterReviewSubmissionId'
-        - $ref: '#/parameters/filterReviewStatus'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/orderBy"
+        - $ref: "#/components/parameters/sortBy"
+        - $ref: "#/components/parameters/filterReviewScore"
+        - $ref: "#/components/parameters/filterReviewTypeId"
+        - $ref: "#/components/parameters/filterReviewReviewerId"
+        - $ref: "#/components/parameters/filterReviewScoreCardId"
+        - $ref: "#/components/parameters/filterReviewSubmissionId"
+        - $ref: "#/components/parameters/filterReviewStatus"
       responses:
-        200:
+        "200":
           description: OK - the request was successful, the resource are returned.
-
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Review'
-            example:
-              - id: 'a12a4180-65aa-42ec-a945-5fd21dec0503'
-                score: 95.5
-                typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
-                reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
-                scoreCardId: 123456789
-                submissionId: 'd67a4180-65aa-42ec-a945-5fd21dec0503'
-                status: 'queued'
-                reviewedDate: '2018-05-20T07:00:30.123Z'
-                created: '2018-05-20T07:00:30.123Z'
-                updated: '2018-06-01T07:36:28.178Z'
-                createdBy: 'admin'
-                updatedBy: 'admin'
-              - id: 'a23c4180-65aa-42ec-a945-5fd21dec0503'
-                score: 73.2
-                typeId: 'c56a4180-65aa-42ec-a945-5fd21dec0503'
-                reviewerId: 'c23a4180-65aa-42ec-a945-5fd21dec0503'
-                scoreCardId: 123456789
-                submissionId: 'd23a4180-65aa-42ec-a945-5fd21dec0503'
-                status: 'completed'
-                reviewedDate: '2018-05-20T07:00:30.123Z'
-                created: '2018-05-20T07:00:30.123Z'
-                updated: '2018-06-01T07:36:28.178Z'
-                createdBy: 'admin'
-                updatedBy: 'admin'
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        500:
-          $ref: '#/definitions/ServerError'
-
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+                example:
+                  - id: a12a4180-65aa-42ec-a945-5fd21dec0503
+                    score: 95.5
+                    typeId: c56a4180-65aa-42ec-a945-5fd21dec0503
+                    reviewerId: c23a4180-65aa-42ec-a945-5fd21dec0503
+                    scoreCardId: 123456789
+                    submissionId: d67a4180-65aa-42ec-a945-5fd21dec0503
+                    status: queued
+                    reviewedDate: 2018-05-20T07:00:30.123Z
+                    created: 2018-05-20T07:00:30.123Z
+                    updated: 2018-06-01T07:36:28.178Z
+                    createdBy: admin
+                    updatedBy: admin
+                  - id: a23c4180-65aa-42ec-a945-5fd21dec0503
+                    score: 73.2
+                    typeId: c56a4180-65aa-42ec-a945-5fd21dec0503
+                    reviewerId: c23a4180-65aa-42ec-a945-5fd21dec0503
+                    scoreCardId: 123456789
+                    submissionId: d23a4180-65aa-42ec-a945-5fd21dec0503
+                    status: completed
+                    reviewedDate: 2018-05-20T07:00:30.123Z
+                    created: 2018-05-20T07:00:30.123Z
+                    updated: 2018-06-01T07:36:28.178Z
+                    createdBy: admin
+                    updatedBy: admin
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. Link
+        headers are sent back and they have rel set to prev, next, first, last
+        and contain the relevant URL.
+
 
         Requested reviews can be filtered using filter parameters `score`, `typeId`, `reviewerId`, `scoreCardId`, `status` (all filter parameters are optional and combined by the logical operation `AND`).
 
+
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: headReviews
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        # filter parameters
-        - $ref: '#/parameters/filterReviewScore'
-        - $ref: '#/parameters/filterReviewTypeId'
-        - $ref: '#/parameters/filterReviewReviewerId'
-        - $ref: '#/parameters/filterReviewScoreCardId'
-        - $ref: '#/parameters/filterReviewStatus'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/filterReviewScore"
+        - $ref: "#/components/parameters/filterReviewTypeId"
+        - $ref: "#/components/parameters/filterReviewReviewerId"
+        - $ref: "#/components/parameters/filterReviewScoreCardId"
+        - $ref: "#/components/parameters/filterReviewStatus"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     post:
       summary: Create a review.
-      description: |
+      description: >
         Create a new review.
+
 
         **Authorization:** Review creation is accessible by roles `admin` and `copilot`.
 
+
         **Note** Value for `reviewedDate` attribute can only be provided by users with `admin` role
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: createReview
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/Review'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Review"
+        required: true
       responses:
-        200:
+        "200":
           description: The request was successful and the resource is returned.
-
-          schema:
-            $ref: '#/definitions/Review'
           headers:
             Location:
-              type: string
-              description: The Location response header indicates the URL to redirect a page to or created resource. It only provides a meaning when served with a 3xx (redirection) or 201 (created) status response.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        409:
-          $ref: '#/definitions/Conflict'
-        500:
-          $ref: '#/definitions/ServerError'
-
-  /reviews/{reviewId}:
+              description: The Location response header indicates the URL to redirect a
+                page to or created resource. It only provides a meaning when
+                served with a 3xx (redirection) or 201 (created) status
+                response.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "409":
+          $ref: "#/components/schemas/Conflict"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/reviews/{reviewId}":
     get:
       summary: Get the review.
       description: |
@@ -1092,50 +1172,53 @@ paths:
 
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: getReview
       parameters:
-        - $ref: '#/parameters/reviewIdParam'
+        - $ref: "#/components/parameters/reviewIdParam"
       responses:
-        200:
+        "200":
           description: OK - the request was successful and the review is returned.
-          schema:
-            $ref: '#/definitions/Review'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. It does not contain response body.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. It does
+        not contain response body.
+
 
         **Authorization:** Review is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: headReview
       parameters:
-        - $ref: '#/parameters/reviewIdParam'
+        - $ref: "#/components/parameters/reviewIdParam"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     put:
       summary: Update the review.
       description: |
@@ -1143,65 +1226,69 @@ paths:
 
         **Authorization:** Review update is accessible only by `admin` role.
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: updateReview
       parameters:
-        - $ref: '#/parameters/reviewIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatableReview'
+        - $ref: "#/components/parameters/reviewIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatableReview"
+        required: true
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-
-          schema:
-            $ref: '#/definitions/Review'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     patch:
       summary: Partially update the review.
-      description: |
-        Allows to partially modify the review with the provided request body properties.
+      description: >
+        Allows to partially modify the review with the provided request body
+        properties.
+
 
         **Authorization:** Partially modify of review is accessible only by `admin` role.
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: partiallyUpdateReview
       parameters:
-        - $ref: '#/parameters/reviewIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PartiallyReview'
+        - $ref: "#/components/parameters/reviewIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartiallyReview"
+        required: true
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-
-          schema:
-            $ref: '#/definitions/Review'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     delete:
       summary: Delete the review.
       description: |
@@ -1209,968 +1296,1003 @@ paths:
 
         **Authorization:** Review deletion is accessible only by `admin` role.
       tags:
-        - 'Reviews'
+        - Reviews
       operationId: deleteReview
       parameters:
-        - $ref: '#/parameters/reviewIdParam'
+        - $ref: "#/components/parameters/reviewIdParam"
       responses:
-        204:
-          $ref: '#/definitions/NoContent'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+        "204":
+          $ref: "#/components/schemas/NoContent"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
   /reviewTypes:
     get:
       summary: Get all review types.
-      description: |
-        Get all review types. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      description: >
+        Get all review types. Link headers are sent back and they have rel set
+        to prev, next, first, last and contain the relevant URL.
+
 
         Resulted collection of review types can be filtered using filter parameters `name`, `isActive` (all filter parameters are optional and combined by the logical operation `AND`).
 
+
         **Authorization:** Review types is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review types'
+        - Review types
       operationId: getReviewTypes
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        - $ref: '#/parameters/orderBy'
-        - $ref: '#/parameters/sortBy'
-        # filter parameters
-        - $ref: '#/parameters/filterReviewTypeName'
-        - $ref: '#/parameters/filterReviewTypeIsActive'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/orderBy"
+        - $ref: "#/components/parameters/sortBy"
+        - $ref: "#/components/parameters/filterReviewTypeName"
+        - $ref: "#/components/parameters/filterReviewTypeIsActive"
       responses:
-        200:
+        "200":
           description: OK - the request was successful, the resource are returned.
-
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/ReviewType'
-            example:
-              - id: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
-                name: 'Iterative Review'
-                isActive: true
-              - id: 'a12bc180-65ab-42ec-a945-5fd2dec1568'
-                name: 'Screening'
-                isActive: true
-
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        500:
-          $ref: '#/definitions/ServerError'
-
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ReviewType"
+                example:
+                  - id: a12bc180-65ab-42ec-a945-5fd2dec1567
+                    name: Iterative Review
+                    isActive: true
+                  - id: a12bc180-65ab-42ec-a945-5fd2dec1568
+                    name: Screening
+                    isActive: true
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. Link headers are sent back and they have rel set to prev, next, first, last and contain the relevant URL.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. Link
+        headers are sent back and they have rel set to prev, next, first, last
+        and contain the relevant URL.
+
 
         Requested review types can be filtered using filter parameters `name`, `isActive` (all filter parameters are optional and combined by the logical operation `AND`).
 
+
         **Authorization:** Review types is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review types'
+        - Review types
       operationId: headReviewTypes
       parameters:
-        - $ref: '#/parameters/page'
-        - $ref: '#/parameters/perPage'
-        # filter parameters
-        - $ref: '#/parameters/filterReviewTypeName'
-        - $ref: '#/parameters/filterReviewTypeIsActive'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/perPage"
+        - $ref: "#/components/parameters/filterReviewTypeName"
+        - $ref: "#/components/parameters/filterReviewTypeIsActive"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
           headers:
             X-Next-Page:
-              type: integer
               description: The index of the next page
+              schema:
+                type: integer
             X-Page:
-              type: integer
               description: The index of the current page (starting at 1)
+              schema:
+                type: integer
             X-Per-Page:
-              type: integer
               description: The number of items to list per page
+              schema:
+                type: integer
             X-Prev-Page:
-              type: integer
               description: The index of the previous page
+              schema:
+                type: integer
             X-Total:
-              type: integer
               description: The total number of items
+              schema:
+                type: integer
             X-Total-Pages:
-              type: integer
               description: The total number of pages
+              schema:
+                type: integer
             Link:
-              type: string
               description: Pagination link header.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     post:
       summary: Create a review type.
-      description: |
+      description: >
         Create a new review type.
+
 
         **Authorization:** Review type creation is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review types'
+        - Review types
       operationId: createReviewType
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatableReviewType'
+      requestBody:
+        $ref: "#/components/requestBodies/UpdatableReviewType"
       responses:
-        201:
+        "201":
           description: Created - The request was successful and the resource is returned.
-
-          schema:
-            $ref: '#/definitions/ReviewType'
           headers:
             Location:
-              type: string
-              description: The Location response header indicates the URL to redirect a page to or created resource. It only provides a meaning when served with a 3xx (redirection) or 201 (created) status response.
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        409:
-          $ref: '#/definitions/Conflict'
-        500:
-          $ref: '#/definitions/ServerError'
-
-  /reviewTypes/{reviewTypeId}:
-
+              description: The Location response header indicates the URL to redirect a
+                page to or created resource. It only provides a meaning when
+                served with a 3xx (redirection) or 201 (created) status
+                response.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewType"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "409":
+          $ref: "#/components/schemas/Conflict"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+  "/reviewTypes/{reviewTypeId}":
     get:
       summary: Get the review type.
-      description: |
+      description: >
         Get the review type by id.
 
+
         **Authorization:** Review type is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review types'
+        - Review types
       operationId: getReviewType
       parameters:
-        - $ref: '#/parameters/reviewTypeIdParam'
+        - $ref: "#/components/parameters/reviewTypeIdParam"
       responses:
-        200:
+        "200":
           description: OK - the request was successful and the review is returned.
-          schema:
-            $ref: '#/definitions/ReviewType'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewType"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     head:
-      summary: |
-        Get only response status and headers information but no response body for the endpoint.
-      description: |
-        Get response status and headers information for the endpoint. It does not contain response body.
+      summary: >
+        Get only response status and headers information but no response body
+        for the endpoint.
+      description: >
+        Get response status and headers information for the endpoint. It does
+        not contain response body.
+
 
         **Authorization:** Review type is accessible by roles `admin` and `copilot`.
       tags:
-        - 'Review types'
+        - Review types
       operationId: headReviewType
       parameters:
-        - $ref: '#/parameters/reviewTypeIdParam'
+        - $ref: "#/components/parameters/reviewTypeIdParam"
       responses:
-        200:
+        "200":
           description: OK - The request was successful.
-        400:
-          $ref: '#/definitions/BadRequestWithoutBody'
-        401:
-          $ref: '#/definitions/UnauthorizedWithoutBody'
-        403:
-          $ref: '#/definitions/ForbiddenWithoutBody'
-        500:
-          $ref: '#/definitions/ServerErrorWithoutBody'
-
+        "400":
+          $ref: "#/components/schemas/BadRequestWithoutBody"
+        "401":
+          $ref: "#/components/schemas/UnauthorizedWithoutBody"
+        "403":
+          $ref: "#/components/schemas/ForbiddenWithoutBody"
+        "500":
+          $ref: "#/components/schemas/ServerErrorWithoutBody"
     put:
       summary: Update the review type.
-      description: |
+      description: >
         Update the review type by id.
+
 
         **Authorization:** Review type update is accessible only by `admin` role.
       tags:
-        - 'Review types'
+        - Review types
       operationId: updateReviewType
       parameters:
-        - $ref: '#/parameters/reviewTypeIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdatableReviewType'
+        - $ref: "#/components/parameters/reviewTypeIdParam"
+      requestBody:
+        $ref: "#/components/requestBodies/UpdatableReviewType"
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-
-          schema:
-            $ref: '#/definitions/ReviewType'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewType"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     patch:
       summary: Partially update the review type.
-      description: |
-        Allows to partially modify the review type with the provided request body properties.
+      description: >
+        Allows to partially modify the review type with the provided request
+        body properties.
+
 
         **Authorization:** Partially modify of review type is accessible only by `admin` role.
       tags:
-        - 'Review types'
+        - Review types
       operationId: partiallyUpdateReviewType
       parameters:
-        - $ref: '#/parameters/reviewTypeIdParam'
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/PartiallyReviewType'
+        - $ref: "#/components/parameters/reviewTypeIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartiallyReviewType"
+        required: true
       responses:
-        200:
+        "200":
           description: OK - The request was successful and the updated resource is returned.
-          schema:
-            $ref: '#/definitions/ReviewType'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewType"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
     delete:
       summary: Delete the review type.
-      description: |
+      description: >
         Delete the review type.
+
 
         **Authorization:** Review type deletion is accessible only by `admin` role.
       tags:
-        - 'Review types'
+        - Review types
       operationId: deleteReviewType
       parameters:
-        - $ref: '#/parameters/reviewTypeIdParam'
+        - $ref: "#/components/parameters/reviewTypeIdParam"
       responses:
-        204:
-          $ref: '#/definitions/NoContent'
-        400:
-          $ref: '#/definitions/BadRequest'
-        401:
-          $ref: '#/definitions/Unauthorized'
-        403:
-          $ref: '#/definitions/Forbidden'
-        404:
-          $ref: '#/definitions/NotFound'
-        500:
-          $ref: '#/definitions/ServerError'
-
-parameters:
-  page:
-    name: page
-    in: query
-    description: The page number.
-    required: false
-    type: integer
-    default: 1
-
-  perPage:
-    name: perPage
-    in: query
-    description: The number of items to list per page.
-    required: false
-    type: integer
-    default: 20
-    maximum: 100
-
-  orderBy:
-    name: orderBy
-    in: query
-    description: The sorting order (asc/desc).
-    required: false
-    type: string
-    enum: [asc,desc,ASC,DESC]
-
-  sortBy:
-    name: sortBy
-    in: query
-    description: The field to sort the result by.
-    required: false
-    type: string
-
-  filterSubmissionType:
-    in: query
-    name: type
-    description: The type filter for submissions.
-    required: false
-    type: string
-
-  filterSubmissionUrl:
-    in: query
-    name: url
-    description: The url filter for submissions.
-    required: false
-    type: string
-
-  filterSubmissionMemberId:
-    in: query
-    name: memberId
-    description: The member id filter for submissions.
-    required: false
-    oneOf:
-      - type: string
-      - type: integer
-
-  filterSubmissionChallengeId:
-    in: query
-    name: challengeId
-    description: The challenge id filter for submissions.
-    required: false
-    oneOf:
-      - type: string
-      - type: integer
-
-  filterSubmissionLegacySubmissionId:
-    in: query
-    name: legacySubmissionId
-    description: The legacy submission id filter for submissions.
-    required: false
-    oneOf:
-      - type: string
-      - type: integer
-
-  filterSubmissionLegacyUploadId:
-    in: query
-    name: legacyUploadId
-    description: The legacy upload id filter for submissions.
-    required: false
-    oneOf:
-      - type: string
-      - type: integer
-
-  filterSubmissionSubmissionPhaseId:
-    in: query
-    name: submissionPhaseId
-    description: The submission phase id filter for submissions.
-    required: false
-    type: integer
-
-  filterSubmissionReviewScore:
-    in: query
-    name: review.score
-    description: The score filter of the reviews associated with the submission.
-    required: false
-    type: integer
-
-  filterSubmissionReviewTypeId:
-    in: query
-    name: review.typeId
-    description: The typeId filter of the reviews associated with the submission.
-    required: false
-    type: string
-
-  filterSubmissionReviewReviewerId:
-    in: query
-    name: review.reviewerId
-    description: The reviewerId filter of the reviews associated with the submission.
-    required: false
-    type: string
-
-  filterSubmissionReviewScoreCardId:
-    in: query
-    name: review.scoreCardId
-    description: The scoreCardId filter of the reviews associated with the submission.
-    required: false
-    type: integer
-
-  filterSubmissionReviewSubmissionId:
-    in: query
-    name: review.submissionId
-    description: The submissionId filter of the reviews associated with the submission.
-    required: false
-    type: string
-  
-  filterSubmissionReviewStatus:
-    in: query
-    name: review.status
-    description: The status of the reviews associated with the submission.
-    required: false
-    type: string
-    enum: [queued, completed]
-
-  filterSubmissionReviewSummationScoreCardId:
-    in: query
-    name: reviewSummation.scoreCardId
-    description: The scoreCardId filter of the review summaions associated with the submission.
-    required: false
-    type: integer
-
-  filterSubmissionReviewSummationSubmissionId:
-    in: query
-    name: reviewSummation.submissionId
-    description: The submissionId filter of the review summaions associated with the submission.
-    required: false
-    type: string
-
-  filterSubmissionReviewSummationAggregateScore:
-    in: query
-    name: reviewSummation.aggregateScore
-    description: The aggregateScore filter of the review summaions associated with the submission.
-    required: false
-    type: integer
-
-  filterSubmissionReviewSummationIsPassing:
-    in: query
-    name: reviewSummation.isPassing
-    description: The isPassing filter of the review summaions associated with the submission.
-    required: false
-    type: string
-
-  filterReviewSummationSubmissionId:
-    in: query
-    name: submissionId
-    description: The submission id filter for review summations.
-    required: false
-    type: string
-
-  filterReviewSummationAaggregateScore:
-    in: query
-    name: aggregateScore
-    description: Theaggregate score filter for review summations.
-    required: false
-    type: number
-    format: double
-
-  filterReviewSummationScoreCardId:
-    in: query
-    name: scoreCardId
-    description: The score card id filter for review summations.
-    required: false
-    type: integer
-
-  filterReviewSummationIsPassing:
-    in: query
-    name: isPassing
-    description: The passing boolean flag filter for review summations.
-    required: false
-    type: boolean
-
-  filterReviewSummationIsFinal:
-    in: query
-    name: isFinal
-    description: The final boolean flag filter for review summations.
-    required: false
-    type: boolean
-
-  filterReviewScore:
-    in: query
-    name: score
-    description: The score filter for reviews.
-    required: false
-    type: number
-    format: double
-
-  filterReviewTypeId:
-    in: query
-    name: typeId
-    description: The type id filter for reviews.
-    required: false
-    type: string
-
-  filterReviewReviewerId:
-    in: query
-    name: reviewerId
-    description: The reviewer id filter for reviews.
-    required: false
-    type: string
-
-  filterReviewScoreCardId:
-    in: query
-    name: scoreCardId
-    description: The score card id filter for reviews.
-    required: false
-    type: integer
-
-  filterReviewSubmissionId:
-    in: query
-    name: submissionId
-    description: The submission id filter for reviews.
-    required: false
-    type: string
-  
-  filterReviewStatus:
-    in: query
-    name: status
-    description: The status of the review, whether it queued or has been completed.
-    required: false
-    type: string
-    enum: [queued, completed]
-  
-  filterReviewTypeName:
-    in: query
-    name: name
-    description: The name filter for review types.
-    required: false
-    type: string
-
-  filterReviewTypeIsActive:
-    in: query
-    name: isActive
-    description: The active boolean flag filter for review types.
-    required: false
-    type: boolean
-
-  reviewIdParam:
-    name: reviewId
-    in: path
-    description: review id
-    required: true
-    type: string
-
-  reviewSummationIdParam:
-    name: reviewSummationId
-    in: path
-    description: review summation id
-    required: true
-    type: string
-
-  reviewTypeIdParam:
-    name: reviewTypeId
-    in: path
-    description: review type id
-    required: true
-    type: string
-    
-  fileParam:
-    name: file
-    in: path
-    description: artifact id (its filename)
-    required: true
-    type: string
-
-  submissionIdParam:
-    name: submissionId
-    in: path
-    description: submission id
-    required: true
-    type: string
-
-definitions:
-  NoContent:
-    description: |
-      No Content - The server has successfully fulfilled the request and that there is no additional content to send in the response payload body.
-
-  BadRequestWithoutBody:
-    description: |
-      Bad Request - Request validation error, unable to process the request due to an error (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).
-
-  UnauthorizedWithoutBody:
-    description: |
-      Unauthorized - Occurs when the JWT token provided is either expired or invalid.
-
-  ForbiddenWithoutBody:
-    description: |
-      Forbidden - The request is not allowed.
-
-  ServerErrorWithoutBody:
-    description: |
-      Server Error - While handling the request something went wrong server-side.
-
-  Submission:
-    description: The submission entity.
-    type: object
-    required:
-      - id
-      - type
-      - url
-      - memberId
-      - challengeId
-    allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-            readOnly: true
-            description:  The submission id.
-            example: a12a4180-65aa-42ec-a945-5fd21def1567'
-      - $ref: "#/definitions/PartiallySubmission"
-      - $ref: "#/definitions/Auditable"
-
-  PartiallySubmission:
-    description: The submission entity fields that can be partially updated.
-    type: object
-    properties:
-      type:
-        type: string
-        description:  The submission type.
-        example: 'ContestSubmission'
-      url:
-        type: string
-        description:  The submission url.
-        example: 'http://content.topcoder.com/some/path'
-      memberId:
-        oneOf:
-          - type: string
-          - type: integer
-        description:  The submission member id.
-        example: 'a84a4180-65aa-42ec-a945-5fd21dec1567'
-      challengeId:
-        oneOf:
-          - type: string
-          - type: integer
-        description:  The submission challenge id.
-        example: 'a12bc180-65aa-42ec-a945-5fd21dec1567'
-      legacySubmissionId:
-        oneOf:
-          - type: string
-          - type: integer
-        description: The legacy submission id.
-        example: '70b0e2e7-f824-4248-8398-54ee10ff0db9'
-      legacyUploadId:
-        oneOf:
-          - type: string
-          - type: integer
-        description: The legacy upload id.
-        example: '5da27562-eaec-4c9f-ad1c-ddfbed6ffdbc'
-      submissionPhaseId:
+        "204":
+          $ref: "#/components/schemas/NoContent"
+        "400":
+          $ref: "#/components/schemas/BadRequest"
+        "401":
+          $ref: "#/components/schemas/Unauthorized"
+        "403":
+          $ref: "#/components/schemas/Forbidden"
+        "404":
+          $ref: "#/components/schemas/NotFound"
+        "500":
+          $ref: "#/components/schemas/ServerError"
+components:
+  parameters:
+    page:
+      name: page
+      in: query
+      description: The page number.
+      required: false
+      schema:
         type: integer
-        description: The submission phase id.
-        example: '5dea6d9e-161a-4c7a-b316-597c73a7b8f4'
-      submittedDate:
+        default: 1
+    perPage:
+      name: perPage
+      in: query
+      description: The number of items to list per page.
+      required: false
+      schema:
+        type: integer
+        maximum: 100
+        default: 20
+    orderBy:
+      name: orderBy
+      in: query
+      description: The sorting order (asc/desc).
+      required: false
+      schema:
         type: string
-        format: date-time
-        description: Date of submission (defaults to submission creation date if none passed)
-        example: '2018-05-20T07:00:30.123Z'
-
-  UpdatableSubmission:
-    description: The submission entity fields that updates whole entity.
-    type: object
-    required:
-      - url
-      - memberId
-      - challengeId
-    allOf:
-      - $ref: '#/definitions/PartiallySubmission'
-
-  ReviewSummation:
-    description: The review summation entity.
-    type: object
-    required:
-      - id
-      - submissionId
-      - aggregateScore
-      - scoreCardId
-      - isPassing
-    allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-            readOnly: true
-            description: The review summation id.
-            example: 'a12bc180-65aa-42ec-a945-7ad21dec1567'
-      - $ref: "#/definitions/PartiallyReviewSummation"
-      - $ref: "#/definitions/Auditable"
-
-  PartiallyReviewSummation:
-    description: The review summation entity fields that can be partially updated.
-    type: object
-    properties:
-      submissionId:
+        enum:
+          - asc
+          - desc
+          - ASC
+          - DESC
+    sortBy:
+      name: sortBy
+      in: query
+      description: The field to sort the result by.
+      required: false
+      schema:
         type: string
-        description: The review summation submission id.
-        example: 'a12bc180-43aa-42ec-a945-5fd21dec1567'
-      aggregateScore:
+    filterSubmissionType:
+      in: query
+      name: type
+      description: The type filter for submissions.
+      required: false
+      schema:
+        type: string
+    filterSubmissionUrl:
+      in: query
+      name: url
+      description: The url filter for submissions.
+      required: false
+      schema:
+        type: string
+    filterSubmissionMemberId:
+      in: query
+      name: memberId
+      description: The member id filter for submissions.
+      required: false
+      schema:
+        oneOf:
+          - type: string
+          - type: integer
+    filterSubmissionChallengeId:
+      in: query
+      name: challengeId
+      description: The challenge id filter for submissions.
+      required: false
+      schema:
+        oneOf:
+          - type: string
+          - type: integer
+    filterSubmissionLegacySubmissionId:
+      in: query
+      name: legacySubmissionId
+      description: The legacy submission id filter for submissions.
+      required: false
+      schema:
+        oneOf:
+          - type: string
+          - type: integer
+    filterSubmissionLegacyUploadId:
+      in: query
+      name: legacyUploadId
+      description: The legacy upload id filter for submissions.
+      required: false
+      schema:
+        oneOf:
+          - type: string
+          - type: integer
+    filterSubmissionSubmissionPhaseId:
+      in: query
+      name: submissionPhaseId
+      description: The submission phase id filter for submissions.
+      required: false
+      schema:
+        type: integer
+    filterSubmissionReviewScore:
+      in: query
+      name: review.score
+      description: The score filter of the reviews associated with the submission.
+      required: false
+      schema:
+        type: integer
+    filterSubmissionReviewTypeId:
+      in: query
+      name: review.typeId
+      description: The typeId filter of the reviews associated with the submission.
+      required: false
+      schema:
+        type: string
+    filterSubmissionReviewReviewerId:
+      in: query
+      name: review.reviewerId
+      description: The reviewerId filter of the reviews associated with the submission.
+      required: false
+      schema:
+        type: string
+    filterSubmissionReviewScoreCardId:
+      in: query
+      name: review.scoreCardId
+      description: The scoreCardId filter of the reviews associated with the submission.
+      required: false
+      schema:
+        type: integer
+    filterSubmissionReviewSubmissionId:
+      in: query
+      name: review.submissionId
+      description: The submissionId filter of the reviews associated with the submission.
+      required: false
+      schema:
+        type: string
+    filterSubmissionReviewStatus:
+      in: query
+      name: review.status
+      description: The status of the reviews associated with the submission.
+      required: false
+      schema:
+        type: string
+        enum:
+          - queued
+          - completed
+    filterSubmissionReviewSummationScoreCardId:
+      in: query
+      name: reviewSummation.scoreCardId
+      description: The scoreCardId filter of the review summaions associated with the
+        submission.
+      required: false
+      schema:
+        type: integer
+    filterSubmissionReviewSummationSubmissionId:
+      in: query
+      name: reviewSummation.submissionId
+      description: The submissionId filter of the review summaions associated with the
+        submission.
+      required: false
+      schema:
+        type: string
+    filterSubmissionReviewSummationAggregateScore:
+      in: query
+      name: reviewSummation.aggregateScore
+      description: The aggregateScore filter of the review summaions associated with the
+        submission.
+      required: false
+      schema:
+        type: integer
+    filterSubmissionReviewSummationIsPassing:
+      in: query
+      name: reviewSummation.isPassing
+      description: The isPassing filter of the review summaions associated with the
+        submission.
+      required: false
+      schema:
+        type: string
+    filterReviewSummationSubmissionId:
+      in: query
+      name: submissionId
+      description: The submission id filter for review summations.
+      required: false
+      schema:
+        type: string
+    filterReviewSummationAaggregateScore:
+      in: query
+      name: aggregateScore
+      description: Theaggregate score filter for review summations.
+      required: false
+      schema:
         type: number
         format: double
-        description: The review summation aggregate score.
-        example: 97.8
-      scoreCardId:
+    filterReviewSummationScoreCardId:
+      in: query
+      name: scoreCardId
+      description: The score card id filter for review summations.
+      required: false
+      schema:
         type: integer
-        description: The review summation score card id.
-        example: 123456789
-      isPassing:
+    filterReviewSummationIsPassing:
+      in: query
+      name: isPassing
+      description: The passing boolean flag filter for review summations.
+      required: false
+      schema:
         type: boolean
-        description: The review summation passing boolean flag.
-        example: true
-      isFinal:
+    filterReviewSummationIsFinal:
+      in: query
+      name: isFinal
+      description: The final boolean flag filter for review summations.
+      required: false
+      schema:
         type: boolean
-        description: The review summation final boolean flag.
-        example: true
-      metadata:
-        type: object
-        description: Review summation metadata in JSON format
-      reviewedDate:
-        type: string
-        format: date-time
-        description: Date of review summation (defaults to review summation creation date if none passed)
-        example: '2018-05-20T07:00:30.123Z'
-
-  UpdatableReviewSummation:
-    description: The review summation entity fields that updates whole entity.
-    type: object
-    required:
-      - submissionId
-      - aggregateScore
-      - scoreCardId
-      - isPassing
-    allOf:
-      - $ref: '#/definitions/PartiallyReviewSummation'
-
-  Review:
-    description: The review entity.
-    type: object
-    required:
-      - id
-      - score
-      - typeId
-      - reviewerId
-      - scoreCardId
-      - submissionId
-      - status
-    allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-            readOnly: true
-            description: The review id.
-            example: 'a12bd180-65aa-42ec-a945-5fd21dec1567'
-      - $ref: "#/definitions/PartiallyReview"
-      - $ref: "#/definitions/Auditable"
-
-  PartiallyReview:
-    description: The review entity fields that can be partially updated.
-    type: object
-    properties:
-      score:
+    filterReviewScore:
+      in: query
+      name: score
+      description: The score filter for reviews.
+      required: false
+      schema:
         type: number
         format: double
-        description: The review score.
-        example: 95.5
-      typeId:
+    filterReviewTypeId:
+      in: query
+      name: typeId
+      description: The type id filter for reviews.
+      required: false
+      schema:
         type: string
-        description: The review type id.
-        example: 'a12bc180-65ab-42ec-a945-5fd21dec1567'
-      reviewerId:
+    filterReviewReviewerId:
+      in: query
+      name: reviewerId
+      description: The reviewer id filter for reviews.
+      required: false
+      schema:
         type: string
-        example: 'a12bc280-65ab-42ec-a945-5fd21dec1567'
-        description: The review reviewer id.
-      scoreCardId:
+    filterReviewScoreCardId:
+      in: query
+      name: scoreCardId
+      description: The score card id filter for reviews.
+      required: false
+      schema:
         type: integer
-        description: The review score card id.
-        example: 123456789
-      submissionId:
+    filterReviewSubmissionId:
+      in: query
+      name: submissionId
+      description: The submission id filter for reviews.
+      required: false
+      schema:
         type: string
-        description: The submission id.
-        example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
-      status:
+    filterReviewStatus:
+      in: query
+      name: status
+      description: The status of the review, whether it queued or has been completed.
+      required: false
+      schema:
         type: string
-        enum: [queued, completed]
-        description: The status of the review, whether it is queued or has been completed.
-        example: 'queued'
-      metadata:
-        type: object
-        description: Review Metadata in JSON format
-      reviewedDate:
+        enum:
+          - queued
+          - completed
+    filterReviewTypeName:
+      in: query
+      name: name
+      description: The name filter for review types.
+      required: false
+      schema:
         type: string
-        format: date-time
-        description: Date of review (defaults to review creation date if none passed)
-        example: '2018-05-20T07:00:30.123Z'
-
-  UpdatableReview:
-    description: The review entity fields that updates whole entity.
-    type: object
-    required:
-      - score
-      - typeId
-      - reviewerId
-      - scoreCardId
-      - submissionId
-      - status
-    allOf:
-      - $ref: '#/definitions/PartiallyReview'
-
-  ReviewType:
-    description: The review type entity.
-    type: object
-    required:
-      - id
-      - name
-      - isActive
-    allOf:
-      - type: object
-        properties:
-          id:
-            type: string
-            readOnly: true
-            description: The review type id.
-            example: 'a12bc180-65ab-42ec-a945-5fd2dec1567'
-      - $ref: "#/definitions/PartiallyReviewType"
-
-  PartiallyReviewType:
-    description: The review type entity fields that can be partially updated.
-    type: object
-    properties:
-      name:
-        type: string
-        description: The review type name.
-        example: "Iterative Review"
-      isActive:
+    filterReviewTypeIsActive:
+      in: query
+      name: isActive
+      description: The active boolean flag filter for review types.
+      required: false
+      schema:
         type: boolean
-        description: The review type activity boolean flag.
-        example: true
-
-  UpdatableReviewType:
-    description: The review entity type fields that updates whole entity.
-    type: object
-    required:
-      - name
-      - isActive
-    allOf:
-      - $ref: '#/definitions/PartiallyReviewType'
-
-  Auditable:
-    description: The entity used as mark to add audit fields.
-    type: object
-    readOnly: true
-    properties:
-      created:
+    reviewIdParam:
+      name: reviewId
+      in: path
+      description: review id
+      required: true
+      schema:
         type: string
-        format: date-time
-        readOnly: true
-        description: The entity creation date.
-        example: '2018-05-20T07:00:30.123Z'
-      updated:
+    reviewSummationIdParam:
+      name: reviewSummationId
+      in: path
+      description: review summation id
+      required: true
+      schema:
         type: string
-        format: date-time
-        readOnly: true
-        description: The entity update date.
-        example: '2018-06-01T07:36:28.178Z'
-      createdBy:
+    reviewTypeIdParam:
+      name: reviewTypeId
+      in: path
+      description: review type id
+      required: true
+      schema:
         type: string
-        readOnly: true
-        description: The user who created the entity.
-        example: 'admin'
-      updatedBy:
+    fileParam:
+      name: file
+      in: path
+      description: artifact id (its filename)
+      required: true
+      schema:
         type: string
-        readOnly: true
-        description: The user who updated the entity.
-        example: 'admin'
-
-  # Schema for error body
-  Unauthorized:
-    type: object
-    description: The unauthorized error entity.
-    properties:
-      message:
+    submissionIdParam:
+      name: submissionId
+      in: path
+      description: submission id
+      required: true
+      schema:
         type: string
-        description: The unauthorized error message.
-        example: Unable to authenticate the user.
-
-  NotFound:
-    type: object
-    description: The not found error entity.
-    properties:
-      message:
-        type: string
-        description: The not found error message.
-        example: A resource with the name could not be found.
-
-  ServerError:
-    type: object
-    description: The server error entity.
-    properties:
-      message:
-        type: string
-        description: The server error message.
-        example: Something went wrong while processing your request. We’re sorry for the trouble. We’ve been notified of the error and will correct it as soon as possible. Please try your request again in a moment.
-
-  BadRequest:
-    type: object
-    description: The bad request error entity.
-    properties:
-      message:
-        type: string
-        description: The bad request error message.
-        example: Invalid input.
-
-  Forbidden:
-    type: object
-    description: The permission error entity.
-    properties:
-      message:
-        type: string
-        description: The forbidden error message.
-        example: You are not allowed to access the request.
-
-  Conflict:
-    type: object
-    description: The conflict error entity.
-    required:
-      - message
-    properties:
-      message:
-        type: string
-        description: The conflict error message.
-        example: Creating a resource with a name already exists.
+  requestBodies:
+    UpdatableReviewType:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UpdatableReviewType"
+      required: true
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    NoContent:
+      description: >
+        No Content - The server has successfully fulfilled the request and that
+        there is no additional content to send in the response payload body.
+    BadRequestWithoutBody:
+      description: >
+        Bad Request - Request validation error, unable to process the request
+        due to an error (e.g., malformed request syntax, size too large, invalid
+        request message framing, or deceptive request routing).
+    UnauthorizedWithoutBody:
+      description: >
+        Unauthorized - Occurs when the JWT token provided is either expired or
+        invalid.
+    ForbiddenWithoutBody:
+      description: |
+        Forbidden - The request is not allowed.
+    ServerErrorWithoutBody:
+      description: >
+        Server Error - While handling the request something went wrong
+        server-side.
+    Submission:
+      description: The submission entity.
+      type: object
+      required:
+        - id
+        - type
+        - url
+        - memberId
+        - challengeId
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
+              description: The submission id.
+              example: a12a4180-65aa-42ec-a945-5fd21def1567'
+        - $ref: "#/components/schemas/PartiallySubmission"
+        - $ref: "#/components/schemas/Auditable"
+    PartiallySubmission:
+      description: The submission entity fields that can be partially updated.
+      type: object
+      properties:
+        type:
+          type: string
+          description: The submission type.
+          example: ContestSubmission
+        url:
+          type: string
+          description: The submission url.
+          example: http://content.topcoder.com/some/path
+        memberId:
+          oneOf:
+            - type: string
+            - type: integer
+          description: The submission member id.
+          example: a84a4180-65aa-42ec-a945-5fd21dec1567
+        challengeId:
+          oneOf:
+            - type: string
+            - type: integer
+          description: The submission challenge id.
+          example: a12bc180-65aa-42ec-a945-5fd21dec1567
+        legacySubmissionId:
+          oneOf:
+            - type: string
+            - type: integer
+          description: The legacy submission id.
+          example: 70b0e2e7-f824-4248-8398-54ee10ff0db9
+        legacyUploadId:
+          oneOf:
+            - type: string
+            - type: integer
+          description: The legacy upload id.
+          example: 5da27562-eaec-4c9f-ad1c-ddfbed6ffdbc
+        submissionPhaseId:
+          type: integer
+          description: The submission phase id.
+          example: 5dea6d9e-161a-4c7a-b316-597c73a7b8f4
+        submittedDate:
+          type: string
+          format: date-time
+          description: Date of submission (defaults to submission creation date if none
+            passed)
+          example: 2018-05-20T07:00:30.123Z
+    UpdatableSubmission:
+      description: The submission entity fields that updates whole entity.
+      type: object
+      required:
+        - url
+        - memberId
+        - challengeId
+      allOf:
+        - $ref: "#/components/schemas/PartiallySubmission"
+    ReviewSummation:
+      description: The review summation entity.
+      type: object
+      required:
+        - id
+        - submissionId
+        - aggregateScore
+        - scoreCardId
+        - isPassing
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
+              description: The review summation id.
+              example: a12bc180-65aa-42ec-a945-7ad21dec1567
+        - $ref: "#/components/schemas/PartiallyReviewSummation"
+        - $ref: "#/components/schemas/Auditable"
+    PartiallyReviewSummation:
+      description: The review summation entity fields that can be partially updated.
+      type: object
+      properties:
+        submissionId:
+          type: string
+          description: The review summation submission id.
+          example: a12bc180-43aa-42ec-a945-5fd21dec1567
+        aggregateScore:
+          type: number
+          format: double
+          description: The review summation aggregate score.
+          example: 97.8
+        scoreCardId:
+          type: integer
+          description: The review summation score card id.
+          example: 123456789
+        isPassing:
+          type: boolean
+          description: The review summation passing boolean flag.
+          example: true
+        isFinal:
+          type: boolean
+          description: The review summation final boolean flag.
+          example: true
+        metadata:
+          type: object
+          description: Review summation metadata in JSON format
+        reviewedDate:
+          type: string
+          format: date-time
+          description: Date of review summation (defaults to review summation creation date
+            if none passed)
+          example: 2018-05-20T07:00:30.123Z
+    UpdatableReviewSummation:
+      description: The review summation entity fields that updates whole entity.
+      type: object
+      required:
+        - submissionId
+        - aggregateScore
+        - scoreCardId
+        - isPassing
+      allOf:
+        - $ref: "#/components/schemas/PartiallyReviewSummation"
+    Review:
+      description: The review entity.
+      type: object
+      required:
+        - id
+        - score
+        - typeId
+        - reviewerId
+        - scoreCardId
+        - submissionId
+        - status
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
+              description: The review id.
+              example: a12bd180-65aa-42ec-a945-5fd21dec1567
+        - $ref: "#/components/schemas/PartiallyReview"
+        - $ref: "#/components/schemas/Auditable"
+    PartiallyReview:
+      description: The review entity fields that can be partially updated.
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+          description: The review score.
+          example: 95.5
+        typeId:
+          type: string
+          description: The review type id.
+          example: a12bc180-65ab-42ec-a945-5fd21dec1567
+        reviewerId:
+          type: string
+          example: a12bc280-65ab-42ec-a945-5fd21dec1567
+          description: The review reviewer id.
+        scoreCardId:
+          type: integer
+          description: The review score card id.
+          example: 123456789
+        submissionId:
+          type: string
+          description: The submission id.
+          example: a12bc180-65ab-42ec-a945-5fd2dec1567
+        status:
+          type: string
+          enum:
+            - queued
+            - completed
+          description: The status of the review, whether it is queued or has been completed.
+          example: queued
+        metadata:
+          type: object
+          description: Review Metadata in JSON format
+        reviewedDate:
+          type: string
+          format: date-time
+          description: Date of review (defaults to review creation date if none passed)
+          example: 2018-05-20T07:00:30.123Z
+    UpdatableReview:
+      description: The review entity fields that updates whole entity.
+      type: object
+      required:
+        - score
+        - typeId
+        - reviewerId
+        - scoreCardId
+        - submissionId
+        - status
+      allOf:
+        - $ref: "#/components/schemas/PartiallyReview"
+    ReviewType:
+      description: The review type entity.
+      type: object
+      required:
+        - id
+        - name
+        - isActive
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              readOnly: true
+              description: The review type id.
+              example: a12bc180-65ab-42ec-a945-5fd2dec1567
+        - $ref: "#/components/schemas/PartiallyReviewType"
+    PartiallyReviewType:
+      description: The review type entity fields that can be partially updated.
+      type: object
+      properties:
+        name:
+          type: string
+          description: The review type name.
+          example: Iterative Review
+        isActive:
+          type: boolean
+          description: The review type activity boolean flag.
+          example: true
+    UpdatableReviewType:
+      description: The review entity type fields that updates whole entity.
+      type: object
+      required:
+        - name
+        - isActive
+      allOf:
+        - $ref: "#/components/schemas/PartiallyReviewType"
+    Auditable:
+      description: The entity used as mark to add audit fields.
+      type: object
+      readOnly: true
+      properties:
+        created:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The entity creation date.
+          example: 2018-05-20T07:00:30.123Z
+        updated:
+          type: string
+          format: date-time
+          readOnly: true
+          description: The entity update date.
+          example: 2018-06-01T07:36:28.178Z
+        createdBy:
+          type: string
+          readOnly: true
+          description: The user who created the entity.
+          example: admin
+        updatedBy:
+          type: string
+          readOnly: true
+          description: The user who updated the entity.
+          example: admin
+    Unauthorized:
+      type: object
+      description: The unauthorized error entity.
+      properties:
+        message:
+          type: string
+          description: Access token is missing or invalid
+          example: Unable to authenticate the user.
+    NotFound:
+      type: object
+      description: The not found error entity.
+      properties:
+        message:
+          type: string
+          description: The not found error message.
+          example: A resource with the name could not be found.
+    ServerError:
+      type: object
+      description: The server error entity.
+      properties:
+        message:
+          type: string
+          description: The server error message.
+          example: Something went wrong while processing your request. We’re sorry for
+            the trouble. We’ve been notified of the error and will correct it as
+            soon as possible. Please try your request again in a moment.
+    BadRequest:
+      type: object
+      description: The bad request error entity.
+      properties:
+        message:
+          type: string
+          description: The bad request error message.
+          example: Invalid input.
+    Forbidden:
+      type: object
+      description: The permission error entity.
+      properties:
+        message:
+          type: string
+          description: The forbidden error message.
+          example: You are not allowed to access the request.
+    Conflict:
+      type: object
+      description: The conflict error entity.
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: The conflict error message.
+          example: Creating a resource with a name already exists.

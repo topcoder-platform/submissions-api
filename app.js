@@ -139,7 +139,7 @@ app.use(errorMiddleware())
 // Serve Swagger Docs after setting host and base path
 swaggerDocument.host = config.HOST
 swaggerDocument.basePath = config.API_VERSION
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use('/v5/submissions/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 // Check if the route is not found or HTTP method is not supported
 app.use('*', (req, res) => {
