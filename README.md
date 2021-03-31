@@ -1,5 +1,26 @@
 # Topcoder Submission API
 
+Topcoder's API that deals with submissions, reviews, review summations and review types on the Topcoder platform
+
+## Devlopment status
+
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/topcoder-platform/submissions-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/topcoder-platform/submissions-api/alerts/)[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/topcoder-platform/submissions-api.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/topcoder-platform/submissions-api/context:javascript)
+
+### Deployment status
+
+Dev: [![CircleCI](https://circleci.com/gh/topcoder-platform/submissions-api/tree/develop.svg?style=svg)](https://circleci.com/gh/topcoder-platform/submissions-api/tree/develop) Prod: [![CircleCI](https://circleci.com/gh/topcoder-platform/submissions-api/tree/master.svg?style=svg)](https://circleci.com/gh/topcoder-platform/submissions-api/tree/master)
+
+## Swagger definition
+
+- [Swagger](https://api.topcoder.com/v5/submissions/docs)
+
+## Intended use
+
+- Production API
+
+## Related repos
+
+- [ES Processor](https://github.com/topcoder-platform/submission-processor-es) - Updates data in ElasticSearch
 
 ## Pre-requisites
 
@@ -190,10 +211,6 @@ and then run the following script
 ```
 npm run update-to-v5-challengeId
 ```
-
-#### Swagger UI
-
-Swagger UI will be served at `http://localhost:3000/docs`
 
 ## Postman verification
 
