@@ -1,0 +1,9 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "fileType": "rar",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"fileType\" is not allowed"
+    }
+]

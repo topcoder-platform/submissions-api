@@ -1,0 +1,52 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "type": "challengesubmission",
+        "memberId": 0,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"memberId\" must be larger than or equal to 1"
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "type": "challengesubmission",
+        "memberId": 40029484,
+        "challengeId": 0,
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"challengeId\" must be larger than or equal to 1"
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "type": "challengesubmission",
+        "memberId": 40029484,
+        "challengeId": 30058874,
+        "url": "url",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"url\" must be a valid uri"
+    },
+    {
+        "id": "",
+        "type": "challengesubmission",
+        "memberId": 40029484,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"submissionId\" must be a valid GUID"
+    },
+    {
+        "id": "missing_id",
+        "type": "challengesubmission",
+        "memberId": 40029484,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 404,
+        "message": "Submission with ID = 00000000-0000-0000-0000-000000000000 is not found"
+    }
+]

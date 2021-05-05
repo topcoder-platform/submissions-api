@@ -1,0 +1,109 @@
+[
+    {
+        "id": "REVIEW_ID_admin",
+        "typeId": "invalid",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"score\" must be a number"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": "90",
+        "typeId": "missing_id",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "Review type with ID = 00000000-0000-0000-0000-000000000000 does not exist"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "asd",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"reviewerId\" must be a number"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 0,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"scoreCardId\" must be larger than or equal to 1"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "invalid",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"submissionId\" must be a valid GUID"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "missing_id",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "Submission with ID = 00000000-0000-0000-0000-000000000000 does not exist"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "status",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"status\" must be one of [queued, completed]"
+    },
+    {
+        "id": "",
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"reviewId\" must be a valid GUID"
+    },
+    {
+        "id": "missing_id",
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 404,
+        "message": "Review with ID = 00000000-0000-0000-0000-000000000000 is not found"
+    }
+]

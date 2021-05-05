@@ -1,0 +1,38 @@
+[
+    {
+        "id": "REVIEW_ID_admin",
+        "token": "invalid_token_1",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "token": "invalid_token_2",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "token": "invalid_token_3",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "token": "invalid_token_4",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "token": "copilot_token",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "token": "user_token",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    }
+]

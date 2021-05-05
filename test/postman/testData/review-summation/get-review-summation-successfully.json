@@ -1,0 +1,16 @@
+[
+    {
+        "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
+        "aggregateScore": 99.0,
+        "scoreCardId": 123456789,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "e45e4180-65aa-42ec-a945-5fd21dec1505",
+        "aggregateScore": 98.0,
+        "scoreCardId": 123456789,
+        "token": "copilot_token",
+        "httpCode": 200
+    }
+]

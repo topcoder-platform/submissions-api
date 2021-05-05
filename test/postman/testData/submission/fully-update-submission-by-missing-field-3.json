@@ -1,0 +1,10 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "memberId": 40029484,
+        "challengeId": 30058874,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"url\" is required"
+    }
+]

@@ -1,0 +1,11 @@
+[
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "Review",
+        "isActive": true,
+        "other": "other",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"other\" is not allowed"
+    }
+]

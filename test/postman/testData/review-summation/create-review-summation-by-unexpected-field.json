@@ -1,0 +1,13 @@
+[
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "reviewedDate": "01.01.2021",
+        "token": "copilot_token",
+        "httpCode": 403,
+        "message": "You are not allowed to set the `reviewedDate` attribute on a review summation"
+    }
+]

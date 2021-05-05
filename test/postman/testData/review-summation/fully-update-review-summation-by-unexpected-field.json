@@ -1,0 +1,14 @@
+[
+    {
+        "id": "REVIEW_SUMMATION_ID_admin",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "other": "other",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"other\" is not allowed"
+    }
+]

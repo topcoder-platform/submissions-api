@@ -1,0 +1,92 @@
+[
+    {
+        "params": {
+            "isActive": "Screening"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"isActive\" must be a boolean"
+    },
+    {
+        "params": {
+            "page": "one"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"page\" must be a number"
+    },
+    {
+        "params": {
+            "perPage": "one"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"perPage\" must be a number"
+    },
+    {
+        "params": {
+            "orderBy": "one"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"orderBy\" must be one of [asc, desc, ASC, DESC]"
+    },
+    {
+        "params": {
+            "orderBy": "asc"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"orderBy\" missing required peer \"sortBy\""
+    },
+    {
+        "params": {
+            "orderBy": "asc",
+            "sortBy": "id"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"sortBy\" must be one of [isActive]"
+    },
+    {
+        "params": {
+            "name": ""
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"name\" is not allowed to be empty"
+    },
+    {
+        "params": {
+            "orderBy": "asc",
+            "sortBy": ""
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"sortBy\" is not allowed to be empty"
+    },
+    {
+        "params": {},
+        "token": "invalid_token_1",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "params": {},
+        "token": "invalid_token_2",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "params": {},
+        "token": "invalid_token_3",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "params": {},
+        "token": "invalid_token_4",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    }
+]

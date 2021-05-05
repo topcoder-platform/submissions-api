@@ -1,0 +1,20 @@
+[
+    {
+        "name": "Review",
+        "isActive": true,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "name": "Iterative Review",
+        "isActive": true,
+        "token": "copilot_token",
+        "httpCode": 200
+    },
+    {
+        "name": "Screening",
+        "isActive": true,
+        "token": "m2m_token",
+        "httpCode": 200
+    }
+]

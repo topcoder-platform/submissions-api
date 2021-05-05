@@ -1,0 +1,16 @@
+[
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "Review updated",
+        "isActive": false,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "REVIEW_TYPE_ID_copilot",
+        "name": "Iterative Review updated",
+        "isActive": false,
+        "token": "admin_token",
+        "httpCode": 200
+    }
+]

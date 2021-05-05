@@ -1,0 +1,23 @@
+[
+    {
+        "id": "",
+        "name": "ARTIFACT_NAME_admin",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "Submission with ID = {{}} does not exist"
+    },
+    {
+        "id": "missing_id",
+        "name": "ARTIFACT_NAME_admin",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "Submission with ID = 00000000-0000-0000-0000-000000000000 does not exist"
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "name": "",
+        "token": "admin_token",
+        "httpCode": 404,
+        "message": "Artifact {{}} doesn't exist for submission ID: #ID#"
+    }
+]

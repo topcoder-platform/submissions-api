@@ -1,0 +1,82 @@
+[
+    {
+        "params": {
+            "scoreCardId": 123456789,
+            "page": 1,
+            "perPage": 5,
+            "orderBy": "asc",
+            "sortBy": "aggregateScore"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 5,
+        "X-Page": "1",
+        "X-Per-Page": "5",
+        "X-Total": "6",
+        "X-Total-Pages": "2"
+    },
+    {
+        "params": {
+            "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+            "page": 1,
+            "perPage": 10,
+            "orderBy": "asc",
+            "sortBy": "aggregateScore"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 6,
+        "X-Page": "1",
+        "X-Per-Page": "10",
+        "X-Total": "6",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "aggregateScore": 97.0,
+            "page": 1,
+            "perPage": 10,
+            "orderBy": "asc",
+            "sortBy": "aggregateScore"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 1,
+        "X-Page": "1",
+        "X-Per-Page": "10",
+        "X-Total": "1",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "isPassing": true,
+            "page": 1,
+            "perPage": 10,
+            "orderBy": "asc",
+            "sortBy": "aggregateScore"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 4,
+        "X-Page": "1",
+        "X-Per-Page": "10",
+        "X-Total": "4",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "isFinal": false,
+            "page": 1,
+            "perPage": 5,
+            "orderBy": "asc",
+            "sortBy": "aggregateScore"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 0,
+        "X-Page": "1",
+        "X-Per-Page": "5",
+        "X-Total": "0",
+        "X-Total-Pages": "1"
+    }
+]

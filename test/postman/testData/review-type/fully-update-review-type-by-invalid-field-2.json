@@ -1,0 +1,10 @@
+[
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": null,
+        "isActive": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"name\" must be a string"
+    }
+]

@@ -1,0 +1,53 @@
+[
+    {
+        "params": {
+            "type": "ContestSubmission"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 10,
+        "X-Page": "1",
+        "X-Per-Page": "20",
+        "X-Total": "10",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "type": "ContestSubmission",
+            "page": "2",
+            "perPage": "4"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 4,
+        "X-Page": "2",
+        "X-Per-Page": "4",
+        "X-Total": "10",
+        "X-Total-Pages": "3"
+    },
+    {
+        "params": {
+            "type": "ContestSubmission",
+            "memberId": "40158994"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 1,
+        "X-Page": "1",
+        "X-Per-Page": "20",
+        "X-Total": "1",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "challengeId": "f01686da-28ab-48bc-867c-60faeae324da"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 4,
+        "X-Page": "1",
+        "X-Per-Page": "20",
+        "X-Total": "4",
+        "X-Total-Pages": "1"
+    }
+]

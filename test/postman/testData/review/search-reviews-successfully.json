@@ -1,0 +1,98 @@
+[
+    {
+        "params": {
+            "score": "100",
+            "page": 1,
+            "perPage": 5,
+            "orderBy": "asc",
+            "sortBy": "score"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 2,
+        "X-Page": "1",
+        "X-Per-Page": "5",
+        "X-Total": "2",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+            "page": 1,
+            "perPage": 5,
+            "orderBy": "asc",
+            "sortBy": "score"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 5,
+        "X-Page": "1",
+        "X-Per-Page": "5",
+        "X-Total": "6",
+        "X-Total-Pages": "2"
+    },
+    {
+        "params": {
+            "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+            "page": 1,
+            "perPage": 10,
+            "orderBy": "asc",
+            "sortBy": "score"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 7,
+        "X-Page": "1",
+        "X-Per-Page": "10",
+        "X-Total": "7",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "scoreCardId": 123456789,
+            "page": 1,
+            "perPage": 10,
+            "orderBy": "asc",
+            "sortBy": "score"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 9,
+        "X-Page": "1",
+        "X-Per-Page": "10",
+        "X-Total": "9",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0503",
+            "page": 1,
+            "perPage": 5,
+            "orderBy": "asc",
+            "sortBy": "score"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 3,
+        "X-Page": "1",
+        "X-Per-Page": "5",
+        "X-Total": "3",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "status": "completed",
+            "page": 1,
+            "perPage": 5,
+            "orderBy": "asc",
+            "sortBy": "score"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 0,
+        "X-Page": "1",
+        "X-Per-Page": "5",
+        "X-Total": "0",
+        "X-Total-Pages": "1"
+    }
+]

@@ -1,0 +1,11 @@
+[
+    {
+        "type": "challengesubmission",
+        "memberId": 40029484,
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"challengeId\" is required"
+    }
+]

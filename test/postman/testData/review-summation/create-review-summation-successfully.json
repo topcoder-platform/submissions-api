@@ -1,0 +1,29 @@
+[
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_copilot",
+        "aggregateScore": 90,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "copilot_token",
+        "httpCode": 200
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_user",
+        "aggregateScore": 80,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "m2m_token",
+        "httpCode": 200
+    }
+]

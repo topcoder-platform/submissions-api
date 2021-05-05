@@ -9,6 +9,7 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "create-tables": "node scripts/createTables.js",
+    "delete-tables": "node scripts/deleteTables.js",
     "init-db": "node scripts/importData.js",
     "create-index": "node scripts/createIndex.js",
     "delete-index": "node scripts/deleteIndex.js",
@@ -17,9 +18,11 @@
     "update-to-v5-challengeId": "node scripts/updateToV5ChallengeId.js",
     "update-to-v5-challengeId-v2": "node scripts/updateToV5ChallengeIdV2.js",
     "test": "mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
-    "e2e": "mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit",
     "cov": "nyc --reporter=html --reporter=text mocha test/unit/*.test.js --require test/unit/prepare.js --exit",
-    "cov-e2e": "nyc --reporter=html --reporter=text mocha test/e2e/*.test.js --require test/e2e/prepare.js --exit"
+    "services:up": "docker-compose -f ./local/docker-compose.yml up -d",
+    "services:down": "docker-compose -f ./local/docker-compose.yml down",
+    "cleanup": "cross-env NODE_ENV=test npm-run-all delete-tables delete-index create-index init-es create-tables -c",
+    "test:newman": "cross-env NODE_ENV=test node test/postman/newman.js"
   },
   "dependencies": {
     "amazon-s3-uri": "0.0.3",
@@ -50,14 +53,18 @@
   },
   "devDependencies": {
     "aws-sdk-mock": "^4.0.0",
+    "axios": "^0.21.1",
     "chai": "^4.1.2",
     "chai-http": "^4.0.0",
     "co-mocha": "^1.2.2",
+    "cross-env": "^6.0.3",
     "husky": "^3.0.5",
     "mocha": "^5.2.0",
     "mocha-prepare": "^0.1.0",
+    "newman": "^5.2.2",
     "nock": "^9.4.3",
     "nodemon": "^1.17.5",
+    "npm-run-all": "^4.1.5",
     "nyc": "^12.0.2",
     "standard": "^11.0.1"
   },

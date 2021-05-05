@@ -1,0 +1,8 @@
+[
+    {
+        "id": "SUBMISSION_ID_copilot",
+        "name": "ARTIFACT_NAME_m2m",
+        "token": "admin_token",
+        "httpCode": 204
+    }
+]

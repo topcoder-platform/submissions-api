@@ -1,0 +1,17 @@
+[
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0507",
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0508",
+        "token": "copilot_token",
+        "httpCode": 200
+    },
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0509",
+        "token": "user_token",
+        "httpCode": 200
+    }
+]

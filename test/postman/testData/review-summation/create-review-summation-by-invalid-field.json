@@ -1,0 +1,52 @@
+[
+    {
+        "scoreCardId": 0,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"scoreCardId\" must be larger than or equal to 1"
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"submissionId\" must be a valid GUID"
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "missing_id",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "Submission with ID = 00000000-0000-0000-0000-000000000000 does not exist"
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": 1,
+        "isFinal": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"isPassing\" must be a boolean"
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": 1,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"isFinal\" must be a boolean"
+    }
+]

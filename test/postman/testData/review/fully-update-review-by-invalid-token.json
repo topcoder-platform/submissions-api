@@ -1,0 +1,74 @@
+[
+    {
+        "id": "REVIEW_ID_admin",
+        "score": 90,
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "invalid_token_1",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": 90,
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "invalid_token_2",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": 90,
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "invalid_token_3",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": 90,
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "invalid_token_4",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": 90,
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "copilot_token",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    },
+    {
+        "id": "REVIEW_ID_admin",
+        "score": 90,
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 987654321,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "user_token",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    }
+]
