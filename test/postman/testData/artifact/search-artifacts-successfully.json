@@ -1,0 +1,14 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 1
+    },
+    {
+        "id": "SUBMISSION_ID_copilot",
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 1
+    }
+]

@@ -1,0 +1,12 @@
+[
+    {
+        "type": "challengesubmission",
+        "memberId": 88774634,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": null,
+        "token": "user_token",
+        "httpCode": 400,
+        "message": "\"fileType\" must be a string"
+    }
+]

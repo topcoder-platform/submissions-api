@@ -1,0 +1,11 @@
+[
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isFinal": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"isPassing\" is required"
+    }
+]

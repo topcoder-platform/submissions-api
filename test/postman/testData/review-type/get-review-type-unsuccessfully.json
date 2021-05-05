@@ -1,0 +1,44 @@
+[
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0501",
+        "token": "invalid_token_1",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0502",
+        "token": "invalid_token_2",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "token": "invalid_token_3",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0504",
+        "token": "invalid_token_4",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0505",
+        "token": "user_token",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    },
+    {
+        "id": "aa",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"reviewTypeId\" must be a valid GUID"
+    },
+    {
+        "id": "cfd7ef80-f982-4484-83ba-ad819becab8a",
+        "token": "admin_token",
+        "httpCode": 404,
+        "message": "Review type with ID = cfd7ef80-f982-4484-83ba-ad819becab8a is not found"
+    }
+]

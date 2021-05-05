@@ -1,0 +1,16 @@
+[
+    {
+        "id": "missing_id",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "Submission with ID = 00000000-0000-0000-0000-000000000000 does not exist"
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "typeId": "missing_id",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "Review type with ID = 00000000-0000-0000-0000-000000000000 does not exist"
+    }
+]

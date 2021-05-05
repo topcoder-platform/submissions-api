@@ -1,0 +1,124 @@
+[
+    {
+        "params": {
+            "url": "url"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"url\" must be a valid uri"
+    },
+    {
+        "params": {
+            "memberId": 0
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"memberId\" must be larger than or equal to 1"
+    },
+    {
+        "params": {
+            "challengeId": 0
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"challengeId\" must be larger than or equal to 1"
+    },
+    {
+        "params": {
+            "legacySubmissionId": 0
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"legacySubmissionId\" must be larger than or equal to 1"
+    },
+    {
+        "params": {
+            "legacyUploadId": 0
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"legacyUploadId\" must be larger than or equal to 1"
+    },
+    {
+        "params": {
+            "page": "one"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"page\" must be a number"
+    },
+    {
+        "params": {
+            "perPage": "one"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"perPage\" must be a number"
+    },
+    {
+        "params": {
+            "orderBy": "one"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"orderBy\" must be one of [asc, desc, ASC, DESC]"
+    },
+    {
+        "params": {
+            "orderBy": "asc"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"orderBy\" missing required peer \"sortBy\""
+    },
+    {
+        "params": {
+            "orderBy": "asc",
+            "sortBy": "id"
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"sortBy\" must be one of [type, url, memberId, challengeId, legacySubmissionId, legacyUploadId, submissionPhaseId, review.score, review.typeId, review.reviewerId, review.scoreCardId, review.submissionId, review.status, reviewSummation.scoreCardId, reviewSummation.submissionId, reviewSummation.aggregateScore, reviewSummation.isPassing]"
+    },
+    {
+        "params": {
+            "type": ""
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"type\" is not allowed to be empty"
+    },
+    {
+        "params": {
+            "orderBy": "asc",
+            "sortBy": ""
+        },
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"sortBy\" is not allowed to be empty"
+    },
+    {
+        "params": {},
+        "token": "invalid_token_1",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "params": {},
+        "token": "invalid_token_2",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "params": {},
+        "token": "invalid_token_3",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "params": {},
+        "token": "invalid_token_4",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    }
+]

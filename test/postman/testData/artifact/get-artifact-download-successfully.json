@@ -1,0 +1,8 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "name": "ARTIFACT_NAME_admin",
+        "token": "admin_token",
+        "httpCode": 200
+    }
+]

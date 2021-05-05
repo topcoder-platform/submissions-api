@@ -1,0 +1,12 @@
+[
+    {
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "completed",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"score\" is required"
+    }
+]

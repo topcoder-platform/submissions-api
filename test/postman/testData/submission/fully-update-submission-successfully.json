@@ -1,0 +1,41 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "type": "challengesubmission",
+        "memberId": 40029484,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "legacyChallengeId": 30058874,
+        "submissionPhaseId": "6950164f-3c5e-4bdc-abc8-22aaf5a1bd49",
+        "fileType": "zip",
+        "v5ChallengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "SUBMISSION_ID_copilot",
+        "type": "challengesubmission",
+        "memberId": 40158994,
+        "challengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "legacyChallengeId": 30058874,
+        "submissionPhaseId": "6950164f-3c5e-4bdc-abc8-22aaf5a1bd49",
+        "fileType": "zip",
+        "v5ChallengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "SUBMISSION_ID_user",
+        "type": "challengesubmission",
+        "memberId": 88774634,
+        "challengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "legacyChallengeId": 30058874,
+        "submissionPhaseId": "6950164f-3c5e-4bdc-abc8-22aaf5a1bd49",
+        "fileType": "zip",
+        "v5ChallengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 200
+    }
+]

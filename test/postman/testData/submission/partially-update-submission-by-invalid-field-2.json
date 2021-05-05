@@ -1,0 +1,9 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "type": null,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"type\" must be a string"
+    }
+]

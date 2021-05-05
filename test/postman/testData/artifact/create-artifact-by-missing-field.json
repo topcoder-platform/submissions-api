@@ -1,0 +1,8 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"files\" is required"
+    }
+]

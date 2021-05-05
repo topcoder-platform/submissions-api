@@ -1,0 +1,44 @@
+[
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+        "token": "invalid_token_1",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+        "token": "invalid_token_2",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+        "token": "invalid_token_3",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0501",
+        "token": "invalid_token_4",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "id": "a12a4180-65aa-42ec-a945-5fd21dec0510",
+        "token": "user_token",
+        "httpCode": 403,
+        "message": "You should have passed the review to access other member submissions!"
+    },
+    {
+        "id": "aa",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"submissionId\" must be a valid GUID"
+    },
+    {
+        "id": "cfd7ef80-f982-4484-83ba-ad819becab8a",
+        "token": "admin_token",
+        "httpCode": 404,
+        "message": "Submission with ID = cfd7ef80-f982-4484-83ba-ad819becab8a is not found"
+    }
+]

@@ -1,0 +1,10 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "memberId": 40029484,
+        "url": "https://s3.amazonaws.com/f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"challengeId\" is required"
+    }
+]

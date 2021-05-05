@@ -1,0 +1,44 @@
+[
+    {
+        "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
+        "token": "invalid_token_1",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
+        "token": "invalid_token_2",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
+        "token": "invalid_token_3",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "e45e4180-65aa-42ec-a945-5fd21dec1504",
+        "token": "invalid_token_4",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "id": "Re45e4180-65aa-42ec-a945-5fd21dec1504",
+        "token": "user_token",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    },
+    {
+        "id": "aa",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"reviewSummationId\" must be a valid GUID"
+    },
+    {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "token": "admin_token",
+        "httpCode": 404,
+        "message": "Review summation with ID = 00000000-0000-0000-0000-000000000000 is not found"
+    }
+]

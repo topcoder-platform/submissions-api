@@ -1,0 +1,24 @@
+[
+    {
+        "type": "challengesubmission",
+        "memberId": 88774634,
+        "challengeId": 30058874,
+        "legacyChallengeId": 30058874,
+        "submissionPhaseId": "6950164f-3c5e-4bdc-abc8-22aaf5a1bd49",
+        "fileType": "zip",
+        "v5ChallengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "user_token",
+        "httpCode": 200
+    },
+    {
+        "type": "challengesubmission",
+        "memberId": 88774634,
+        "challengeId": 30058874,
+        "legacyChallengeId": 30058874,
+        "submissionPhaseId": "6950164f-3c5e-4bdc-abc8-22aaf5a1bd49",
+        "fileType": "zip",
+        "v5ChallengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+        "token": "m2m_token",
+        "httpCode": 200
+    }
+]

@@ -1,0 +1,8 @@
+[
+    {
+        "isActive": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"name\" is required"
+    }
+]

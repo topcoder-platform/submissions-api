@@ -1,0 +1,14 @@
+[
+    {
+        "id": "",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"reviewTypeId\" must be a valid GUID"
+    },
+    {
+        "id": "missing_id",
+        "token": "admin_token",
+        "httpCode": 404,
+        "message": "Review type with ID = 00000000-0000-0000-0000-000000000000 is not found"
+    }
+]

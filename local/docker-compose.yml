@@ -1,0 +1,17 @@
+version: '3'
+services:
+  esearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:6.8.0"
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - "discovery.type=single-node"
+  mock-api:
+    image: mock-api:latest
+    container_name: mock-api
+    build:
+      context: ../
+      dockerfile: mock-api/Dockerfile
+    ports:
+      - "4000:4000"
