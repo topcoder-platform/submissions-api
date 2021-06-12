@@ -1,7 +1,7 @@
 /**
  * Default configuration file
  */
-
+require('dotenv').config()
 module.exports = {
   DISABLE_LOGGING: process.env.DISABLE_LOGGING || false, // If true, logging will be disabled
   LOG_LEVEL: process.env.LOG_LEVEL || 'debug',
