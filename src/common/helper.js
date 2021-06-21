@@ -313,6 +313,10 @@ function * getLegacyChallengeId (challengeId) {
       const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
+      if (_.get(response.body, 'legacy.pureV5')) {
+        // pure V5 challenges don't have a legacy ID
+        return null
+      }
       const legacyId = parseInt(response.body.legacyId, 10)
       logger.debug(`Legacy challenge id is ${legacyId} for v5 challenge id ${challengeId}`)
       return legacyId

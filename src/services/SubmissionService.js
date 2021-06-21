@@ -282,11 +282,14 @@ function * createSubmission (authUser, files, entity) {
     url: url,
     memberId: entity.memberId,
     challengeId,
-    legacyChallengeId,
     created: currDate,
     updated: currDate,
     createdBy: authUser.handle || authUser.sub,
     updatedBy: authUser.handle || authUser.sub
+  }
+
+  if (legacyChallengeId) {
+    item.legacyChallengeId = legacyChallengeId
   }
 
   if (entity.legacySubmissionId) {
@@ -411,13 +414,15 @@ function * _updateSubmission (authUser, submissionId, entity) {
       id: submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
-                        legacyChallengeId = :lc, updated = :ua, updatedBy = :ub, submittedDate = :sb`,
+                        ${legacyChallengeId ? 'legacyChallengeId = :lc,' : ''} updated = :ua, updatedBy = :ub, submittedDate = :sb`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
       ':m': entity.memberId || exist.memberId,
       ':c': challengeId,
-      ':lc': legacyChallengeId,
+      ...(legacyChallengeId ? {
+        ':lc': legacyChallengeId
+      } : {}),
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub,
       ':sb': entity.submittedDate || exist.submittedDate || exist.created
