@@ -473,7 +473,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
       submissionPhaseId: updatedSub.submissionPhaseId,
       type: updatedSub.type,
       submittedDate: updatedSub.submittedDate,
-      url: updatedSub.url
+      url: updatedSub.url,
+      legacyChallengeId: updatedSub.legacyChallengeId
     }, entity)
   }
 
