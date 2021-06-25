@@ -472,7 +472,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
       memberId: updatedSub.memberId,
       submissionPhaseId: updatedSub.submissionPhaseId,
       type: updatedSub.type,
-      submittedDate: updatedSub.submittedDate
+      submittedDate: updatedSub.submittedDate,
+      url: updatedSub.url
     }, entity)
   }
 
