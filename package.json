@@ -37,7 +37,7 @@
     "dotenv": "^8.2.0",
     "elasticsearch": "^15.1.1",
     "express": "^4.15.4",
-    "express-fileupload": "^0.4.0",
+    "express-fileupload": "^1.1.10",
     "file-type": "^9.0.0",
     "get-parameter-names": "^0.3.0",
     "http-aws-es": "^6.0.0",
