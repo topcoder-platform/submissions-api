@@ -24,7 +24,7 @@ module.exports = {
       controller: 'ReviewController',
       method: 'getReview',
       auth: 'jwt',
-      access: ['Administrator', 'Copilot'],
+      access: ['Administrator', 'Copilot', 'Topcoder User'],
       scopes: ['read:review', 'all:review']
     },
     put: {
