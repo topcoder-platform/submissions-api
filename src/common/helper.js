@@ -601,9 +601,20 @@ function * checkGetAccess (authUser, submission) {
  * @returns {Promise}
  */
 function * checkReviewGetAccess (authUser, submission) {
+  let resources
   let challengeDetails
   const token = yield getM2Mtoken()
   const challengeId = yield getV5ChallengeId(submission.challengeId)
+
+  try {
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
+    logger.error(ex)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
+  }
 
   try {
     challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
@@ -615,8 +626,31 @@ function * checkReviewGetAccess (authUser, submission) {
     return false
   }
 
-  if (challengeDetails) {
+  // Get map of role id to role name
+  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+
+  // Check if role id to role name mapping is available. If not user's role cannot be determined.
+  if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
+  }
+
+  if (resources && challengeDetails) {
+    // Fetch all roles of the User pertaining to the current challenge
+    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+
+    // Populate the role names for the current user role ids
+    _.forEach(currUserRoles, currentUserRole => {
+      currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
+    })
+
     const subTrack = challengeDetails.body.legacy.subTrack
+
+    // Check if the User is a Copilot, Manager or Observer for that contest
+    const validRoles = ['Copilot', 'Manager', 'Observer']
+    const passedRoles = currUserRoles.filter(a => validRoles.includes(a.role))
+    if (passedRoles.length !== 0) {
+      return true
+    }
 
     // For Marathon Match, everyone can access review result
     if (subTrack === 'DEVELOP_MARATHON_MATCH') {
@@ -632,6 +666,10 @@ function * checkReviewGetAccess (authUser, submission) {
 
       return true
     }
+  } else {
+    // We don't have enough details to validate the access
+    logger.debug('No enough details to validate the Permissions')
+    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${submission.challengeId}`)
   }
 }
 

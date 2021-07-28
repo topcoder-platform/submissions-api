@@ -70,7 +70,9 @@ function * getReview (authUser, reviewId) {
     false
   )
   logger.info('Check User access before returning the review')
-  yield helper.checkReviewGetAccess(authUser, submission)
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
+    yield helper.checkReviewGetAccess(authUser, submission)
+  }
   // Return the review
   return review
 }
