@@ -98,7 +98,7 @@ const listReviewsQuerySchema = {
   score: joi.score(),
   typeId: joi.string().uuid(),
   reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-  scoreCardId: joi.id(),
+  scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   submissionId: joi.string().uuid(),
   status: joi.reviewStatus(),
   page: joi.id(),
@@ -206,7 +206,7 @@ createReview.schema = {
         .error(errors => ({
           message: '"reviewerId" must be a number or a string'
         })),
-      scoreCardId: joi.id().required(),
+      scoreCardId: joi.alternatives().try(joi.id().required(), joi.string().uuid().required()),
       submissionId: joi
         .string()
         .uuid()
@@ -338,7 +338,7 @@ updateReview.schema = {
         .alternatives()
         .try(joi.id(), joi.string().uuid())
         .required(),
-      scoreCardId: joi.id().required(),
+      scoreCardId: joi.alternatives().try(joi.id().required(), joi.string().uuid().required()),
       submissionId: joi
         .string()
         .uuid()
@@ -371,7 +371,7 @@ patchReview.schema = {
     score: joi.score(),
     typeId: joi.string().uuid(),
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    scoreCardId: joi.id(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     status: joi.reviewStatus(),
     metadata: joi.object(),
