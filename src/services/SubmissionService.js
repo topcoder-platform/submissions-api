@@ -189,7 +189,7 @@ function * listSubmissions (authUser, query) {
   }
 
   const data = yield helper.fetchFromES(query, helper.camelize(table))
-  logger.debug(`Data returned from ES: ${JSON.stringify(data, null, 4)}`)
+  logger.info(`Data returned from ES: ${JSON.stringify(data, null, 4)}`)
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
   data.rows = _.map(data.rows, (submission) => {

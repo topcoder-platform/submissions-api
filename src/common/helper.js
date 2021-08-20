@@ -714,7 +714,7 @@ function * postToBusApi (payload) {
 function cleanseReviews (reviews, authUser) {
   // Not a machine user
   if (!authUser.scopes) {
-    logger.debug('Not a machine user. Filtering reviews...')
+    logger.info('Not a machine user. Filtering reviews...')
     const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
     const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
 
