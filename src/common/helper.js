@@ -838,6 +838,21 @@ function * getLatestChallenges (page) {
   }
 }
 
+/**
+ * Get legacy scorecard id if the scorecard id is uuid form
+ * @param {String} scoreCardId Scorecard ID
+ * @returns {String} Legacy scorecard ID of the given challengeId
+ */
+function getLegacyScoreCardId (scoreCardId) {
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(scoreCardId)) {
+    logger.debug(`${scoreCardId} detected as uuid. Converting to legacy scorecard id`)
+
+    return config.get('V5TOLEGACYSCORECARDMAPPING')[scoreCardId]
+  }
+
+  return scoreCardId
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -856,5 +871,6 @@ module.exports = {
   getRoleIdToRoleNameMap,
   getV5ChallengeId,
   adjustSubmissionChallengeId,
-  getLatestChallenges
+  getLatestChallenges,
+  getLegacyScoreCardId
 }
