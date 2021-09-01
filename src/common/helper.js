@@ -379,12 +379,15 @@ function * getSubmissionPhaseId (challengeId) {
     const checkPoint = _.filter(phases, { name: 'Checkpoint Submission', isOpen: true })
     const submissionPh = _.filter(phases, { name: 'Submission', isOpen: true })
     const finalFixPh = _.filter(phases, { name: 'Final Fix', isOpen: true })
+    const approvalPh = _.filter(phases, { name: 'Approval', isOpen: true })
     if (checkPoint.length !== 0) {
       phaseId = checkPoint[0].phaseId
     } else if (submissionPh.length !== 0) {
       phaseId = submissionPh[0].phaseId
     } else if (finalFixPh.length !== 0) {
       phaseId = finalFixPh[0].phaseId
+    } else if (approvalPh.length !== 0) {
+      phaseId = approvalPh[0].phaseId
     }
   }
   return phaseId
@@ -449,7 +452,6 @@ function * checkCreateAccess (authUser, subEntity) {
 
     // Get phases and winner detail from challengeDetails
     const phases = challengeDetails.body.phases
-    const winner = challengeDetails.body.winners
 
     // Check if the User is registered for the contest
     const submitters = _.filter(currUserRoles, { role: 'Submitter' })
@@ -460,14 +462,22 @@ function * checkCreateAccess (authUser, subEntity) {
     const submissionPhaseId = yield getSubmissionPhaseId(subEntity.challengeId)
 
     if (submissionPhaseId == null) {
-      throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
+      throw new errors.HttpStatusError(403, 'You cannot create a submission in the current phase')
     }
 
     const currPhase = _.filter(phases, { phaseId: submissionPhaseId })
 
-    if (currPhase[0].name === 'Final Fix') {
-      if (!authUser.handle.equals(winner[0].handle)) {
-        throw new errors.HttpStatusError(403, 'Only winner is allowed to submit during Final Fix phase')
+    if (currPhase[0].name === 'Final Fix' || currPhase[0].name === 'Approval') {
+      // Check if the user created a submission in the Submission phase - only such users
+      // will be allowed to submit during final phase
+      const userSubmission = yield fetchFromES({
+        challengeId,
+        memberId: authUser.userId
+      }, camelize('Submission'))
+
+      // User requesting submission haven't made any submission - prevent them for creating one
+      if (userSubmission.total === 0) {
+        throw new errors.HttpStatusError(403, 'You are not expected to create a submission in the current phase')
       }
     }
   } else {
