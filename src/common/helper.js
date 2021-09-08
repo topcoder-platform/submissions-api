@@ -10,6 +10,8 @@ const co = require('co')
 const config = require('config')
 const elasticsearch = require('elasticsearch')
 const logger = require('./logger')
+const { originator, mimeType } = require('../../constants').busApiMeta
+const dbhelper = require('./dbhelper')
 const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
@@ -863,6 +865,196 @@ function getLegacyScoreCardId (scoreCardId) {
   return scoreCardId
 }
 
+/**
+ * Create a record in db and es
+ * @param {String} tableName table name
+ * @param {Object} item item to be inserted
+ */
+function * atomicCreateRecord (tableName, item) {
+  const index = config.get('esConfig.ES_INDEX')
+  const type = config.get('esConfig.ES_TYPE')
+  const bulkData = [{create: {_index: index, _type: type, _id: item.id}}, _.assign({ resource: camelize(tableName) }, item)]
+  const bulkRollBackData = [{delete: {_index: index, _type: type, _id: item.id}}]
+  if (tableName === 'Review') {
+    yield generateSubmissionFieldUpdate(item, 'review', 'create', bulkData, bulkRollBackData)
+  } else if (tableName === 'ReviewSummation') {
+    yield generateSubmissionFieldUpdate(item, 'reviewSummation', 'create', bulkData, bulkRollBackData)
+  }
+  yield atomicOperation(
+    function * () {
+      yield dbhelper.insertRecord({
+        TableName: tableName,
+        Item: item
+      })
+    },
+    function * () {
+      yield dbhelper.deleteRecord({
+        TableName: tableName,
+        Key: {
+          id: item.id
+        }
+      })
+    },
+    bulkData,
+    bulkRollBackData,
+    `${tableName}.create`,
+    item
+  )
+}
+
+/**
+ * Update records in the database and es
+ * @param {String} tableName table name
+ * @param {Object} item update item
+ * @param {Object} sourceItem source item
+ * @param {Object} record update record
+ * @param {Object} sourceAttributeValues source es value
+ */
+function * atomicUpdateRecord (tableName, item, sourceItem, record, sourceAttributeValues) {
+  const index = config.get('esConfig.ES_INDEX')
+  const type = config.get('esConfig.ES_TYPE')
+  const bulkData = [{update: {_index: index, _type: type, _id: item.id}}, { doc: item }]
+  const bulkRollBackData = [{update: {_index: index, _type: type, _id: item.id}}, { doc: sourceItem }]
+  if (tableName === 'Review') {
+    yield generateSubmissionFieldUpdate(item, 'review', 'update', bulkData, bulkRollBackData)
+  } else if (tableName === 'ReviewSummation') {
+    yield generateSubmissionFieldUpdate(item, 'reviewSummation', 'update', bulkData, bulkRollBackData)
+  }
+  yield atomicOperation(
+    function * () {
+      yield dbhelper.updateRecord(record)
+    },
+    function * () {
+      yield dbhelper.updateRecord(_.assign(record, { ExpressionAttributeValues: sourceAttributeValues }))
+    },
+    bulkData,
+    bulkRollBackData,
+    `${tableName}.update`,
+    item
+  )
+}
+
+/**
+ * Delete a record from dynamodb and es
+ * @param {String} tableName table name
+ * @param {Object} item delete record
+ */
+function * atomicDeleteRecord (tableName, item) {
+  const index = config.get('esConfig.ES_INDEX')
+  const type = config.get('esConfig.ES_TYPE')
+  const bulkData = [{delete: {_index: index, _type: type, _id: item.id}}]
+  const bulkRollBackData = [{create: {_index: index, _type: type, _id: item.id}}, _.assign({ resource: camelize(tableName) }, item)]
+  if (tableName === 'Review') {
+    yield generateSubmissionFieldUpdate(item, 'review', 'delete', bulkData, bulkRollBackData)
+  } else if (tableName === 'ReviewSummation') {
+    yield generateSubmissionFieldUpdate(item, 'reviewSummation', 'delete', bulkData, bulkRollBackData)
+  }
+  yield atomicOperation(
+    function * () {
+      yield dbhelper.deleteRecord({
+        TableName: tableName,
+        Key: {
+          id: item.id
+        }
+      })
+    },
+    function * () {
+      yield dbhelper.insertRecord({
+        TableName: tableName,
+        Item: item
+      })
+    },
+    bulkData,
+    bulkRollBackData,
+    `${tableName}.delete`,
+    item
+  )
+}
+
+/**
+ * Generate bulk data for submission field update
+ * @param {Object} item update object
+ * @param {String} property submission field name
+ * @param {String} op operation type
+ * @param {Array} bulkData bulk data
+ * @param {Array} bulkRollBackData bulk rollback data
+ */
+function * generateSubmissionFieldUpdate (item, property, op, bulkData, bulkRollBackData) {
+  const index = config.get('esConfig.ES_INDEX')
+  const type = config.get('esConfig.ES_TYPE')
+  const submission = yield getEsClient().getSource({
+    index,
+    type,
+    id: item.submissionId
+  })
+  const newItem = _.filter(submission[property], i => i.id !== item.id)
+  if (_.includes(['create', 'update'], op)) {
+    newItem.push(item)
+  }
+  bulkData.push({update: {_id: item.submissionId, _index: index, _type: type}})
+  bulkData.push({ doc: {[property]: newItem} })
+  bulkRollBackData.push({update: {_id: item.submissionId, _index: index, _type: type}})
+  bulkRollBackData.push({ doc: {[property]: submission[property]} })
+}
+
+/**
+ * Operate db and es in atomic way
+ * @param {Function} dbFunc db function
+ * @param {Function} dbRollbackFunc db rollback function
+ * @param {Object} bulkData es bulk data
+ * @param {Object} bulkRollBackData es rollback bulk data
+ * @param {String} action operation name
+ * @param {Object} payload error event payload
+ */
+function * atomicOperation (dbFunc, dbRollbackFunc, bulkData, bulkRollBackData, action, payload) {
+  const esClient = getEsClient()
+  let step = 0
+  try {
+    yield esClient.bulk({ refresh: 'wait_for', body: bulkData })
+    step = 1
+    yield dbFunc()
+    step = 2
+  } catch (err) {
+    logger.error(`Error while running ${action} with id: ${payload.id}, try to rollback`)
+    logger.error(err)
+    try {
+      if (step >= 2) {
+        yield dbRollbackFunc()
+        logger.info(`Rollback ${action} db with id: ${payload.id} success`)
+      }
+      if (step >= 1) {
+        yield esClient.bulk({ refresh: 'wait_for', body: bulkRollBackData })
+        logger.info(`Rollback ${action} es with id: ${payload.id} success`)
+      }
+      logger.info(`Rollback ${action} with id: ${payload.id} success`)
+    } catch (e) {
+      logger.error(`Error while rolling back ${action} with id: ${payload.id}`)
+      logger.error(e)
+    }
+    yield publishError(config.SUBMISSION_ERROR_TOPIC, action, payload)
+    throw err
+  }
+}
+
+/**
+ * Send error event to Kafka
+ * @param {String} topic the topic name
+ * @param {String} action for which operation error occurred
+ * @param {Object} payload the payload
+ */
+function * publishError (topic, action, payload) {
+  _.set(payload, 'apiAction', action)
+  const message = {
+    topic,
+    originator,
+    timestamp: new Date().toISOString(),
+    'mime-type': mimeType,
+    payload
+  }
+  logger.debug(`Publish error to Kafka topic ${topic}, ${JSON.stringify(message, null, 2)}`)
+  yield getBusApiClient().postEvent(message)
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -882,5 +1074,8 @@ module.exports = {
   getV5ChallengeId,
   adjustSubmissionChallengeId,
   getLatestChallenges,
-  getLegacyScoreCardId
+  getLegacyScoreCardId,
+  atomicCreateRecord,
+  atomicUpdateRecord,
+  atomicDeleteRecord
 }

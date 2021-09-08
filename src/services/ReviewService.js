@@ -177,13 +177,7 @@ function * createReview (authUser, entity) {
 
   item.reviewedDate = entity.reviewedDate || item.created
 
-  // Prepare record to be inserted
-  const record = {
-    TableName: table,
-    Item: item
-  }
-
-  yield dbhelper.insertRecord(record)
+  yield helper.atomicCreateRecord(table, item)
 
   // Push Review created event to Bus API
   // Request body for Posting to Bus API
@@ -312,6 +306,19 @@ function * _updateReview (authUser, reviewId, entity) {
     }
   }
 
+  const sourceAttributeValues = {
+    ':s': exist.score,
+    ':sc': exist.scoreCardId,
+    ':su': exist.submissionId,
+    ':t': exist.typeId,
+    ':r': exist.reviewerId,
+    ':st': exist.status,
+    ':ua': exist.updated,
+    ':ub': exist.updatedBy,
+    ':rd': exist.reviewedDate,
+    ...(v5ScoreCardId ? { ':v5s': exist.v5ScoreCardId } : {})
+  }
+
   // If metadata exists, add it to the update expression
   if (entity.metadata || exist.metadata) {
     record.UpdateExpression =
@@ -321,9 +328,10 @@ function * _updateReview (authUser, reviewId, entity) {
       exist.metadata,
       entity.metadata
     )
+    sourceAttributeValues[':ma'] = exist.metadata
   }
 
-  yield dbhelper.updateRecord(record)
+  yield helper.atomicUpdateRecord(table, _.extend({}, exist, entity), exist, record, sourceAttributeValues)
 
   // Push Review updated event to Bus API
   // Request body for Posting to Bus API
@@ -446,15 +454,7 @@ function * deleteReview (reviewId) {
     )
   }
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewId
-    }
-  }
-
-  yield dbhelper.deleteRecord(filter)
+  yield helper.atomicDeleteRecord(table, exist)
 
   // Push Review deleted event to Bus API
   // Request body for Posting to Bus API

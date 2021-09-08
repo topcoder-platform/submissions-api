@@ -287,7 +287,7 @@ describe('Review Service tests', () => {
         .send(_.omit(testReview.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']))
         .end((err, res) => {
           res.should.have.status(200)
-          res.body.should.have.all.keys(Object.keys(testReview.Item))
+          res.body.should.have.all.keys(Object.keys(_.omit(testReview.Item, 'v5ScoreCardId')))
           res.body.id.should.be.eql(testReview.Item.id)
           res.body.score.should.be.eql(testReview.Item.score)
           res.body.reviewerId.should.be.eql(testReview.Item.reviewerId)

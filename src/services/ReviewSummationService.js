@@ -110,12 +110,7 @@ function * createReviewSummation (authUser, entity) {
 
   item.reviewedDate = entity.reviewedDate || item.created
 
-  const record = {
-    TableName: table,
-    Item: item
-  }
-
-  yield dbhelper.insertRecord(record)
+  yield helper.atomicCreateRecord(table, item)
 
   // Push Review Summation created event to Bus API
   // Request body for Posting to Bus API
@@ -193,11 +188,21 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
       ':rd': entity.reviewedDate || exist.reviewedDate || exist.created
     }
   }
+  const sourceAttributeValues = {
+    ':s': exist.aggregateScore,
+    ':sc': exist.scoreCardId,
+    ':su': exist.submissionId,
+    ':ip': exist.isPassing,
+    ':ua': exist.updated,
+    ':ub': exist.updatedBy,
+    ':rd': exist.reviewedDate
+  }
 
   // If metadata exists, add it to the update expression
   if (entity.metadata || exist.metadata) {
     record.UpdateExpression = record.UpdateExpression + ', metadata = :ma'
     record.ExpressionAttributeValues[':ma'] = _.merge({}, exist.metadata, entity.metadata)
+    sourceAttributeValues[':ma'] = exist.metadata
   }
 
   // If legacy submission ID exists, add it to the update expression
@@ -212,9 +217,10 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
 
     record.UpdateExpression = record.UpdateExpression + ', isFinal = :ls'
     record.ExpressionAttributeValues[':ls'] = isFinal
+    sourceAttributeValues[':ls'] = exist.isFinal
   }
 
-  yield dbhelper.updateRecord(record)
+  yield helper.atomicUpdateRecord(table, _.extend({}, exist, entity), exist, record, sourceAttributeValues)
 
   // Push Review Summation updated event to Bus API
   // Request body for Posting to Bus API
@@ -309,15 +315,7 @@ function * deleteReviewSummation (reviewSummationId) {
     throw new errors.HttpStatusError(404, `Review summation with ID = ${reviewSummationId} is not found`)
   }
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewSummationId
-    }
-  }
-
-  yield dbhelper.deleteRecord(filter)
+  yield helper.atomicDeleteRecord(table, exist)
 
   // Push Review Summation deleted event to Bus API
   // Request body for Posting to Bus API

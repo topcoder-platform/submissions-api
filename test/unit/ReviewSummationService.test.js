@@ -97,7 +97,7 @@ describe('Review Summation Service tests', () => {
         .send({})
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql('"scoreCardId" is required')
+          res.body.message.should.be.eql('"submissionId" is required')
           done()
         })
     })
@@ -167,7 +167,7 @@ describe('Review Summation Service tests', () => {
         .send({})
         .end((err, res) => {
           res.should.have.status(400)
-          res.body.message.should.be.eql('"scoreCardId" is required')
+          res.body.message.should.be.eql('"submissionId" is required')
           done()
         })
     })

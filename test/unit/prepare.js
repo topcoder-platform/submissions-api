@@ -45,15 +45,27 @@ prepare(function (done) {
   })
 
   AWS.mock('DynamoDB.DocumentClient', 'put', (params, callback) => {
-    callback(null, {})
+    if (params.Item.id === 'd24d4180-65aa-42ec-a945-5fd210000001') {
+      callback(new Error('Simulating error'), {})
+    } else {
+      callback(null, {})
+    }
   })
 
   AWS.mock('DynamoDB.DocumentClient', 'update', (params, callback) => {
-    callback(null, {})
+    if (params.Key && params.Key.id === 'd24d4180-65aa-42ec-a945-5fd210000004') {
+      callback(new Error('Simulating error'), {})
+    } else {
+      callback(null, {})
+    }
   })
 
   AWS.mock('DynamoDB.DocumentClient', 'delete', (params, callback) => {
-    callback(null, {})
+    if (params.Key && params.Key.id === 'd24d4180-65aa-42ec-a945-5fd210000007') {
+      callback(new Error('Simulating error'), {})
+    } else {
+      callback(null, {})
+    }
   })
 
   AWS.mock('DynamoDB', 'createTable', (params, callback) => {
@@ -84,20 +96,23 @@ prepare(function (done) {
   const resourcesApi = URL.parse(`${config.BUSAPI_URL}/resources?challengeId=c3564180-65aa-42ec-a945-5fd21dec0502`)
   const resourceRolesApi = URL.parse(`${config.BUSAPI_URL}/resource-roles`)
 
-  nock(/.com/)
+  nock(/.com|localhost/)
     .persist()
     .filteringRequestBody((body) => {
       if (body) {
-        const parsedBody = JSON.parse(body)
-        if (parsedBody.query) {
-          if (parsedBody.query.bool.filter[1]) {
-            const reqId = parsedBody.query.bool.filter[1].match_phrase.id
-            if (nonExistentIds.indexOf(reqId) !== -1) {
-              return 'nonExistent'
+        try {
+          const parsedBody = JSON.parse(body)
+          if (parsedBody.query) {
+            if (parsedBody.query.bool.filter[1]) {
+              const reqId = parsedBody.query.bool.filter[1].match_phrase.id
+              if (nonExistentIds.indexOf(reqId) !== -1) {
+                return 'nonExistent'
+              }
+              return reqId
             }
-            return reqId
+            return parsedBody.query.bool.filter[0].match_phrase.resource
           }
-          return parsedBody.query.bool.filter[0].match_phrase.resource
+        } catch (e) {
         }
       }
       return body
@@ -139,6 +154,21 @@ prepare(function (done) {
     .post(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/_search`, 'e45e4180-65aa-42ec-a945-5fd21dec1504')
     .query(true)
     .reply(200, testData.testReviewSummationES)
+    .get(`/${config.esConfig.ES_INDEX}/${config.esConfig.ES_TYPE}/a12a4180-65aa-42ec-a945-5fd21dec0501/_source`)
+    .query(true)
+    .reply(200, testData.testReviewSummationES.hits.hits[0]._source)
+    .post('/_bulk', /d24d4180-65aa-42ec-a945-5fd210000000/gi)
+    .query(true)
+    .reply(500)
+    .post('/_bulk', /d24d4180-65aa-42ec-a945-5fd210000003/gi)
+    .query(true)
+    .reply(500)
+    .post('/_bulk', /d24d4180-65aa-42ec-a945-5fd210000006/gi)
+    .query(true)
+    .reply(500)
+    .post('/_bulk')
+    .query(true)
+    .reply(200)
 
   done()
 }, function (done) {

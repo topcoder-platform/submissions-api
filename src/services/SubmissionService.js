@@ -336,14 +336,8 @@ function * createSubmission (authUser, files, entity) {
 
   item.submittedDate = entity.submittedDate || item.created
 
-  // Prepare record to be inserted
-  const record = {
-    TableName: table,
-    Item: item
-  }
-
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
-  yield dbhelper.insertRecord(record)
+  yield helper.atomicCreateRecord(table, item)
 
   // After save to db, adjust challengeId to busApi and response
   helper.adjustSubmissionChallengeId(item)
@@ -443,27 +437,43 @@ function * _updateSubmission (authUser, submissionId, entity) {
     }
   }
 
+  const sourceAttributeValues = {
+    ':t': exist.type,
+    ':u': exist.url,
+    ':m': exist.memberId,
+    ':c': exist.challengeId,
+    ...(exist.legacyChallengeId ? {
+      ':lc': exist.legacyChallengeId
+    } : {}),
+    ':ua': exist.updated,
+    ':ub': exist.updatedBy,
+    ':sb': exist.submittedDate
+  }
+
   // If legacy submission ID exists, add it to the update expression
   if (entity.legacySubmissionId || exist.legacySubmissionId) {
     record.UpdateExpression = record.UpdateExpression + ', legacySubmissionId = :ls'
     record.ExpressionAttributeValues[':ls'] = entity.legacySubmissionId || exist.legacySubmissionId
+    sourceAttributeValues[':ls'] = exist.legacySubmissionId
   }
 
   // If legacy upload ID exists, add it to the update expression
   if (entity.legacyUploadId || exist.legacyUploadId) {
     record.UpdateExpression = record.UpdateExpression + ', legacyUploadId = :lu'
     record.ExpressionAttributeValues[':lu'] = entity.legacyUploadId || exist.legacyUploadId
+    sourceAttributeValues[':lu'] = exist.legacyUploadId
   }
 
   // If submissionPhaseId exists, add it to the update expression
   if (entity.submissionPhaseId || exist.submissionPhaseId) {
     record.UpdateExpression = record.UpdateExpression + ', submissionPhaseId = :sp'
     record.ExpressionAttributeValues[':sp'] = entity.submissionPhaseId || exist.submissionPhaseId
+    sourceAttributeValues[':sp'] = exist.submissionPhaseId
   }
 
   logger.info('Prepared submission item to update in Dynamodb. Updating...')
 
-  yield dbhelper.updateRecord(record)
+  yield helper.atomicUpdateRecord(table, _.extend({}, exist, entity), exist, record, sourceAttributeValues)
   const updatedSub = yield _getSubmission(submissionId)
 
   helper.adjustSubmissionChallengeId(updatedSub)
@@ -568,15 +578,7 @@ function * deleteSubmission (submissionId) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      id: submissionId
-    }
-  }
-
-  yield dbhelper.deleteRecord(filter)
+  yield helper.atomicDeleteRecord(table, exist)
 
   // Push Submission deleted event to Bus API
   // Request body for Posting to Bus API

@@ -21,6 +21,7 @@ module.exports = {
   BUSAPI_URL: process.env.BUSAPI_URL || 'https://api.topcoder-dev.com/v5',
   KAFKA_ERROR_TOPIC: process.env.KAFKA_ERROR_TOPIC || 'error.notification',
   KAFKA_AGGREGATE_TOPIC: process.env.KAFKA_AGGREGATE_TOPIC || 'submission.notification.aggregate',
+  SUBMISSION_ERROR_TOPIC: process.env.SUBMISSION_ERROR_TOPIC || 'submission.action.error',
   CHALLENGEAPI_V5_URL: process.env.CHALLENGEAPI_V5_URL || 'https://api.topcoder-dev.com/v5/challenges',
   RESOURCEAPI_V5_BASE_URL: process.env.RESOURCEAPI_V5_BASE_URL || 'https://api.topcoder-dev.com/v5',
   AUTH0_URL: process.env.AUTH0_URL, // Auth0 credentials for Submission Service

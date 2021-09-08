@@ -81,13 +81,8 @@ listReviewTypes.schema = {
  */
 function * createReviewType (entity) {
   const item = _.extend({ id: uuid() }, entity)
-  // Prepare record to be inserted
-  const record = {
-    TableName: table,
-    Item: item
-  }
 
-  yield dbhelper.insertRecord(record)
+  yield helper.atomicCreateRecord(table, item)
 
   // Push Review Type created event to Bus API
   // Request body for Posting to Bus API
@@ -150,7 +145,7 @@ function * _updateReviewType (reviewTypeId, entity) {
       '#name': 'name'
     }
   }
-  yield dbhelper.updateRecord(record)
+  yield helper.atomicUpdateRecord(table, _.extend({}, exist, entity), exist, record, { ':n': exist.name, ':a': exist.isActive })
 
   // Push Review Type updated event to Bus API
   // Request body for Posting to Bus API
@@ -220,15 +215,7 @@ function * deleteReviewType (reviewTypeId) {
     throw new errors.HttpStatusError(404, `Review type with ID = ${reviewTypeId} is not found`)
   }
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewTypeId
-    }
-  }
-
-  yield dbhelper.deleteRecord(filter)
+  yield helper.atomicDeleteRecord(table, exist)
 
   // Push Review Type deleted event to Bus API
   // Request body for Posting to Bus API
