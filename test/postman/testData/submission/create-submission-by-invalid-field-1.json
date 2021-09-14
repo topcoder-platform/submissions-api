@@ -1,0 +1,72 @@
+[
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": 40029484,
+        "challengeId": 30058874,
+        "url": "invalid_url",
+        "fileType": "zip",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"url\" must be a valid uri"
+    },
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": 0,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"memberId\" must be larger than or equal to 1"
+    },
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": "memberId",
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"memberId\" must be a number"
+    },
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": 40029484,
+        "challengeId": 0,
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"challengeId\" must be larger than or equal to 1"
+    },
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": 40029484,
+        "challengeId": "challengeId",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"challengeId\" must be a number"
+    },
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": 10001000,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "token": "copilot_token",
+        "httpCode": 403,
+        "message": "You are not allowed to submit on behalf of others"
+    },
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": 40158994,
+        "challengeId": "dc435322-6845-4faa-8c4e-25660fe8d2c9",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "token": "copilot_token",
+        "httpCode": 403,
+        "message": "Register for the contest before you can submit"
+    }
+]

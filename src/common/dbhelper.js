@@ -12,6 +12,7 @@ const dbClients = { }
 
 AWS.config.update({
   region: config.aws.AWS_REGION
+  // endpoint: "http://localhost:8000"
 })
 
 /**

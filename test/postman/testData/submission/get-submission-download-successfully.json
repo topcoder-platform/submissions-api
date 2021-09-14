@@ -1,0 +1,17 @@
+[
+    {
+        "id": "SUBMISSION_ID_DOWNLOAD_user",
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "SUBMISSION_ID_DOWNLOAD_user",
+        "token": "copilot_token",
+        "httpCode": 200
+    },
+    {
+        "id": "SUBMISSION_ID_DOWNLOAD_user",
+        "token": "user_token",
+        "httpCode": 200
+    }
+]

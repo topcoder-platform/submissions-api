@@ -642,6 +642,9 @@ function * checkReviewGetAccess (authUser, submission) {
  */
 function * downloadFile (fileURL) {
   const { bucket, key } = AmazonS3URI(fileURL)
+  // const values = fileURL.split('/')
+  // const bucket = values[values.length - 2]
+  // const key = values[values.length - 1]
   logger.info(`downloadFile(): file is on S3 ${bucket} / ${key}`)
   const downloadedFile = yield s3.getObject({ Bucket: bucket, Key: key }).promise()
   return downloadedFile.Body
@@ -799,6 +802,23 @@ function * getLatestChallenges (page) {
   }
 }
 
+/**
+ * Uses superagent to proxy post request
+ * @param {String} url the url
+ * @param {Object} data the query parameters, optional
+ * @returns {Object} the response
+ */
+async function postRequest (url, data) {
+  const m2mToken = await m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+
+  return request
+    .post(url)
+    .set('Authorization', `Bearer ${m2mToken}`)
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .send(data)
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -817,5 +837,6 @@ module.exports = {
   getRoleIdToRoleNameMap,
   getV5ChallengeId,
   adjustSubmissionChallengeId,
-  getLatestChallenges
+  getLatestChallenges,
+  postRequest
 }

@@ -20,17 +20,31 @@ const HelperService = require('./HelperService')
  * @return {Promise}
  **/
 function * _uploadToS3 (file, name) {
-  const params = {
-    Bucket: config.aws.ARTIFACT_BUCKET,
-    Key: name,
-    Body: file.data,
-    ContentType: file.mimetype,
-    Metadata: {
-      originalname: file.name
+  return new Promise(async (resolve, reject) => {
+    const params = {
+      Bucket: config.aws.ARTIFACT_BUCKET,
+      Key: name,
+      Body: file.data,
+      ContentType: file.mimetype,
+      Metadata: {
+        originalname: file.name
+      }
     }
-  }
-  // Upload to S3
-  return s3.upload(params).promise()
+
+    // check if bucket exists and create if not exist
+    // try{
+    //   await s3.headBucket({Bucket: config.aws.ARTIFACT_BUCKET}).promise()
+    // }
+    // catch(err) {
+    //   await s3.createBucket({Bucket: config.aws.ARTIFACT_BUCKET}).promise()
+    // }
+
+    // Upload to S3
+    s3.upload(params, (err, data) => {
+      if (err) return reject(err)
+      resolve(data)
+    })
+  })
 }
 
 /**

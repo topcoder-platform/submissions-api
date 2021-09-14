@@ -1,0 +1,52 @@
+[
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "{{invalid_token_1}}",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "{{invalid_token_2}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "{{invalid_token_3}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "{{invalid_token_4}}",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "aggregateScore": 95,
+        "isPassing": true,
+        "isFinal": true,
+        "token": "Bearer {{user_token}}",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    }
+]

@@ -25,7 +25,7 @@ const table = 'Submission'
  * @return {Promise}
  **/
 function * _uploadToS3 (file, name) {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const params = {
       Bucket: config.aws.S3_BUCKET,
       Key: name,
@@ -35,6 +35,13 @@ function * _uploadToS3 (file, name) {
         originalname: file.name
       }
     }
+    // check if the bucket exists and create bucket if not exist
+    // try {
+    //   await s3.headBucket({Bucket: config.aws.S3_BUCKET}).promise()
+    // }
+    // catch(err) {
+    //   await s3.createBucket({Bucket: config.aws.S3_BUCKET}).promise()
+    // }
     // Upload to S3
     s3.upload(params, (err, data) => {
       if (err) return reject(err)

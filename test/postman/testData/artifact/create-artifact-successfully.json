@@ -1,0 +1,14 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "artifact": "dummy.zip.zip",
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "SUBMISSION_ID_copilot",
+        "artifact": "dummy.zip.zip",
+        "token": "M2M_TOKEN",
+        "httpCode": 200
+    }
+]

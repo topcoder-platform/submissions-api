@@ -1,3 +1,11 @@
+## Pre-requisites
+
+1. Active AWS Account
+2. Node.js 8.11.x
+3. Npm 5.6.x
+4. Postman for Verification 
+5. Docker and Docker-Compose (Optional for Local Deployment)
+
 # Topcoder Submission API
 
 Topcoder's API that deals with submissions, reviews, review summations and review types on the Topcoder platform
@@ -22,13 +30,6 @@ Dev: [![CircleCI](https://circleci.com/gh/topcoder-platform/submissions-api/tree
 
 - [ES Processor](https://github.com/topcoder-platform/submission-processor-es) - Updates data in ElasticSearch
 
-## Pre-requisites
-
-1. Active AWS Account
-2. Node.js 8.11.x
-3. Npm 5.6.x
-4. Postman for Verification 
-5. Docker and Docker-Compose (Optional for Local Deployment)
 
 ## Setup
 
@@ -224,16 +225,6 @@ docker-compose up
 
 5. When you are running the application for the first time, It will take some time initially to download the image and install the dependencies
 
-## Unit tests and Integration tests
-
-Integration tests use different index `submission-test` which is not same as the usual index `submission`.
-
-Please ensure to create the index `submission-test` or the index specified in the environment variable `ES_INDEX_TEST` before running the Integration tests. You could re-use the existing scripts to create index but you would need to set the below environment variable
-
-```
-export ES_INDEX=submission-test
-```
-
 #### Running unit tests and coverage
 
 To run unit tests alone
@@ -246,20 +237,6 @@ To run unit tests with coverage report
 
 ```
 npm run cov
-```
-
-#### Running integration tests and coverage
-
-To run integration tests alone
-
-```
-npm run e2e
-```
-
-To run integration tests with coverage report
-
-```
-npm run cov-e2e
 ```
 
 #### Migrating data from DynamoDB to ES
@@ -290,23 +267,51 @@ and then run the following script
 npm run update-to-v5-challengeId
 ```
 
-## Postman verification
+## Newman/Postman verification
 
-1. Open Postman
-
-2. Import Postman environment and Collection from `docs` directory
-
-3. Postman API requests are categorized into four parts 
-   - Review Type
-   - Submission
-   - Review
-   - Review Summation
-
-4. Postman collection contains both positive and few negative test cases
-
-5. After creating a submission, submissionId will be automatically set in Postman environment to serve future requests
-
-6. Please ensure to create a submission using Postman before testing Review and ReviewSummation end points, since the body of few Review and ReviewSummation requests references `submissionId` from Environment which is set by triggering POST /submissions request in Postman.
+1. Make sure your AWS access key credentials are configured properly.
+2. Set following config/test environment variables
+- AWS variables
+```
+AWS_REGION:
+S3_BUCKET:
+ARTIFACT_BUCKET:
+```
+- Variables to auto generate tokens on automated postman testing
+```
+AUTH_SECRET:
+AUTH0_URL:
+AUTH0_CLIENT_ID:
+AUTH0_CLIENT_SECRET:
+AUTH0_AUDIENCE:
+AUTH_V2_URL:
+AUTH_V2_CLIENT_ID:
+AUTH_V3_URL:
+```
+- Following config/test environments are used to generate tokens. Some tests rely on user's memberId, do not change them.
+```
+ADMIN_CREDENTIALS_USERNAME:
+ADMIN_CREDENTIALS_PASSWORD:
+COPILOT_CREDENTIALS_USERNAME:
+COPILOT_CREDENTIALS_PASSWORD:
+USER_CREDENTIALS_USERNAME:
+USER_CREDENTIALS_PASSWORD:
+```
+- Following config/test environments are endpoints of the mock api. No need to change them. Mock api mocks BUS API, CHALLENGE API and RESOURCE API
+```
+BUSAPI_EVENTS_URL:
+BUSAPI_URL:
+CHALLENGEAPI_V5_URL:
+RESOURCEAPI_V5_BASE_URL:
+```
+3. run command `npm install`
+4. run command `npm run lint`
+5. run command `npm run services:up` This will start elastic search and mock api.
+6. run command `npm run cleanup` This will recreate tables and ES indexes, and import demo data into ES. It can throw error when trying to delete non existing tables or indexes, don't worry it will continue to executing. Run this command before subsequent tests. Tests use different index `submission-test` which is not same as the usual index `submission`.
+7. run command `NODE_ENV=test npm start`
+8. run command `npm run test:newman`
+9. To execute tests in Postman, import postman collection and environments under test/postman directory into Postman. Go to settings and set the working directory to the root folder of this api. On runner, use correspoinding iteration data.
+10. Auto generated tokens have 10 mins expiration time. Tests take 3 mins to complete.
 
 ## General Notes
 

@@ -1,0 +1,20 @@
+[
+    {
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "name": "POSTMANE2E-Iterative Review",
+        "isActive": true,
+        "token": "copilot_token",
+        "httpCode": 200
+    },
+    {
+        "name": "POSTMANE2E-Screening",
+        "isActive": true,
+        "token": "M2M_TOKEN",
+        "httpCode": 200
+    }
+]

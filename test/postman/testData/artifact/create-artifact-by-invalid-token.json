@@ -1,0 +1,26 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "token": "{{invalid_token_1}}",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "token": "{{invalid_token_2}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "token": "{{invalid_token_3}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "token": "{{invalid_token_4}}",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    }
+]

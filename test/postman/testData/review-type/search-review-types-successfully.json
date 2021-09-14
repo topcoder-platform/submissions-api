@@ -1,0 +1,73 @@
+[
+    {
+        "params": {
+            "name": "POSTMANE2E-Screening",
+            "isActive": true,
+            "page": 1,
+            "perPage": 5,
+            "orderBy": "asc",
+            "sortBy": "isActive"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 1,
+        "X-Page": "1",
+        "X-Per-Page": "5",
+        "X-Total": "1",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "isActive": true,
+            "page": 1,
+            "perPage": 10,
+            "orderBy": "asc",
+            "sortBy": "isActive"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 6,
+        "X-Page": "1",
+        "X-Per-Page": "10",
+        "X-Total": "6",
+        "X-Total-Pages": "1"
+    },
+    {
+        "params": {
+            "isActive": true,
+            "page": 2,
+            "perPage": 4
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 2,
+        "X-Page": "2",
+        "X-Per-Page": "4",
+        "X-Total": "6",
+        "X-Total-Pages": "2"
+    },
+    {
+        "params": {
+            "isActive": false,
+            "page": 1,
+            "perPage": 10,
+            "orderBy": "asc",
+            "sortBy": "isActive"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 0
+    },
+    {
+        "params": {
+            "name": "Review"
+        },
+        "token": "admin_token",
+        "httpCode": 200,
+        "count": 3,
+        "X-Page": "1",
+        "X-Per-Page": "20",
+        "X-Total": "3",
+        "X-Total-Pages": "1"
+    }
+]

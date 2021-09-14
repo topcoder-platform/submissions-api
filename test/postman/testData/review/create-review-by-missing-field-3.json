@@ -1,0 +1,12 @@
+[
+    {
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"reviewerId\" must be a number or a string"
+    }
+]

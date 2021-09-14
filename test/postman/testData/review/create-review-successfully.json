@@ -1,0 +1,32 @@
+[
+    {
+        "score": "90",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "status": "queued",
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "score": "85",
+        "typeId": "REVIEW_TYPE_ID_admin",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_copilot",
+        "status": "queued",
+        "token": "copilot_token",
+        "httpCode": 200
+    },
+    {
+        "score": "80",
+        "typeId": "REVIEW_TYPE_ID_copilot",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_user",
+        "status": "queued",
+        "token": "M2M_TOKEN",
+        "httpCode": 200
+    }
+]

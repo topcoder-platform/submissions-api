@@ -1,0 +1,50 @@
+[
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "{{invalid_token_1}}",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "{{invalid_token_2}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "{{invalid_token_3}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "{{invalid_token_4}}",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "Bearer {{copilot_token}}",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    },
+    {
+        "id": "REVIEW_TYPE_ID_admin",
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "Bearer {{user_token}}",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    }
+]

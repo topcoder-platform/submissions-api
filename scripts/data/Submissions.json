@@ -75,7 +75,7 @@
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0503",
     "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0503",
     "review": [
-       {
+      {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0503",
         "score": 80.83,
         "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
@@ -209,6 +209,122 @@
     "url": "https://software.topcoder.com/review/actions/DownloadContestSubmission?uid=123460",
     "memberId": "b24d4180-65aa-42ec-a945-5fd21dec0506",
     "challengeId": "c3564180-65aa-42ec-a945-5fd21dec0503",
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
+        "score": 92.5,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "created": "2018-05-20T05:20:30.145Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "a12a4180-65aa-42ec-a945-5fd21dec0507",
+    "type": "ContestSubmission",
+    "url": "s3://eisbilir-bucket/de59622c-d50d-4c00-9ab7-511abc31bf34.zip",
+    "memberId": 40029484,
+    "challengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
+        "score": 92.5,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "created": "2018-05-20T05:20:30.145Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "a12a4180-65aa-42ec-a945-5fd21dec0508",
+    "type": "ContestSubmission",
+    "url": "https://eisbilir-bucket.s3.amazonaws.com/de59622c-d50d-4c00-9ab7-511abc31bf33.zip",
+    "memberId": 40158994,
+    "challengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
+        "score": 92.5,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "created": "2018-05-20T05:20:30.145Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "a12a4180-65aa-42ec-a945-5fd21dec0509",
+    "type": "ContestSubmission",
+    "url": "https://eisbilir-bucket.s3.amazonaws.com/de59622c-d50d-4c00-9ab7-511abc31bf33.zip",
+    "memberId": 88774634,
+    "challengeId": "f01686da-28ab-48bc-867c-60faeae324da",
+    "review": [
+      {
+        "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",
+        "score": 92.5,
+        "typeId": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "reviewerId": "c23a4180-65aa-42ec-a945-5fd21dec0503",
+        "scoreCardId": 123456789,
+        "submissionId": "a12a4180-65aa-42ec-a945-5fd21dec0505",
+        "metadata": {
+          "public": "public data",
+          "private": "private data"
+        },
+        "created": "2018-05-20T07:00:30.123Z",
+        "updated": "2018-06-01T07:36:28.178Z",
+        "createdBy": "admin",
+        "updatedBy": "admin"
+      }
+    ],
+    "created": "2018-05-20T05:20:30.145Z",
+    "updated": "2018-06-01T07:36:28.178Z",
+    "createdBy": "topcoder user",
+    "updatedBy": "topcoder user"
+  },
+  {
+    "id": "a12a4180-65aa-42ec-a945-5fd21dec0510",
+    "type": "ContestSubmission",
+    "url": "https://eisbilir-bucket.s3.amazonaws.com/de59622c-d50d-4c00-9ab7-511abc31bf33.zip",
+    "memberId": 555555,
+    "challengeId": "f01686da-28ab-48bc-867c-60faeae324da",
     "review": [
       {
         "id": "d24d4180-65aa-42ec-a945-5fd21dec0509",

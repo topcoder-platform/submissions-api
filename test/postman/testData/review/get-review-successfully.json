@@ -1,0 +1,16 @@
+[
+    {
+        "id": "REVIEW_ID_admin",
+        "score": "90",
+        "scoreCardId": 123456789,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "REVIEW_ID_copilot",
+        "score": "85",
+        "scoreCardId": 123456789,
+        "token": "admin_token",
+        "httpCode": 200
+    }
+]

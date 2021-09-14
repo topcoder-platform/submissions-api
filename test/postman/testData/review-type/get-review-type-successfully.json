@@ -1,0 +1,30 @@
+[
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0501",
+        "name": "POSTMANE2E-Screening",
+        "isActive": true,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0502",
+        "name": "POSTMANE2E-Checkpoint Review",
+        "isActive": true,
+        "token": "admin_token",
+        "httpCode": 200
+    },
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0503",
+        "name": "POSTMANE2E-Review",
+        "isActive": true,
+        "token": "copilot_token",
+        "httpCode": 200
+    },
+    {
+        "id": "c56a4180-65aa-42ec-a945-5fd21dec0504",
+        "name": "POSTMANE2E-Appeals Response",
+        "isActive": true,
+        "token": "copilot_token",
+        "httpCode": 200
+    }
+]

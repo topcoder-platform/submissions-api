@@ -1,0 +1,13 @@
+[
+    {
+        "type": "POSTMANE2E-challengesubmission",
+        "memberId": 88774634,
+        "challengeId": 30058874,
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "fileType": "zip",
+        "submittedDate": "01.01.2021",
+        "token": "user_token",
+        "httpCode": 403,
+        "message": "You are not allowed to set the `submittedDate` attribute on a submission"
+    }
+]

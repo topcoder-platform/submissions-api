@@ -1,0 +1,44 @@
+[
+    {
+        "id": "SUBMISSION_ID_admin",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "token": "{{invalid_token_1}}",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "token": "{{invalid_token_2}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "token": "{{invalid_token_3}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "token": "{{invalid_token_4}}",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "token": "Bearer {{copilot_token}}",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    },
+    {
+        "id": "SUBMISSION_ID_admin",
+        "url": "https://s3.amazonaws.com/cfd0a4e8-62e0-4bf5-8ac6-270fad8d24a4",
+        "token": "Bearer {{user_token}}",
+        "httpCode": 403,
+        "message": "You are not allowed to perform this action!"
+    }
+]

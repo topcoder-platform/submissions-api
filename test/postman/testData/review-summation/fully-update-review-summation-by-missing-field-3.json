@@ -1,0 +1,12 @@
+[
+    {
+        "id": "REVIEW_SUMMATION_ID_admin",
+        "scoreCardId": 123456789,
+        "submissionId": "SUBMISSION_ID_admin",
+        "isPassing": true,
+        "isFinal": true,
+        "token": "admin_token",
+        "httpCode": 400,
+        "message": "\"aggregateScore\" is required"
+    }
+]

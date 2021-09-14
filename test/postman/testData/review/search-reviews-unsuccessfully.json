@@ -1,0 +1,116 @@
+[
+    {
+        "params": {
+            "score": "score"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"score\" must be a number"
+    },
+    {
+        "params": {
+            "typeId": "id"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"typeId\" must be a valid GUID"
+    },
+    {
+        "params": {
+            "reviewerId": "id"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"reviewerId\" must be a number"
+    },
+    {
+        "params": {
+            "scoreCardId": "id"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"scoreCardId\" must be a number"
+    },
+    {
+        "params": {
+            "submissionId": "id"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"submissionId\" must be a valid GUID"
+    },
+    {
+        "params": {
+            "page": "one"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"page\" must be a number"
+    },
+    {
+        "params": {
+            "perPage": "one"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"perPage\" must be a number"
+    },
+    {
+        "params": {
+            "orderBy": "one"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"orderBy\" must be one of [asc, desc, ASC, DESC]"
+    },
+    {
+        "params": {
+            "orderBy": "asc"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"orderBy\" missing required peer \"sortBy\""
+    },
+    {
+        "params": {
+            "orderBy": "asc",
+            "sortBy": "id"
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"sortBy\" must be one of [score, typeId, reviewerId, scoreCardId, submissionId, status]"
+    },
+    {
+        "params": {
+            "orderBy": "asc",
+            "sortBy": ""
+        },
+        "token": "Bearer {{admin_token}}",
+        "httpCode": 400,
+        "message": "\"sortBy\" is not allowed to be empty"
+    },
+    {
+        "params": {},
+        "token": "{{invalid_token_1}}",
+        "httpCode": 403,
+        "message": "Invalid Token."
+    },
+    {
+        "params": {},
+        "token": "{{invalid_token_2}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "params": {},
+        "token": "{{invalid_token_3}}",
+        "httpCode": 403,
+        "message": "No token provided."
+    },
+    {
+        "params": {},
+        "token": "{{invalid_token_4}}",
+        "httpCode": 403,
+        "message": "Failed to authenticate token."
+    }
+]

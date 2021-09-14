@@ -32,7 +32,9 @@ function deleteDatafromES () {
  */
 function * loadReviewTypes () {
   const promises = []
+  const prefix = config.AUTOMATED_TESTING_NAME_PREFIX || ''
   reviewTypes.forEach((reviewType) => {
+    reviewType.name = prefix + reviewType.name
     const record = {
       index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
@@ -49,7 +51,9 @@ function * loadReviewTypes () {
  */
 function * loadSubmissions () {
   const promises = []
+  const prefix = config.AUTOMATED_TESTING_NAME_PREFIX || ''
   submissions.forEach((submission) => {
+    submission.type = prefix + submission.type
     const record = {
       index: config.get('esConfig.ES_INDEX'),
       type: config.get('esConfig.ES_TYPE'),
