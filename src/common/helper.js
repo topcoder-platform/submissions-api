@@ -887,14 +887,6 @@ function * atomicCreateRecord (tableName, item) {
         Item: item
       })
     },
-    function * () {
-      yield dbhelper.deleteRecord({
-        TableName: tableName,
-        Key: {
-          id: item.id
-        }
-      })
-    },
     bulkData,
     bulkRollBackData,
     `${tableName}.create`,
@@ -923,9 +915,6 @@ function * atomicUpdateRecord (tableName, item, sourceItem, record, sourceAttrib
   yield atomicOperation(
     function * () {
       yield dbhelper.updateRecord(record)
-    },
-    function * () {
-      yield dbhelper.updateRecord(_.assign(record, { ExpressionAttributeValues: sourceAttributeValues }))
     },
     bulkData,
     bulkRollBackData,
@@ -956,12 +945,6 @@ function * atomicDeleteRecord (tableName, item) {
         Key: {
           id: item.id
         }
-      })
-    },
-    function * () {
-      yield dbhelper.insertRecord({
-        TableName: tableName,
-        Item: item
       })
     },
     bulkData,
@@ -1000,29 +983,23 @@ function * generateSubmissionFieldUpdate (item, property, op, bulkData, bulkRoll
 /**
  * Operate db and es in atomic way
  * @param {Function} dbFunc db function
- * @param {Function} dbRollbackFunc db rollback function
  * @param {Object} bulkData es bulk data
  * @param {Object} bulkRollBackData es rollback bulk data
  * @param {String} action operation name
  * @param {Object} payload error event payload
  */
-function * atomicOperation (dbFunc, dbRollbackFunc, bulkData, bulkRollBackData, action, payload) {
+function * atomicOperation (dbFunc, bulkData, bulkRollBackData, action, payload) {
   const esClient = getEsClient()
-  let step = 0
+  let esInserted = false
   try {
     yield esClient.bulk({ refresh: 'wait_for', body: bulkData })
-    step = 1
+    esInserted = true
     yield dbFunc()
-    step = 2
   } catch (err) {
     logger.error(`Error while running ${action} with id: ${payload.id}, try to rollback`)
     logger.error(err)
     try {
-      if (step >= 2) {
-        yield dbRollbackFunc()
-        logger.info(`Rollback ${action} db with id: ${payload.id} success`)
-      }
-      if (step >= 1) {
+      if (esInserted) {
         yield esClient.bulk({ refresh: 'wait_for', body: bulkRollBackData })
         logger.info(`Rollback ${action} es with id: ${payload.id} success`)
       }
