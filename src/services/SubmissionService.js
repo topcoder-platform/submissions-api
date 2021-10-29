@@ -330,6 +330,7 @@ function * createSubmission (authUser, files, entity) {
   }
 
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
+  logger.info(JSON.stringify(record, null, 2))
   yield dbhelper.insertRecord(record)
 
   // After save to db, adjust challengeId to busApi and response
