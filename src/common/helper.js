@@ -766,6 +766,8 @@ function adjustSubmissionChallengeId (submission) {
   if (submission.challengeId && submission.legacyChallengeId) {
     submission.v5ChallengeId = submission.challengeId
     submission.challengeId = submission.legacyChallengeId
+  } else if (submission.challengeId && !submission.legacyChallengeId) {
+    submission.v5ChallengeId = submission.challengeId
   }
 }
 

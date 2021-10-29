@@ -282,11 +282,15 @@ function * createSubmission (authUser, files, entity) {
     url: url,
     memberId: entity.memberId,
     challengeId,
-    legacyChallengeId,
     created: currDate,
     updated: currDate,
     createdBy: authUser.handle || authUser.sub,
     updatedBy: authUser.handle || authUser.sub
+  }
+
+  // Pure v5 challenges won't have a legacy challenge id
+  if (legacyChallengeId) {
+    item.legacyChallengeId = legacyChallengeId
   }
 
   if (entity.legacySubmissionId) {
@@ -405,6 +409,13 @@ function * _updateSubmission (authUser, submissionId, entity) {
     challengeId = yield helper.getV5ChallengeId(entity.challengeId)
     legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
   }
+  if (exist.legacyChallengeId && !legacyChallengeId) {
+    // Original submission contains a legacy challenge id
+    // But with this update, it does not
+    // Prevent updates to current submission
+    // else we will be left with a submission with wrong legacy challenge id
+    throw new errors.HttpStatusError(400, `Cannot update submission with v5 challenge id since it already has a legacy challenge id associated with it`)
+  }
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -412,13 +423,12 @@ function * _updateSubmission (authUser, submissionId, entity) {
       id: submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
-                        legacyChallengeId = :lc, updated = :ua, updatedBy = :ub, submittedDate = :sb`,
+                        updated = :ua, updatedBy = :ub, submittedDate = :sb`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
       ':m': entity.memberId || exist.memberId,
       ':c': challengeId,
-      ':lc': legacyChallengeId,
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub,
       ':sb': entity.submittedDate || exist.submittedDate || exist.created
@@ -427,6 +437,11 @@ function * _updateSubmission (authUser, submissionId, entity) {
       '#type': 'type',
       '#url': 'url'
     }
+  }
+
+  if (legacyChallengeId) {
+    record.UpdateExpression = record.UpdateExpression + ', legacyChallengeId = :lc'
+    record.ExpressionAttributeValues[':lc'] = legacyChallengeId
   }
 
   // If legacy submission ID exists, add it to the update expression
