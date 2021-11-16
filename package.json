@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "amazon-s3-uri": "0.0.3",
-    "aws-sdk": "^2.265.1",
+    "aws-sdk": "^2.814.0",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "co": "^4.6.0",
