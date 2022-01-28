@@ -575,7 +575,7 @@ function * checkGetAccess (authUser, submission) {
         const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
 
         // Appeals Response is not closed yet
-        if (appealsResponseStatus !== 'Closed') {
+        if (appealsResponseStatus !== 'Closed' && appealsResponseStatus !== 'Invalid') {
           throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
         } else {
           const userSubmission = yield fetchFromES({
