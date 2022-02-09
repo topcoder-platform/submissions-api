@@ -549,6 +549,12 @@ function * checkGetAccess (authUser, submission) {
     if (copilot.length !== 0) {
       return true
     }
+    // Check if the User is a Client Manager
+    const clientManager = _.filter(currUserRoles, { role: 'Client Manager' })
+    // Client Managers have access to all submissions regardless of Phases
+    if (clientManager.length !== 0) {
+      return true
+    }
     // Check for Reviewer / Submitter roles
     if (subTrack === 'FIRST_2_FINISH') {
       const iterativeReviewer = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
