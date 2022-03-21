@@ -67,7 +67,7 @@ workflows:
           context : org-global
           filters:
             branches:
-              only: ['issue_reviewer_role']
+              only: ['develop']
       - "build-prod":
           context : org-global
           filters:
