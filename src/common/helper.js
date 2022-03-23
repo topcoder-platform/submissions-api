@@ -447,6 +447,18 @@ function * checkCreateAccess (authUser, subEntity) {
     const phases = challengeDetails.body.phases
     const winner = challengeDetails.body.winners
 
+    // Check if the User is assigned as the reviewer for the contest
+    const reviewers = _.filter(currUserRoles, { role: 'Reviewer' })
+    if (reviewers.length !== 0) {
+      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are a reviewer`)
+    }
+
+    // Check if the User is assigned as the iterative reviewer for the contest
+    const iterativeReviewers = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
+    if (iterativeReviewers.length !== 0) {
+      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are an iterative reviewer`)
+    }
+
     // Check if the User is registered for the contest
     const submitters = _.filter(currUserRoles, { role: 'Submitter' })
     if (submitters.length === 0) {
