@@ -9,14 +9,16 @@ module.exports = {
       method: 'createSubmission',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['create:submission', 'all:submission']
+      scopes: ['create:submission', 'all:submission'],
+      blockByIp: true
     },
     get: {
       controller: 'SubmissionController',
       method: 'listSubmissions',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['read:submission', 'all:submission']
+      scopes: ['read:submission', 'all:submission'],
+      blockByIp: true
     }
   },
   '/submissions/:submissionId': {
@@ -25,28 +27,32 @@ module.exports = {
       method: 'getSubmission',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['read:submission', 'all:submission']
+      scopes: ['read:submission', 'all:submission'],
+      blockByIp: true
     },
     put: {
       controller: 'SubmissionController',
       method: 'updateSubmission',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['update:submission', 'all:submission']
+      scopes: ['update:submission', 'all:submission'],
+      blockByIp: true
     },
     patch: {
       controller: 'SubmissionController',
       method: 'patchSubmission',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['update:submission', 'all:submission']
+      scopes: ['update:submission', 'all:submission'],
+      blockByIp: true
     },
     delete: {
       controller: 'SubmissionController',
       method: 'deleteSubmission',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['delete:submission', 'all:submission']
+      scopes: ['delete:submission', 'all:submission'],
+      blockByIp: true
     }
   },
   '/submissions/:submissionId/download': {
@@ -55,7 +61,8 @@ module.exports = {
       method: 'downloadSubmission',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['read:submission', 'all:submission']
+      scopes: ['read:submission', 'all:submission'],
+      blockByIp: true
     }
   },
   '/submissions/:submissionId/artifacts': {
@@ -64,14 +71,16 @@ module.exports = {
       method: 'createArtifact',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['create:submission', 'all:submission']
+      scopes: ['create:submission', 'all:submission'],
+      blockByIp: true
     },
     get: {
       controller: 'ArtifactController',
       method: 'listArtifacts',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['read:submission', 'all:submission']
+      scopes: ['read:submission', 'all:submission'],
+      blockByIp: true
     }
   },
   '/submissions/:submissionId/artifacts/:file': {
@@ -80,7 +89,8 @@ module.exports = {
       method: 'deleteArtifact',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['delete:submission', 'all:submission']
+      scopes: ['delete:submission', 'all:submission'],
+      blockByIp: true
     }
   },
   '/submissions/:submissionId/artifacts/:file/download': {
@@ -89,7 +99,8 @@ module.exports = {
       method: 'downloadArtifact',
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
-      scopes: ['read:submission', 'all:submission']
+      scopes: ['read:submission', 'all:submission'],
+      blockByIp: true
     }
   }
 }
