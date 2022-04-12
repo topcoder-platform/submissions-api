@@ -188,7 +188,17 @@ function * listSubmissions (authUser, query) {
     query.challengeId = yield helper.getV5ChallengeId(query.challengeId)
   }
 
+  // TODO - support v5 for review scorecardid
+  if (query['review.scoreCardId']) {
+    query['review.scoreCardId'] = helper.getLegacyScoreCardId(query['review.scoreCardId'])
+
+    if (!query['review.scoreCardId']) {
+      throw new errors.HttpStatusError(400, 'Legacy scorecard id not found for the provided v5 scorecard id')
+    }
+  }
+
   const data = yield helper.fetchFromES(query, helper.camelize(table))
+  logger.info(`Data returned from ES: ${JSON.stringify(data, null, 4)}`)
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
   data.rows = _.map(data.rows, (submission) => {
@@ -215,7 +225,7 @@ const listSubmissionsQuerySchema = {
   'review.score': joi.score(),
   'review.typeId': joi.string().uuid(),
   'review.reviewerId': joi.string().uuid(),
-  'review.scoreCardId': joi.id(),
+  'review.scoreCardId': joi.alternatives().try(joi.id(), joi.string().uuid()),
   'review.submissionId': joi.string().uuid(),
   'review.status': joi.reviewStatus(),
   'reviewSummation.scoreCardId': joi.id(),
@@ -423,12 +433,15 @@ function * _updateSubmission (authUser, submissionId, entity) {
       id: submissionId
     },
     UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
-                        updated = :ua, updatedBy = :ub, submittedDate = :sb`,
+                        ${legacyChallengeId ? 'legacyChallengeId = :lc,' : ''} updated = :ua, updatedBy = :ub, submittedDate = :sb`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
       ':m': entity.memberId || exist.memberId,
       ':c': challengeId,
+      ...(legacyChallengeId ? {
+        ':lc': legacyChallengeId
+      } : {}),
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub,
       ':sb': entity.submittedDate || exist.submittedDate || exist.created
@@ -483,7 +496,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
       memberId: updatedSub.memberId,
       submissionPhaseId: updatedSub.submissionPhaseId,
       type: updatedSub.type,
-      submittedDate: updatedSub.submittedDate
+      submittedDate: updatedSub.submittedDate,
+      legacyChallengeId: updatedSub.legacyChallengeId
     }, entity)
   }
 
