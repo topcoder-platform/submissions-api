@@ -315,3 +315,5 @@ npm run update-to-v5-challengeId
 2. There are 3 tokens provided in the environment collection representing each role - Topcoder User, Copilot, Administrator
 
 3. DynamoDB performance seems to be slower in my testing
+
+Token Commit.

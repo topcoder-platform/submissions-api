@@ -298,6 +298,7 @@ function * createSubmission (authUser, files, entity) {
     updatedBy: authUser.handle || authUser.sub
   }
 
+  // Pure v5 challenges won't have a legacy challenge id
   if (legacyChallengeId) {
     item.legacyChallengeId = legacyChallengeId
   }
@@ -343,6 +344,7 @@ function * createSubmission (authUser, files, entity) {
   }
 
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
+  logger.info(JSON.stringify(record, null, 2))
   yield dbhelper.insertRecord(record)
 
   // After save to db, adjust challengeId to busApi and response
@@ -417,6 +419,13 @@ function * _updateSubmission (authUser, submissionId, entity) {
     challengeId = yield helper.getV5ChallengeId(entity.challengeId)
     legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
   }
+  if (exist.legacyChallengeId && !legacyChallengeId) {
+    // Original submission contains a legacy challenge id
+    // But with this update, it does not
+    // Prevent updates to current submission
+    // else we will be left with a submission with wrong legacy challenge id
+    throw new errors.HttpStatusError(400, `Cannot update submission with v5 challenge id since it already has a legacy challenge id associated with it`)
+  }
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -441,6 +450,11 @@ function * _updateSubmission (authUser, submissionId, entity) {
       '#type': 'type',
       '#url': 'url'
     }
+  }
+
+  if (legacyChallengeId) {
+    record.UpdateExpression = record.UpdateExpression + ', legacyChallengeId = :lc'
+    record.ExpressionAttributeValues[':lc'] = legacyChallengeId
   }
 
   // If legacy submission ID exists, add it to the update expression
