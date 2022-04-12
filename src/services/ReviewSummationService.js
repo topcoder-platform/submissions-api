@@ -59,7 +59,7 @@ function * listReviewSummations (query) {
 }
 
 const listReviewSummationsQuerySchema = {
-  scoreCardId: joi.id(),
+  scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   submissionId: joi.string().uuid(),
   aggregateScore: joi.score(),
   isPassing: joi.boolean(),
@@ -138,7 +138,7 @@ function * createReviewSummation (authUser, entity) {
 createReviewSummation.schema = {
   authUser: joi.object().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.id().required(),
+    scoreCardId: joi.alternatives().try(joi.id().required(), joi.string().uuid().required()),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
@@ -263,7 +263,7 @@ updateReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.id().required(),
+    scoreCardId: joi.alternatives().try(joi.id().required(), joi.string().uuid().required()),
     submissionId: joi.string().uuid().required(),
     aggregateScore: joi.score().required(),
     isPassing: joi.boolean().required(),
@@ -288,7 +288,7 @@ patchReviewSummation.schema = {
   authUser: joi.object().required(),
   reviewSummationId: joi.string().uuid().required(),
   entity: joi.object().keys({
-    scoreCardId: joi.id(),
+    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     submissionId: joi.string().uuid(),
     aggregateScore: joi.score(),
     isPassing: joi.boolean(),
