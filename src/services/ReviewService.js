@@ -70,9 +70,7 @@ function * getReview (authUser, reviewId) {
     false
   )
   logger.info('Check User access before returning the review')
-  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
-    yield helper.checkReviewGetAccess(authUser, submission)
-  }
+  yield helper.checkReviewGetAccess(authUser, submission)
   // Return the review
   return review
 }
@@ -91,15 +89,6 @@ getReview.schema = {
  * @return {Object} Data fetched from ES
  */
 function * listReviews (query) {
-  if (query.scoreCardId) {
-    // Always use legacy scorecard id since v5 isn't stored in db
-    query.scoreCardId = helper.getLegacyScoreCardId(query.scoreCardId)
-
-    if (!query.scoreCardId) {
-      throw new errors.HttpStatusError(400, 'Legacy scorecard id not found for the provided v5 scorecard id')
-    }
-  }
-
   return yield helper.fetchFromES(query, helper.camelize(table))
 }
 
@@ -107,7 +96,7 @@ const listReviewsQuerySchema = {
   score: joi.score(),
   typeId: joi.string().uuid(),
   reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-  scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  scoreCardId: joi.id(),
   submissionId: joi.string().uuid(),
   status: joi.reviewStatus(),
   page: joi.id(),
@@ -142,20 +131,6 @@ function * createReview (authUser, entity) {
   yield HelperService._checkRef(entity)
 
   const currDate = new Date().toISOString()
-
-  const possibleV5ScoreCardId = entity.scoreCardId
-
-  // Always use legacy id instead of v5 legacy id
-  entity.scoreCardId = helper.getLegacyScoreCardId(entity.scoreCardId)
-
-  if (!entity.scoreCardId) {
-    throw new errors.HttpStatusError(400, 'Legacy scorecard id not found for the provided v5 scorecard id')
-  }
-
-  if (entity.scoreCardId !== possibleV5ScoreCardId) {
-    // Remember the v5 score card id too that was passed
-    entity.v5ScoreCardId = possibleV5ScoreCardId
-  }
 
   const item = _.extend(
     {
@@ -229,7 +204,7 @@ createReview.schema = {
         .error(errors => ({
           message: '"reviewerId" must be a number or a string'
         })),
-      scoreCardId: joi.alternatives().try(joi.id().required(), joi.string().uuid().required()),
+      scoreCardId: joi.id().required(),
       submissionId: joi
         .string()
         .uuid()
@@ -263,28 +238,6 @@ function * _updateReview (authUser, reviewId, entity) {
 
   const currDate = new Date().toISOString()
 
-  let scoreCardId = exist.scoreCardId
-  let v5ScoreCardId = exist.v5ScoreCardId
-
-  if (entity.scoreCardId) {
-    scoreCardId = helper.getLegacyScoreCardId(entity.scoreCardId)
-
-    if (!scoreCardId) {
-      throw new errors.HttpStatusError(400, 'Legacy scorecard id not found for the provided v5 scorecard id')
-    }
-
-    if (entity.scoreCardId !== scoreCardId) {
-      v5ScoreCardId = entity.scoreCardId
-    } else if (v5ScoreCardId) {
-      // Since we currently have a static mapping b/w legacy and v5 scorecard ids,
-      // there is no way for us to fetch the v5 scorecard id for a legacy scorecard id
-      // In this scenario, the review already had a v5 scorecard id, so if it's legacy
-      // scorecard id gets updated, we would also need to update the v5 scorecard id
-      // which we cannot - hence the error. Ideally, in this case, a new review needs to be created
-      throw new errors.HttpStatusError(400, `Cannot update legacy scorecard id since review with id ${reviewId} already has a v5 scorecard id`)
-    }
-  }
-
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -293,19 +246,17 @@ function * _updateReview (authUser, reviewId, entity) {
     },
     UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
                         typeId = :t, reviewerId = :r, #st = :st,
-                        updated = :ua, updatedBy = :ub, reviewedDate = :rd
-                        ${v5ScoreCardId ? ', v5ScoreCardId = :v5s' : ''}`,
+                        updated = :ua, updatedBy = :ub, reviewedDate = :rd`,
     ExpressionAttributeValues: {
       ':s': entity.score || exist.score,
-      ':sc': scoreCardId,
+      ':sc': entity.scoreCardId || exist.scoreCardId,
       ':su': entity.submissionId || exist.submissionId,
       ':t': entity.typeId || exist.typeId,
       ':r': entity.reviewerId || exist.reviewerId,
       ':st': entity.status || exist.status || 'completed',
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub,
-      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created,
-      ...(v5ScoreCardId ? { ':v5s': v5ScoreCardId } : {})
+      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created
     },
     ExpressionAttributeNames: {
       '#st': 'status'
@@ -340,11 +291,7 @@ function * _updateReview (authUser, reviewId, entity) {
         updatedBy: authUser.handle || authUser.sub,
         reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
       },
-      entity,
-      {
-        scoreCardId,
-        v5ScoreCardId
-      }
+      entity
     )
   }
 
@@ -356,9 +303,7 @@ function * _updateReview (authUser, reviewId, entity) {
   return _.extend(exist, entity, {
     updated: currDate,
     updatedBy: authUser.handle || authUser.sub,
-    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created,
-    scoreCardId,
-    v5ScoreCardId
+    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
   })
 }
 
@@ -391,7 +336,7 @@ updateReview.schema = {
         .alternatives()
         .try(joi.id(), joi.string().uuid())
         .required(),
-      scoreCardId: joi.alternatives().try(joi.id().required(), joi.string().uuid().required()),
+      scoreCardId: joi.id().required(),
       submissionId: joi
         .string()
         .uuid()
@@ -424,7 +369,7 @@ patchReview.schema = {
     score: joi.score(),
     typeId: joi.string().uuid(),
     reviewerId: joi.alternatives().try(joi.id(), joi.string().uuid()),
-    scoreCardId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+    scoreCardId: joi.id(),
     submissionId: joi.string().uuid(),
     status: joi.reviewStatus(),
     metadata: joi.object(),

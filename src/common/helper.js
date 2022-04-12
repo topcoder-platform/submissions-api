@@ -313,10 +313,6 @@ function * getLegacyChallengeId (challengeId) {
       const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
-      if (_.get(response.body, 'legacy.pureV5')) {
-        // pure V5 challenges don't have a legacy ID
-        return null
-      }
       const legacyId = parseInt(response.body.legacyId, 10)
       logger.debug(`Legacy challenge id is ${legacyId} for v5 challenge id ${challengeId}`)
       return legacyId
@@ -379,15 +375,12 @@ function * getSubmissionPhaseId (challengeId) {
     const checkPoint = _.filter(phases, { name: 'Checkpoint Submission', isOpen: true })
     const submissionPh = _.filter(phases, { name: 'Submission', isOpen: true })
     const finalFixPh = _.filter(phases, { name: 'Final Fix', isOpen: true })
-    const approvalPh = _.filter(phases, { name: 'Approval', isOpen: true })
     if (checkPoint.length !== 0) {
       phaseId = checkPoint[0].phaseId
     } else if (submissionPh.length !== 0) {
       phaseId = submissionPh[0].phaseId
     } else if (finalFixPh.length !== 0) {
       phaseId = finalFixPh[0].phaseId
-    } else if (approvalPh.length !== 0) {
-      phaseId = approvalPh[0].phaseId
     }
   }
   return phaseId
@@ -452,18 +445,7 @@ function * checkCreateAccess (authUser, subEntity) {
 
     // Get phases and winner detail from challengeDetails
     const phases = challengeDetails.body.phases
-
-    // Check if the User is assigned as the reviewer for the contest
-    const reviewers = _.filter(currUserRoles, { role: 'Reviewer' })
-    if (reviewers.length !== 0) {
-      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are a reviewer`)
-    }
-
-    // Check if the User is assigned as the iterative reviewer for the contest
-    const iterativeReviewers = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
-    if (iterativeReviewers.length !== 0) {
-      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are an iterative reviewer`)
-    }
+    const winner = challengeDetails.body.winners
 
     // Check if the User is assigned as the reviewer for the contest
     const reviewers = _.filter(currUserRoles, { role: 'Reviewer' })
@@ -486,22 +468,14 @@ function * checkCreateAccess (authUser, subEntity) {
     const submissionPhaseId = yield getSubmissionPhaseId(subEntity.challengeId)
 
     if (submissionPhaseId == null) {
-      throw new errors.HttpStatusError(403, 'You cannot create a submission in the current phase')
+      throw new errors.HttpStatusError(403, 'You are not allowed to submit when submission phase is not open')
     }
 
     const currPhase = _.filter(phases, { phaseId: submissionPhaseId })
 
-    if (currPhase[0].name === 'Final Fix' || currPhase[0].name === 'Approval') {
-      // Check if the user created a submission in the Submission phase - only such users
-      // will be allowed to submit during final phase
-      const userSubmission = yield fetchFromES({
-        challengeId,
-        memberId: authUser.userId
-      }, camelize('Submission'))
-
-      // User requesting submission haven't made any submission - prevent them for creating one
-      if (userSubmission.total === 0) {
-        throw new errors.HttpStatusError(403, 'You are not expected to create a submission in the current phase')
+    if (currPhase[0].name === 'Final Fix') {
+      if (!authUser.handle.equals(winner[0].handle)) {
+        throw new errors.HttpStatusError(403, 'Only winner is allowed to submit during Final Fix phase')
       }
     }
   } else {
@@ -605,7 +579,7 @@ function * checkGetAccess (authUser, submission) {
         const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
 
         // Appeals Response is not closed yet
-        if (appealsResponseStatus !== 'Closed' && appealsResponseStatus !== 'Invalid') {
+        if (appealsResponseStatus !== 'Closed') {
           throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
         } else {
           const userSubmission = yield fetchFromES({
@@ -641,20 +615,9 @@ function * checkGetAccess (authUser, submission) {
  * @returns {Promise}
  */
 function * checkReviewGetAccess (authUser, submission) {
-  let resources
   let challengeDetails
   const token = yield getM2Mtoken()
   const challengeId = yield getV5ChallengeId(submission.challengeId)
-
-  try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-  } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-    logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
-  }
 
   try {
     challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
@@ -666,31 +629,8 @@ function * checkReviewGetAccess (authUser, submission) {
     return false
   }
 
-  // Get map of role id to role name
-  const resourceRolesMap = yield getRoleIdToRoleNameMap()
-
-  // Check if role id to role name mapping is available. If not user's role cannot be determined.
-  if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
-  }
-
-  if (resources && challengeDetails) {
-    // Fetch all roles of the User pertaining to the current challenge
-    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
-
-    // Populate the role names for the current user role ids
-    _.forEach(currUserRoles, currentUserRole => {
-      currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
-    })
-
+  if (challengeDetails) {
     const subTrack = challengeDetails.body.legacy.subTrack
-
-    // Check if the User is a Copilot, Manager or Observer for that contest
-    const validRoles = ['Copilot', 'Manager', 'Observer']
-    const passedRoles = currUserRoles.filter(a => validRoles.includes(a.role))
-    if (passedRoles.length !== 0) {
-      return true
-    }
 
     // For Marathon Match, everyone can access review result
     if (subTrack === 'DEVELOP_MARATHON_MATCH') {
@@ -706,10 +646,6 @@ function * checkReviewGetAccess (authUser, submission) {
 
       return true
     }
-  } else {
-    // We don't have enough details to validate the access
-    logger.debug('No enough details to validate the Permissions')
-    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${submission.challengeId}`)
   }
 }
 
@@ -754,7 +690,6 @@ function * postToBusApi (payload) {
 function cleanseReviews (reviews, authUser) {
   // Not a machine user
   if (!authUser.scopes) {
-    logger.info('Not a machine user. Filtering reviews...')
     const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
     const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
 
@@ -880,21 +815,6 @@ function * getLatestChallenges (page) {
   }
 }
 
-/**
- * Get legacy scorecard id if the scorecard id is uuid form
- * @param {String} scoreCardId Scorecard ID
- * @returns {String} Legacy scorecard ID of the given challengeId
- */
-function getLegacyScoreCardId (scoreCardId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(scoreCardId)) {
-    logger.debug(`${scoreCardId} detected as uuid. Converting to legacy scorecard id`)
-
-    return config.get('V5TOLEGACYSCORECARDMAPPING')[scoreCardId]
-  }
-
-  return scoreCardId
-}
-
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -913,6 +833,5 @@ module.exports = {
   getRoleIdToRoleNameMap,
   getV5ChallengeId,
   adjustSubmissionChallengeId,
-  getLatestChallenges,
-  getLegacyScoreCardId
+  getLatestChallenges
 }

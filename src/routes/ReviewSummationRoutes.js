@@ -9,16 +9,14 @@ module.exports = {
       method: 'createReviewSummation',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['create:review_summation', 'all:review_summation'],
-      blockByIp: true
+      scopes: ['create:review_summation', 'all:review_summation']
     },
     get: {
       controller: 'ReviewSummationController',
       method: 'listReviewSummations',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['read:review_summation', 'all:review_summation'],
-      blockByIp: true
+      scopes: ['read:review_summation', 'all:review_summation']
     }
   },
   '/reviewSummations/:reviewSummationId': {
@@ -27,32 +25,28 @@ module.exports = {
       method: 'getReviewSummation',
       auth: 'jwt',
       access: ['Administrator', 'Copilot'],
-      scopes: ['read:review_summation', 'all:review_summation'],
-      blockByIp: true
+      scopes: ['read:review_summation', 'all:review_summation']
     },
     put: {
       controller: 'ReviewSummationController',
       method: 'updateReviewSummation',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['update:review_summation', 'all:review_summation'],
-      blockByIp: true
+      scopes: ['update:review_summation', 'all:review_summation']
     },
     patch: {
       controller: 'ReviewSummationController',
       method: 'patchReviewSummation',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['update:review_summation', 'all:review_summation'],
-      blockByIp: true
+      scopes: ['update:review_summation', 'all:review_summation']
     },
     delete: {
       controller: 'ReviewSummationController',
       method: 'deleteReviewSummation',
       auth: 'jwt',
       access: ['Administrator'],
-      scopes: ['delete:review_summation', 'all:review_summation'],
-      blockByIp: true
+      scopes: ['delete:review_summation', 'all:review_summation']
     }
   }
 }
