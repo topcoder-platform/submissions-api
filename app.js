@@ -127,19 +127,6 @@ _.each(routes, (verbs, url) => {
       })
     }
 
-    if (def.blockByIp) {
-      actions.push((req, res, next) => {
-        req.authUser.blockIP = _.find(req.authUser, (value, key) => {
-          return (key.indexOf('blockIP') !== -1)
-        })
-        if (req.authUser.blockIP) {
-          throw new errors.HttpStatusError(403, 'Access denied')
-        } else {
-          next()
-        }
-      })
-    }
-
     actions.push(method)
     winston.info(`API : ${verb.toLocaleUpperCase()} ${config.API_VERSION}${url}`)
     apiRouter[verb](`${config.API_VERSION}${url}`, helper.autoWrapExpress(actions))

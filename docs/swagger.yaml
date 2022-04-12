@@ -1757,9 +1757,7 @@ components:
       description: The scoreCardId filter of the reviews associated with the submission.
       required: false
       schema:
-        oneOf:
-          - type: integer
-          - type: string
+        type: integer
     filterSubmissionReviewSubmissionId:
       in: query
       name: review.submissionId
@@ -1873,9 +1871,7 @@ components:
       description: The score card id filter for reviews.
       required: false
       schema:
-        oneOf:
-          - type: integer
-          - type: string
+        type: integer
     filterReviewSubmissionId:
       in: query
       name: submissionId
@@ -2151,9 +2147,7 @@ components:
           example: a12bc280-65ab-42ec-a945-5fd21dec1567
           description: The review reviewer id.
         scoreCardId:
-          oneOf:
-            - type: integer
-            - type: string
+          type: integer
           description: The review score card id.
           example: 123456789
         submissionId:

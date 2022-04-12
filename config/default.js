@@ -1,7 +1,7 @@
 /**
  * Default configuration file
  */
-require('dotenv').config()
+
 module.exports = {
   DISABLE_LOGGING: process.env.DISABLE_LOGGING || false, // If true, logging will be disabled
   LOG_LEVEL: process.env.LOG_LEVEL || 'debug',
@@ -42,15 +42,5 @@ module.exports = {
   AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL,
   FETCH_CREATED_DATE_START: process.env.FETCH_CREATED_DATE_START || '2021-01-01',
   FETCH_PAGE_SIZE: process.env.FETCH_PAGE_SIZE || 500,
-  MIGRATE_CHALLENGES: process.env.MIGRATE_CHALLENGES || [],
-
-  V5TOLEGACYSCORECARDMAPPING: {
-    'c56a4180-65aa-42ec-a945-5fd21dec0501': 30001363,
-    'c56a4180-65aa-42ec-a945-5fd21dec0502': 123456789,
-    'c56a4180-65aa-42ec-a945-5fd21dec0503': 30001031,
-    'c56a4180-65aa-42ec-a945-5fd21dec0504': 987654321,
-    'c56a4180-65aa-42ec-a945-5fd21dec0505': 987123456,
-    '9ecc88e5-a4ee-44a4-8ec1-70bd98022510': 123789456,
-    'd6d31f34-8ee5-4589-ae65-45652fcc01a6': 30000720
-  }
+  MIGRATE_CHALLENGES: process.env.MIGRATE_CHALLENGES || []
 }
