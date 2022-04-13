@@ -432,16 +432,12 @@ function * _updateSubmission (authUser, submissionId, entity) {
     Key: {
       id: submissionId
     },
-    UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c,
-                        ${legacyChallengeId ? 'legacyChallengeId = :lc,' : ''} updated = :ua, updatedBy = :ub, submittedDate = :sb`,
+    UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c, updated = :ua, updatedBy = :ub, submittedDate = :sb`,
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
       ':m': entity.memberId || exist.memberId,
       ':c': challengeId,
-      ...(legacyChallengeId ? {
-        ':lc': legacyChallengeId
-      } : {}),
       ':ua': currDate,
       ':ub': authUser.handle || authUser.sub,
       ':sb': entity.submittedDate || exist.submittedDate || exist.created
