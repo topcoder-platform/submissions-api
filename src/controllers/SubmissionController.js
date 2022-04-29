@@ -28,7 +28,7 @@ function * downloadSubmission (req, res) {
     fileName = `submission-${result.submission.id}.zip`
   }
   res.attachment(fileName)
-  res.send(result.file)
+  helper.createS3ReadStream(result.submission.url).pipe(res)
 }
 
 /**
