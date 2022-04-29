@@ -164,15 +164,14 @@ getSubmission.schema = {
 }
 
 /**
- * Function to download submission from S3
+ * Function to get submission
  * @param {Object} authUser Authenticated User
  * @param {String} submissionId ID of the Submission which need to be retrieved
- * @return {Object} Submission retrieved from S3
+ * @return {Object} Submission retrieved
  */
 function * downloadSubmission (authUser, submissionId) {
   const record = yield getSubmission(authUser, submissionId)
-  const downloadedFile = yield helper.downloadFile(record.url)
-  return { submission: record, file: downloadedFile }
+  return { submission: record }
 }
 
 /**
