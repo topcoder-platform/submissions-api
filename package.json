@@ -38,7 +38,7 @@
     "elasticsearch": "^15.1.1",
     "express": "^4.15.4",
     "express-fileupload": "^0.4.0",
-    "file-type": "^9.0.0",
+    "file-type": "^16.5.4",
     "get-parameter-names": "^0.3.0",
     "http-aws-es": "^6.0.0",
     "http-status": "^1.2.0",
