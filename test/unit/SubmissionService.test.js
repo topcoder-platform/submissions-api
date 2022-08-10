@@ -470,16 +470,15 @@ describe('Submission Service tests', () => {
         })
     })
 
-    it('Deleting submission with user token should throw 403', (done) => {
+    it('Deleting submission with User token should get succeeded', (done) => {
       chai.request(app)
         .delete(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
         .set('Authorization', `Bearer ${config.USER_TOKEN}`)
         .end((err, res) => {
-          res.should.have.status(403)
-          res.body.message.should.be.eql('You are not allowed to perform this action!')
+          res.should.have.status(204)
           done()
         })
-    })
+    }).timeout(10000)
 
     it('Deleting non-existent submission should throw 404', (done) => {
       chai.request(app)
@@ -491,6 +490,16 @@ describe('Submission Service tests', () => {
           done()
         })
     })
+
+    it('Deleting submission with Copilot token should get succeeded', (done) => {
+      chai.request(app)
+        .delete(`${config.API_VERSION}/submissions/${testSubmission.Item.id}`)
+        .set('Authorization', `Bearer ${config.COPILOT_TOKEN}`)
+        .end((err, res) => {
+          res.should.have.status(204)
+          done()
+        })
+    }).timeout(10000)
 
     it('Deleting submission with Admin token should get succeeded', (done) => {
       chai.request(app)
