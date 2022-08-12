@@ -74,7 +74,7 @@ function * patchSubmission (req, res) {
  * @param res the http response
  */
 function * deleteSubmission (req, res) {
-  yield SubmissionService.deleteSubmission(req.params.submissionId)
+  yield SubmissionService.deleteSubmission(req.authUser, req.params.submissionId)
   res.status(204).send()
 }
 

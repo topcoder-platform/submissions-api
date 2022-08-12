@@ -568,13 +568,18 @@ patchSubmission.schema = {
 
 /**
  * Function to delete submission
+ * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be deleted
  * @return {Promise}
  */
-function * deleteSubmission (submissionId) {
+function * deleteSubmission (authUser, submissionId) {
   const exist = yield _getSubmission(submissionId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
+  }
+
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && exist.memberId !== authUser.uerId) {
+    throw new errors.HttpStatusError(403, 'You are now allowed to delete this submission.')
   }
 
   // Filter used to delete the record
