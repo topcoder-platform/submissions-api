@@ -602,6 +602,7 @@ function * deleteSubmission (authUser, submissionId) {
     payload: {
       resource: helper.camelize(table),
       id: submissionId
+
     }
   }
 
@@ -610,7 +611,8 @@ function * deleteSubmission (authUser, submissionId) {
 }
 
 deleteSubmission.schema = {
-  submissionId: joi.string().guid().required()
+  authUser: joi.object().required(),
+  submissionId: joi.string().guid().required(),
 }
 
 module.exports = {
