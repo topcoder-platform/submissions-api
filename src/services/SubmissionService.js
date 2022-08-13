@@ -578,8 +578,8 @@ function * deleteSubmission (authUser, submissionId) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
 
-  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && exist.memberId !== authUser.uerId) {
-    throw new errors.HttpStatusError(403, 'You are now allowed to delete this submission.')
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && exist.memberId !== authUser.userId) {
+    throw new errors.HttpStatusError(403, 'You do not have permissions to delete this submission.')
   }
 
   // Filter used to delete the record
