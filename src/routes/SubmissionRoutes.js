@@ -50,7 +50,7 @@ module.exports = {
       controller: 'SubmissionController',
       method: 'deleteSubmission',
       auth: 'jwt',
-      access: ['Administrator'],
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
       scopes: ['delete:submission', 'all:submission'],
       blockByIp: true
     }

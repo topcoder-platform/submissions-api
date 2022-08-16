@@ -714,6 +714,17 @@ function * downloadFile (fileURL) {
 }
 
 /**
+ * Function to create s3 readstream from given S3 URL
+ * @param{String} fileURL S3 URL of the file to be downloaded
+ * @returns {Object} ReadStream of downloaded file
+ */
+function createS3ReadStream (fileURL) {
+  const { bucket, key } = AmazonS3URI(fileURL)
+  logger.info(`create s3 readStream(): file is on S3 ${bucket} / ${key}`)
+  return s3.getObject({ Bucket: bucket, Key: key }).createReadStream()
+}
+
+/**
  * Wrapper function to post to bus api. Ensures that every event posted to bus api
  * is duplicated and posted to bus api again, but to a different "aggregate" topic
  * Also stores the original topic in the payload
@@ -895,6 +906,7 @@ module.exports = {
   checkCreateAccess,
   checkGetAccess,
   checkReviewGetAccess,
+  createS3ReadStream,
   downloadFile,
   postToBusApi,
   cleanseReviews,

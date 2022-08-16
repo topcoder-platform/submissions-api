@@ -164,15 +164,14 @@ getSubmission.schema = {
 }
 
 /**
- * Function to download submission from S3
+ * Function to get submission
  * @param {Object} authUser Authenticated User
  * @param {String} submissionId ID of the Submission which need to be retrieved
- * @return {Object} Submission retrieved from S3
+ * @return {Object} Submission retrieved
  */
 function * downloadSubmission (authUser, submissionId) {
   const record = yield getSubmission(authUser, submissionId)
-  const downloadedFile = yield helper.downloadFile(record.url)
-  return { submission: record, file: downloadedFile }
+  return { submission: record }
 }
 
 /**
@@ -569,13 +568,18 @@ patchSubmission.schema = {
 
 /**
  * Function to delete submission
+ * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be deleted
  * @return {Promise}
  */
-function * deleteSubmission (submissionId) {
+function * deleteSubmission (authUser, submissionId) {
   const exist = yield _getSubmission(submissionId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
+  }
+
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && exist.memberId !== authUser.userId) {
+    throw new errors.HttpStatusError(403, 'You do not have permissions to delete this submission.')
   }
 
   // Filter used to delete the record
@@ -598,6 +602,7 @@ function * deleteSubmission (submissionId) {
     payload: {
       resource: helper.camelize(table),
       id: submissionId
+
     }
   }
 
@@ -606,7 +611,8 @@ function * deleteSubmission (submissionId) {
 }
 
 deleteSubmission.schema = {
-  submissionId: joi.string().guid().required()
+  authUser: joi.object().required(),
+  submissionId: joi.string().guid().required(),
 }
 
 module.exports = {
