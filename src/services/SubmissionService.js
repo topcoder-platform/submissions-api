@@ -602,7 +602,7 @@ function * deleteSubmission (authUser, submissionId) {
     payload: {
       resource: helper.camelize(table),
       id: submissionId,
-      legacyId: exist.legacyChallengeId
+      legacyId: exist.legacySubmissionId
     }
   }
 
