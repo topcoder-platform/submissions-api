@@ -8,5 +8,5 @@ COPY . /submissions-api
 WORKDIR /submissions-api
 
 # Install the dependencies from package.json
-RUN npm install
-ENTRYPOINT npm start
+RUN yarn install
+ENTRYPOINT yarn start
