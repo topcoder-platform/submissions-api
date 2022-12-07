@@ -612,7 +612,7 @@ function * deleteSubmission (authUser, submissionId) {
 
 deleteSubmission.schema = {
   authUser: joi.object().required(),
-  submissionId: joi.string().guid().required(),
+  submissionId: joi.string().guid().required()
 }
 
 module.exports = {
