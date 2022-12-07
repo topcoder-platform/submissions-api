@@ -44,7 +44,6 @@
     "http-status": "^1.2.0",
     "joi": "^13.4.0",
     "lodash": "^4.17.15",
-    "memwatch-next": "^0.3.0",
     "superagent": "^3.8.3",
     "swagger-ui-express": "^4.1.6",
     "tc-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git#feature/auth0-proxy-server",
