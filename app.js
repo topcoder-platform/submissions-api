@@ -18,7 +18,6 @@ const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
 const authenticator = require('tc-core-library-js').middleware.jwtAuthenticator
 const fileUpload = require('express-fileupload')
-const memwatch = require('memwatch-next')
 
 const swaggerDocument = YAML.load('./docs/swagger.yaml')
 const app = express()
@@ -31,19 +30,6 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 app.use(cors())
 app.use(fileUpload())
 
-memwatch.on('leak', function (info) {
-  winston.info(`Memory leak detected, details:  ${info}`)
-  const reqBody = {
-    topic: 'common.error.reporting',
-    originator: 'submission-api',
-    timestamp: (new Date()).toISOString(), // time when submission was created
-    'mime-type': 'application/json',
-    payload: info
-  }
-
-  helper.postToBusApi(reqBody)
-})
-
 const apiRouter = express.Router()
 
 /**
@@ -51,7 +37,7 @@ const apiRouter = express.Router()
  * @param {Array} source the array in which to search for the term
  * @param {Array | String} term the term to search
  */
-function checkIfExists (source, term) {
+function checkIfExists(source, term) {
   let terms
 
   if (!_.isArray(source)) {
@@ -86,7 +72,7 @@ _.each(routes, (verbs, url) => {
         next()
       }
     ]
-    const method = require(`./src/controllers/${def.controller}`)[ def.method ]; // eslint-disable-line
+    const method = require(`./src/controllers/${def.controller}`)[def.method]; // eslint-disable-line
 
     if (!method) {
       throw new Error(`${def.method} is undefined, for controller ${def.controller}`)

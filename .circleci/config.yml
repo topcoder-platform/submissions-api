@@ -1,28 +1,30 @@
 version: 2
 defaults: &defaults
-    docker:
-      - image: circleci/python:2.7-stretch-browsers
+  docker:
+    - image: cimg/python:3.11.0-browsers
 install_dependency: &install_dependency
-    name: Installation of build and deployment dependencies.
-    command: |
-      sudo apt install jq
-      sudo pip install awscli --upgrade
-      sudo pip install docker-compose      
+  name: Installation of build and deployment dependencies.
+  command: |
+    sudo apt install jq
+    sudo apt update
+    sudo apt install python3-pip
+    sudo pip3 install awscli --upgrade
+    sudo pip3 install docker-compose
 
 install_deploysuite: &install_deploysuite
-          name: Installation of install_deploysuite.
-          command: |
-            git clone --branch v1.4.10 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
-            cp ./../buildscript/master_deploy.sh .
-            cp ./../buildscript/buildenv.sh .
-            cp ./../buildscript/awsconfiguration.sh .
+  name: Installation of install_deploysuite.
+  command: |
+    git clone --branch v1.4.10 https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+    cp ./../buildscript/master_deploy.sh .
+    cp ./../buildscript/buildenv.sh .
+    cp ./../buildscript/awsconfiguration.sh .
 run_build: &run_build
-          name: Installation of build dependencies.
-          command: ./build.sh
+  name: Installation of build dependencies.
+  command: ./build.sh
 
 jobs:
   # Build & Deploy against development backend
-  "build-dev":
+  'build-dev':
     <<: *defaults
     steps:
       # Initialization.
@@ -40,7 +42,7 @@ jobs:
             source buildenvvar
             ./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-submissions-api-appvar -i submissions-api
 
-  "build-prod":
+  'build-prod':
     <<: *defaults
     steps:
       # Initialization.
@@ -63,13 +65,15 @@ workflows:
   build:
     jobs:
       # Development builds are executed on "develop" branch only.
-      - "build-dev":
-          context : org-global
+      - 'build-dev':
+          context: org-global
           filters:
             branches:
-              only: ['develop']
-      - "build-prod":
-          context : org-global
+              only:
+                - 'develop'
+                - 'certificate-issue-fix'
+      - 'build-prod':
+          context: org-global
           filters:
             branches:
               only: master

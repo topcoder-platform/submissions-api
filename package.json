@@ -48,7 +48,7 @@
     "superagent": "^3.8.3",
     "swagger-ui-express": "^4.1.6",
     "tc-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git#feature/auth0-proxy-server",
-    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#feature/auth0-proxy-server",
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.4",
     "uuid": "^3.3.0",
     "winston": "^2.4.3",
     "yamljs": "^0.3.0"
@@ -67,7 +67,7 @@
     "standard": "^11.0.1"
   },
   "engines": {
-    "node": "8.11.x"
+    "node": "12.22.12"
   },
   "standard": {
     "env": [
