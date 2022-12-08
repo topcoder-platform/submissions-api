@@ -36,7 +36,7 @@
     "cors": "^2.8.4",
     "dotenv": "^8.2.0",
     "elasticsearch": "^15.1.1",
-    "express": "^4.15.4",
+    "express": "^4.17.3",
     "express-fileupload": "^0.4.0",
     "file-type": "^9.0.0",
     "get-parameter-names": "^0.3.0",
