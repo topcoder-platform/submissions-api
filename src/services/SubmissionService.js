@@ -601,8 +601,8 @@ function * deleteSubmission (authUser, submissionId) {
     'mime-type': mimeType,
     payload: {
       resource: helper.camelize(table),
-      id: submissionId
-
+      id: submissionId,
+      legacyId: exist.legacySubmissionId
     }
   }
 
