@@ -23,7 +23,8 @@
     "services:up": "docker-compose -f ./local/docker-compose.yml up -d",
     "services:down": "docker-compose -f ./local/docker-compose.yml down",
     "services:logs": "docker-compose -f ./local/docker-compose.yml logs",
-    "local:init": "npm run init-db && npm run init-es"
+    "local:init": "npm run init-db && npm run init-es",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.6.0",
@@ -74,6 +75,14 @@
     "prettier": "^2.8.2",
     "standard": "^11.0.1",
     "typescript": "^4.9.4"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "npx prettier --write"
+    ],
+    "*.{json,md,yml}": [
+      "npx prettier --write"
+    ]
   },
   "standard": {
     "env": [
