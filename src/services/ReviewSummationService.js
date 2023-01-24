@@ -19,7 +19,7 @@ const table = 'ReviewSummation'
  * @param {Number} reviewSummationId reviewSummationId which need to be retrieved
  * @return {Object} Data retrieved from database
  */
-function * _getReviewSummation (reviewSummationId) {
+async function _getReviewSummation(reviewSummationId) {
   // Construct filter to retrieve record from Database
   const filter = {
     TableName: table,
@@ -27,7 +27,7 @@ function * _getReviewSummation (reviewSummationId) {
       id: reviewSummationId
     }
   }
-  const result = yield dbhelper.getRecord(filter)
+  const result = await dbhelper.getRecord(filter)
   return result.Item
 }
 
@@ -36,8 +36,8 @@ function * _getReviewSummation (reviewSummationId) {
  * @param {Number} reviewSummationId reviewSummationId which need to be found
  * @return {Object} Data found from database
  */
-function * getReviewSummation (reviewSummationId) {
-  const response = yield helper.fetchFromES({ id: reviewSummationId }, helper.camelize(table))
+async function getReviewSummation(reviewSummationId) {
+  const response = await helper.fetchFromES({ id: reviewSummationId }, helper.camelize(table))
   if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Review summation with ID = ${reviewSummationId} is not found`)
   }
@@ -54,8 +54,8 @@ getReviewSummation.schema = {
  * @param {Object} query Query filters passed in HTTP request
  * @return {Object} Data fetched from ES
  */
-function * listReviewSummations (query) {
-  return yield helper.fetchFromES(query, helper.camelize(table))
+async function listReviewSummations(query) {
+  return await helper.fetchFromES(query, helper.camelize(table))
 }
 
 const listReviewSummationsQuerySchema = {
@@ -84,9 +84,9 @@ listReviewSummations.schema = {
  * @param {Object} entity Data to be inserted
  * @return {Promise}
  */
-function * createReviewSummation (authUser, entity) {
+async function createReviewSummation(authUser, entity) {
   // Check the validness of references using Helper function
-  yield HelperService._checkRef(entity)
+  await HelperService._checkRef(entity)
 
   const currDate = (new Date()).toISOString()
 
@@ -115,7 +115,7 @@ function * createReviewSummation (authUser, entity) {
     Item: item
   }
 
-  yield dbhelper.insertRecord(record)
+  await dbhelper.insertRecord(record)
 
   // Push Review Summation created event to Bus API
   // Request body for Posting to Bus API
@@ -128,7 +128,7 @@ function * createReviewSummation (authUser, entity) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
@@ -156,14 +156,14 @@ createReviewSummation.schema = {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  **/
-function * _updateReviewSummation (authUser, reviewSummationId, entity) {
-  const exist = yield _getReviewSummation(reviewSummationId)
+async function _updateReviewSummation(authUser, reviewSummationId, entity) {
+  const exist = await _getReviewSummation(reviewSummationId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Review summation with ID = ${reviewSummationId} is not found`)
   }
 
   // Check the validness of references using Helper function
-  yield HelperService._checkRef(entity)
+  await HelperService._checkRef(entity)
 
   let isPassing // Attribute to store boolean value
 
@@ -214,7 +214,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
     record.ExpressionAttributeValues[':ls'] = isFinal
   }
 
-  yield dbhelper.updateRecord(record)
+  await dbhelper.updateRecord(record)
 
   // Push Review Summation updated event to Bus API
   // Request body for Posting to Bus API
@@ -233,7 +233,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -255,8 +255,8 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  */
-function * updateReviewSummation (authUser, reviewSummationId, entity) {
-  return yield _updateReviewSummation(authUser, reviewSummationId, entity)
+async function updateReviewSummation(authUser, reviewSummationId, entity) {
+  return await _updateReviewSummation(authUser, reviewSummationId, entity)
 }
 
 updateReviewSummation.schema = {
@@ -280,8 +280,8 @@ updateReviewSummation.schema = {
  * @param {Object} entity Data to be patched
  * @return {Promise}
  */
-function * patchReviewSummation (authUser, reviewSummationId, entity) {
-  return yield _updateReviewSummation(authUser, reviewSummationId, entity)
+async function patchReviewSummation(authUser, reviewSummationId, entity) {
+  return await _updateReviewSummation(authUser, reviewSummationId, entity)
 }
 
 patchReviewSummation.schema = {
@@ -303,8 +303,8 @@ patchReviewSummation.schema = {
  * @param {Number} reviewSummationId reviewSummationId which need to be deleted
  * @return {Promise}
  */
-function * deleteReviewSummation (reviewSummationId) {
-  const exist = yield _getReviewSummation(reviewSummationId)
+async function deleteReviewSummation(reviewSummationId) {
+  const exist = await _getReviewSummation(reviewSummationId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Review summation with ID = ${reviewSummationId} is not found`)
   }
@@ -317,7 +317,7 @@ function * deleteReviewSummation (reviewSummationId) {
     }
   }
 
-  yield dbhelper.deleteRecord(filter)
+  await dbhelper.deleteRecord(filter)
 
   // Push Review Summation deleted event to Bus API
   // Request body for Posting to Bus API
@@ -333,7 +333,7 @@ function * deleteReviewSummation (reviewSummationId) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 }
 
 deleteReviewSummation.schema = {

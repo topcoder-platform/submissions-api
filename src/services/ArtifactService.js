@@ -19,7 +19,7 @@ const HelperService = require('./HelperService')
  * @param {String} name File name
  * @return {Promise}
  **/
-function * _uploadToS3 (file, name) {
+async function _uploadToS3(file, name) {
   const params = {
     Bucket: config.aws.ARTIFACT_BUCKET,
     Key: name,
@@ -39,10 +39,10 @@ function * _uploadToS3 (file, name) {
  * @param {String} fileName File name which need to be downloaded from S3
  * @return {Object} File downloaded from S3
  */
-function * downloadArtifact (submissionId, fileName) {
+async function downloadArtifact(submissionId, fileName) {
   // Check the validness of Submission ID
-  yield HelperService._checkRef({ submissionId })
-  const artifacts = yield s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
+  await HelperService._checkRef({ submissionId })
+  const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
@@ -52,7 +52,7 @@ function * downloadArtifact (submissionId, fileName) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
 
-  const downloadedFile = yield s3.getObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: key }).promise()
+  const downloadedFile = await s3.getObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: key }).promise()
   // Return the retrieved Artifact
   logger.info(`downloadArtifact: returning artifact ${fileName} for Submission ID: ${submissionId}`)
   return { fileName: key.substring(key.lastIndexOf('/') + 1), file: downloadedFile.Body }
@@ -68,10 +68,10 @@ downloadArtifact.schema = {
  * @param {String} submissionId Submission ID
  * @return {Object} List of files present in S3 bucket under submissionId directory
  */
-function * listArtifacts (submissionId) {
+async function listArtifacts(submissionId) {
   // Check the validness of Submission ID
-  yield HelperService._checkRef({ submissionId })
-  const artifacts = yield s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId }).promise()
+  await HelperService._checkRef({ submissionId })
+  const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId }).promise()
   return { artifacts: _.map(artifacts.Contents, (at) => path.parse(at.Key).name) }
 }
 
@@ -86,10 +86,10 @@ listArtifacts.schema = {
  * @param {Object} entity Data to be inserted
  * @return {Promise}
  */
-function * createArtifact (files, submissionId, entity) {
+async function createArtifact(files, submissionId, entity) {
   // Check the presence of submissionId and reviewTypeId in DynamoDB
   entity.submissionId = submissionId
-  yield HelperService._checkRef(entity)
+  await HelperService._checkRef(entity)
   let fileName
   logger.info('Creating a new Artifact')
   if (files && files.artifact) {
@@ -97,7 +97,7 @@ function * createArtifact (files, submissionId, entity) {
     fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
 
     // Upload the artifact to S3
-    yield _uploadToS3(files.artifact, fileName)
+    await _uploadToS3(files.artifact, fileName)
   } else {
     throw new errors.HttpStatusError(400, 'Artifact is missing or not under attribute `artifact`')
   }
@@ -115,15 +115,15 @@ createArtifact.schema = {
  * @param {String} submissionId Submission ID
  * @param {String} fileName File name which need to be deleted from S3
  */
-function * deleteArtifact (submissionId, fileName) {
+async function deleteArtifact(submissionId, fileName) {
   // Check the validness of Submission ID
-  yield HelperService._checkRef({ submissionId })
-  const artifacts = yield s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
+  await HelperService._checkRef({ submissionId })
+  const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(404, `Artifact ${fileName} doesn't exist for submission ID: ${submissionId}`)
   }
   // Delete the object from S3
-  yield s3.deleteObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: artifacts.Contents[0].Key }).promise()
+  await s3.deleteObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: artifacts.Contents[0].Key }).promise()
   logger.info(`deleteArtifact: deleted artifact ${fileName} of Submission ID: ${submissionId}`)
 }
 

@@ -16,6 +16,18 @@ const { submissionIndex } = require('../../constants')
 const s3 = new AWS.S3()
 const logger = require('winston')
 
+const {
+  DomainHelper: { getScanCriteria },
+} = require("@topcoder-framework/lib-common");
+
+const { SubmissionDomain } = require("@topcoder-framework/domain-submission");
+
+
+const submissionDomain = new SubmissionDomain(
+  config.GRPC_CHALLENGE_SERVER_HOST,
+  config.GRPC_CHALLENGE_SERVER_PORT
+);
+
 const table = 'Submission'
 
 /*
@@ -24,26 +36,21 @@ const table = 'Submission'
  * @param {String} name File name
  * @return {Promise}
  **/
-function * _uploadToS3 (file, name) {
-  return new Promise((resolve, reject) => {
-    const params = {
-      Bucket: config.aws.S3_BUCKET,
-      Key: name,
-      Body: file.data,
-      ContentType: file.mimetype,
-      Metadata: {
-        originalname: file.name
-      }
+async function _uploadToS3(file, name) {
+  const params = {
+    Bucket: config.aws.S3_BUCKET,
+    Key: name,
+    Body: file.data,
+    ContentType: file.mimetype,
+    Metadata: {
+      originalname: file.name
     }
-    // Upload to S3
-    s3.upload(params, (err, data) => {
-      if (err) return reject(err)
-      else resolve(data)
-    })
-  })
+  }
+  // Upload to S3
+  await s3.upload(params).promise()
 }
 
-function * _getReviewsForSubmission (submissionId) {
+async function _getReviewsForSubmission(submissionId) {
   const reviewFilter = {
     TableName: 'Review',
     IndexName: submissionIndex,
@@ -53,10 +60,10 @@ function * _getReviewsForSubmission (submissionId) {
     }
   }
 
-  return yield dbhelper.queryRecords(reviewFilter)
+  return await dbhelper.queryRecords(reviewFilter)
 }
 
-function * _getReviewSummationsForSubmission (submissionId) {
+async function _getReviewSummationsForSubmission(submissionId) {
   const reviewSummationFilter = {
     TableName: 'ReviewSummation',
     IndexName: submissionIndex,
@@ -66,7 +73,7 @@ function * _getReviewSummationsForSubmission (submissionId) {
     }
   }
 
-  return yield dbhelper.queryRecords(reviewSummationFilter)
+  return await dbhelper.queryRecords(reviewSummationFilter)
 }
 
 /**
@@ -76,25 +83,24 @@ function * _getReviewSummationsForSubmission (submissionId) {
  * @param {Boolean} fetchReview if True, associated reviews and review summations will be fetched
  * @return {Object} Data retrieved from database
  */
-function * _getSubmission (submissionId, fetchReview = true) {
-  // Construct filter to retrieve record from Database
-  const filter = {
-    TableName: table,
-    Key: {
-      id: submissionId
-    }
-  }
-  const result = yield dbhelper.getRecord(filter)
-  const submission = result.Item
+async function _getSubmission(submissionId, fetchReview = true) {
+  const scanCriteria = getScanCriteria({
+    id: submissionId
+  });
+
+  const result = await submissionDomain.scan({
+    scanCriteria
+  })
+  const submission = result[0];
   if (fetchReview) {
     // Fetch associated reviews
-    const review = yield _getReviewsForSubmission(submissionId)
+    const review = await _getReviewsForSubmission(submissionId)
 
     if (review.Count !== 0) {
       submission.review = review.Items
     }
     // Fetch associated review summations
-    const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+    const reviewSummation = await _getReviewSummationsForSubmission(submissionId)
 
     if (reviewSummation.Count !== 0) {
       submission.reviewSummation = reviewSummation.Items
@@ -109,13 +115,14 @@ function * _getSubmission (submissionId, fetchReview = true) {
  * @param {String} submissionId submissionId which need to be retrieved
  * @return {Object} Data retrieved from database
  */
-function * getSubmission (authUser, submissionId) {
-  const response = yield helper.fetchFromES({ id: submissionId }, helper.camelize(table))
+async function getSubmission(authUser, submissionId) {
+  const response = await helper.fetchFromES({ id: submissionId }, helper.camelize(table))
   let submissionRecord = null
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
+  await _getSubmission(submissionId)
   if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
     logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
-    submissionRecord = yield _getSubmission(submissionId)
+    submissionRecord = await _getSubmission(submissionId)
 
     if (!_.get(submissionRecord, 'id', null)) {
       logger.info(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
@@ -127,14 +134,14 @@ function * getSubmission (authUser, submissionId) {
 
     if (!submissionRecord.review || submissionRecord.review.length < 1) {
       logger.info(`submission ${submissionId} from ES has no reviews. Double checking the db`)
-      const review = yield _getReviewsForSubmission(submissionId)
+      const review = await _getReviewsForSubmission(submissionId)
       logger.info(`${review}`)
       submissionRecord.review = review.Items || []
     }
 
     if (!submissionRecord.reviewSummation || submissionRecord.reviewSummation.length < 1) {
       logger.info(`submission ${submissionId} from ES has no reviewSummations. Double checking the db`)
-      const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+      const reviewSummation = await _getReviewSummationsForSubmission(submissionId)
       logger.info(`${reviewSummation}`)
       submissionRecord.reviewSummation = reviewSummation.Items || []
     }
@@ -147,7 +154,7 @@ function * getSubmission (authUser, submissionId) {
 
   logger.info('Check User access before returning the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
-    yield helper.checkGetAccess(authUser, submissionRecord)
+    await helper.checkGetAccess(authUser, submissionRecord)
   }
 
   submissionRecord.review = helper.cleanseReviews(submissionRecord.review, authUser)
@@ -169,8 +176,8 @@ getSubmission.schema = {
  * @param {String} submissionId ID of the Submission which need to be retrieved
  * @return {Object} Submission retrieved
  */
-function * downloadSubmission (authUser, submissionId) {
-  const record = yield getSubmission(authUser, submissionId)
+async function downloadSubmission(authUser, submissionId) {
+  const record = await getSubmission(authUser, submissionId)
   return { submission: record }
 }
 
@@ -180,11 +187,12 @@ function * downloadSubmission (authUser, submissionId) {
  * @param {Object} query Query filters passed in HTTP request
  * @return {Object} Data fetched from ES
  */
-function * listSubmissions (authUser, query) {
+async function listSubmissions(authUser, query) {
+  console.log('listSubmissions: query: ', query)
   if (query.challengeId) {
     // Submission api now only works with v5 challenge id
     // If it is a legacy challenge id, get the associated v5 challenge id
-    query.challengeId = yield helper.getV5ChallengeId(query.challengeId)
+    query.challengeId = await helper.getV5ChallengeId(query.challengeId)
   }
 
   // TODO - support v5 for review scorecardid
@@ -196,7 +204,9 @@ function * listSubmissions (authUser, query) {
     }
   }
 
-  const data = yield helper.fetchFromES(query, helper.camelize(table))
+  console.log('fetching from ES before');
+  const data = await helper.fetchFromES(query, helper.camelize(table));
+  console.log('fetching from ES after');
   logger.info(`Data returned from ES: ${JSON.stringify(data, null, 4)}`)
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
@@ -250,7 +260,7 @@ listSubmissions.schema = {
  * @param {Object} entity Data to be inserted
  * @return {Promise}
  */
-function * createSubmission (authUser, files, entity) {
+async function createSubmission(authUser, files, entity) {
   logger.info('Creating a new submission')
   if (files && entity.url) {
     logger.info('Cannot create submission. Neither file nor url to upload has been passed')
@@ -273,7 +283,7 @@ function * createSubmission (authUser, files, entity) {
       logger.info('Actual file type of the file does not match the file type attribute in the request')
       throw new errors.HttpStatusError(400, 'fileType parameter doesn\'t match the type of the uploaded file')
     }
-    const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
+    const file = await _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
     url = file.Location
   } else if (files) {
     throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
@@ -281,8 +291,8 @@ function * createSubmission (authUser, files, entity) {
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
-  const challengeId = yield helper.getV5ChallengeId(entity.challengeId)
-  const legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
+  const challengeId = await helper.getV5ChallengeId(entity.challengeId)
+  const legacyChallengeId = await helper.getLegacyChallengeId(entity.challengeId)
   const currDate = (new Date()).toISOString()
 
   const item = {
@@ -313,7 +323,7 @@ function * createSubmission (authUser, files, entity) {
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
   } else {
-    item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
+    item.submissionPhaseId = await helper.getSubmissionPhaseId(entity.challengeId)
   }
 
   if (entity.fileType) {
@@ -325,7 +335,7 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Check User access before creating the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
-    yield helper.checkCreateAccess(authUser, item)
+    await helper.checkCreateAccess(authUser, item)
 
     if (entity.submittedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')
@@ -344,7 +354,7 @@ function * createSubmission (authUser, files, entity) {
 
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
   logger.info(JSON.stringify(record, null, 2))
-  yield dbhelper.insertRecord(record)
+  await dbhelper.insertRecord(record)
 
   // After save to db, adjust challengeId to busApi and response
   helper.adjustSubmissionChallengeId(item)
@@ -370,7 +380,7 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Prepared submission create event payload to pass to the Bus')
   logger.info(`Posting to bus ${JSON.stringify(reqBody)}`)
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
@@ -402,10 +412,10 @@ createSubmission.schema = {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  **/
-function * _updateSubmission (authUser, submissionId, entity) {
+async function _updateSubmission(authUser, submissionId, entity) {
   logger.info(`Updating submission with submission id ${submissionId}`)
 
-  const exist = yield _getSubmission(submissionId)
+  const exist = await _getSubmission(submissionId)
   if (!exist) {
     logger.info(`Submission with ID = ${submissionId} is not found`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
@@ -415,8 +425,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
   let challengeId = exist.challengeId
   let legacyChallengeId = exist.legacyChallengeId
   if (entity.challengeId) {
-    challengeId = yield helper.getV5ChallengeId(entity.challengeId)
-    legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
+    challengeId = await helper.getV5ChallengeId(entity.challengeId)
+    legacyChallengeId = await helper.getLegacyChallengeId(entity.challengeId)
   }
   if (exist.legacyChallengeId && !legacyChallengeId) {
     // Original submission contains a legacy challenge id
@@ -472,8 +482,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   logger.info('Prepared submission item to update in Dynamodb. Updating...')
 
-  yield dbhelper.updateRecord(record)
-  const updatedSub = yield _getSubmission(submissionId)
+  await dbhelper.updateRecord(record)
+  const updatedSub = await _getSubmission(submissionId)
 
   helper.adjustSubmissionChallengeId(updatedSub)
   // Push Submission updated event to Bus API
@@ -497,7 +507,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -521,8 +531,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  */
-function * updateSubmission (authUser, submissionId, entity) {
-  return yield _updateSubmission(authUser, submissionId, entity)
+async function updateSubmission(authUser, submissionId, entity) {
+  return await _updateSubmission(authUser, submissionId, entity)
 }
 
 updateSubmission.schema = {
@@ -547,8 +557,8 @@ updateSubmission.schema = {
  * @param {Object} entity Data to be patched
  * @return {Promise}
  */
-function * patchSubmission (authUser, submissionId, entity) {
-  return yield _updateSubmission(authUser, submissionId, entity)
+async function patchSubmission(authUser, submissionId, entity) {
+  return await _updateSubmission(authUser, submissionId, entity)
 }
 
 patchSubmission.schema = {
@@ -572,8 +582,8 @@ patchSubmission.schema = {
  * @param {String} submissionId submissionId which need to be deleted
  * @return {Promise}
  */
-function * deleteSubmission (authUser, submissionId) {
-  const exist = yield _getSubmission(submissionId)
+async function deleteSubmission(authUser, submissionId) {
+  const exist = await _getSubmission(submissionId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
@@ -590,7 +600,7 @@ function * deleteSubmission (authUser, submissionId) {
     }
   }
 
-  yield dbhelper.deleteRecord(filter)
+  await dbhelper.deleteRecord(filter)
 
   // Push Submission deleted event to Bus API
   // Request body for Posting to Bus API
@@ -607,7 +617,7 @@ function * deleteSubmission (authUser, submissionId) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 }
 
 deleteSubmission.schema = {
@@ -615,7 +625,7 @@ deleteSubmission.schema = {
   submissionId: joi.string().guid().required()
 }
 
-module.exports = {
+SubmissionService = {
   getSubmission,
   _getSubmission,
   downloadSubmission,
@@ -625,3 +635,4 @@ module.exports = {
   patchSubmission,
   deleteSubmission
 }
+module.exports = SubmissionService;

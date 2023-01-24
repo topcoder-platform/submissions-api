@@ -28,9 +28,9 @@ let reviewTypeId // Used to store reviewTypeId after creating review type
 
 describe('ReviewType Service tests', () => {
   // Before hook to load ES
-  before(function * () {
+  before(async function () {
     this.timeout(25000)
-    yield loadReviewTypes()
+    await loadReviewTypes()
   })
 
   /*

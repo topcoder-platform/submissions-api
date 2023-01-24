@@ -2,13 +2,11 @@
  * Contains generic helper methods
  */
 
-global.Promise = require('bluebird')
 const _ = require('lodash')
 const AWS = require('aws-sdk')
 const AmazonS3URI = require('amazon-s3-uri')
-const co = require('co')
 const config = require('config')
-const elasticsearch = require('elasticsearch')
+const elasticsearch = require('@elastic/elasticsearch')
 const logger = require('./logger')
 const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
@@ -16,7 +14,6 @@ const errors = require('common-errors')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
 
-Promise.promisifyAll(request)
 
 AWS.config.region = config.get('aws.AWS_REGION')
 const s3 = new AWS.S3()
@@ -31,9 +28,13 @@ let busApiClient
  * @param {Function} fn the generator function
  * @returns {Function} the wrapped function
  */
-function wrapExpress (fn) {
-  return function wrap (req, res, next) {
-    co(fn(req, res, next)).catch(next)
+function wrapExpress(fn) {
+  return async function wrap(req, res, next) {
+    try {
+      await fn(req, res, next)
+    } catch (err) {
+      next(err)
+    }
   }
 }
 
@@ -42,7 +43,7 @@ function wrapExpress (fn) {
  * @param obj the object (controller exports)
  * @returns {Object|Array} the wrapped object
  */
-function autoWrapExpress (obj) {
+function autoWrapExpress(obj) {
   if (_.isArray(obj)) {
     return obj.map(autoWrapExpress)
   }
@@ -62,7 +63,7 @@ function autoWrapExpress (obj) {
  * Get Bus API Client
  * @return {Object} Bus API Client Instance
 */
-function getBusApiClient () {
+function getBusApiClient() {
   // If there is no Client instance, Create a new instance
   if (!busApiClient) {
     logger.debug(`Creating Bus API client for ${config.BUSAPI_URL} `)
@@ -80,14 +81,15 @@ function getBusApiClient () {
  * Get ES Client
  * @return {Object} Elastic Host Client Instance
  */
-function getEsClient () {
+function getEsClient() {
   const esHost = config.get('esConfig.HOST')
+  console.log('esHost', esHost)
   if (!esClients.client) {
     // AWS ES configuration is different from other providers
     if (/.*amazonaws.*/.test(esHost)) {
       esClients.client = elasticsearch.Client({
         apiVersion: config.get('esConfig.API_VERSION'),
-        hosts: esHost,
+        node: esHost,
         connectionClass: require('http-aws-es'), // eslint-disable-line global-require
         amazonES: {
           region: config.get('aws.AWS_REGION'),
@@ -96,8 +98,7 @@ function getEsClient () {
       })
     } else {
       esClients.client = new elasticsearch.Client({
-        apiVersion: config.get('esConfig.API_VERSION'),
-        hosts: esHost
+        node: `https://elastic:8DBR5wH9kER-vtzV6CZc@localhost:9200`,
       })
     }
   }
@@ -109,7 +110,7 @@ function getEsClient () {
  * @param str Input string
  * @returns string String converted into camelCase
  */
-function camelize (str) {
+function camelize(str) {
   return str.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function (match, index) {
     if (+match === 0) return '' // or if (/\s+/.test(match)) for white spaces
     return index === 0 ? match.toLowerCase() : match.toUpperCase()
@@ -122,7 +123,7 @@ function camelize (str) {
  * @param  {String} actResource Resource name in ES
  * @return {Object} search request body that can be passed to ES
  */
-function prepESFilter (query, actResource) {
+function prepESFilter(query, actResource) {
   const pageSize = query.perPage || config.get('PAGE_SIZE')
   const page = query.page || 1
   const { sortBy, orderBy } = query
@@ -177,7 +178,7 @@ function prepESFilter (query, actResource) {
 
   const searchCriteria = {
     index: config.get('esConfig.ES_INDEX'),
-    type: config.get('esConfig.ES_TYPE'),
+    // type: config.get('esConfig.ES_TYPE'),
     size: pageSize,
     from: (page - 1) * pageSize, // Es Index starts from 0
     body: {
@@ -220,13 +221,14 @@ function prepESFilter (query, actResource) {
  * @param  {String} resource Resource name in ES
  * @return {Object} Data fetched from ES based on the filters
  */
-function * fetchFromES (query, resource) {
+async function fetchFromES(query, resource) {
   const esClient = getEsClient()
   // Construct ES filter
   const filter = prepESFilter(query, resource)
   // Search with constructed filter
   logger.debug(`The elasticsearch query is ${JSON.stringify(filter)}`)
-  const docs = yield esClient.search(filter)
+  const docs = await esClient.search(filter)
+  console.log('docs', docs)
   // Extract data from hits
   const rows = _.map(docs.hits.hits, single => single._source)
 
@@ -239,13 +241,14 @@ function * fetchFromES (query, resource) {
   return response
 }
 
+
 /*
  * Set paginated header and respond with data
  * @param req HTTP request
  * @param res HTTP response
  * @param {Object} data Data for which pagination need to be applied
  */
-function setPaginationHeaders (req, res, data) {
+function setPaginationHeaders(req, res, data) {
   const totalPages = Math.ceil(data.total / data.pageSize)
   let fullUrl = req.protocol + '://' + req.get('host') + req.url.replace(`&page=${data.page}`, '')
   // URL formatting to add pagination parameters accordingly
@@ -296,8 +299,8 @@ function setPaginationHeaders (req, res, data) {
 /* Function to get M2M token
  * @returns {Promise}
  */
-function * getM2Mtoken () {
-  return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
+async function getM2Mtoken() {
+  return await m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
 }
 
 /**
@@ -305,12 +308,12 @@ function * getM2Mtoken () {
  * @param {String} challengeId Challenge ID
  * @returns {String} Legacy Challenge ID of the given challengeId
  */
-function * getLegacyChallengeId (challengeId) {
+async function getLegacyChallengeId(challengeId) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
+    const token = await getM2Mtoken()
     try {
-      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+      const response = await request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
       if (_.get(response.body, 'legacy.pureV5')) {
@@ -333,12 +336,12 @@ function * getLegacyChallengeId (challengeId) {
  * @param {Integer} challengeId Challenge ID
  * @returns {String} v5 uuid Challenge ID of the given challengeId
  */
-function * getV5ChallengeId (challengeId) {
+async function getV5ChallengeId(challengeId) {
   if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId))) {
     logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
+    const token = await getM2Mtoken()
     try {
-      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
+      const response = await request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
       const v5Uuid = _.get(response, 'body[0].id')
@@ -357,15 +360,15 @@ function * getV5ChallengeId (challengeId) {
  * @param challengeId Challenge ID
  * @returns {Integer} Submission phase ID of the given challengeId
  */
-function * getSubmissionPhaseId (challengeId) {
+async function getSubmissionPhaseId(challengeId) {
   let phaseId = null
   let response
-  challengeId = yield getV5ChallengeId(challengeId)
+  challengeId = await getV5ChallengeId(challengeId)
 
   try {
     logger.info(`Calling to challenge API to find submission phase Id for ${challengeId}`)
-    const token = yield getM2Mtoken()
-    response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    const token = await getM2Mtoken()
+    response = await request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
     logger.info(`returned from finding submission phase Id for ${challengeId}`)
@@ -399,22 +402,22 @@ function * getSubmissionPhaseId (challengeId) {
  * @param subEntity Submission Entity
  * @returns {Promise}
  */
-function * checkCreateAccess (authUser, subEntity) {
+async function checkCreateAccess(authUser, subEntity) {
   let challengeDetails
   let resources
 
-  const challengeId = yield getV5ChallengeId(subEntity.challengeId)
+  const challengeId = await getV5ChallengeId(subEntity.challengeId)
 
   // User can only create submission for themselves
   if (authUser.userId !== subEntity.memberId) {
     throw new errors.HttpStatusError(403, 'You are not allowed to submit on behalf of others')
   }
 
-  const token = yield getM2Mtoken()
+  const token = await getM2Mtoken()
 
   try {
     logger.info(`Calling to challenge API for fetch phases and winners for ${challengeId}`)
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    challengeDetails = await request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
     logger.info(`returned for ${challengeId} with ${JSON.stringify(challengeDetails)}`)
@@ -425,7 +428,7 @@ function * checkCreateAccess (authUser, subEntity) {
   }
 
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
+    resources = await request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
@@ -435,7 +438,7 @@ function * checkCreateAccess (authUser, subEntity) {
   }
 
   // Get map of role id to role name
-  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+  const resourceRolesMap = await getRoleIdToRoleNameMap()
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
@@ -471,7 +474,7 @@ function * checkCreateAccess (authUser, subEntity) {
       throw new errors.HttpStatusError(403, `Register for the contest before you can submit`)
     }
 
-    const submissionPhaseId = yield getSubmissionPhaseId(subEntity.challengeId)
+    const submissionPhaseId = await getSubmissionPhaseId(subEntity.challengeId)
 
     if (submissionPhaseId == null) {
       throw new errors.HttpStatusError(403, 'You cannot create a submission in the current phase')
@@ -482,7 +485,7 @@ function * checkCreateAccess (authUser, subEntity) {
     if (currPhase[0].name === 'Final Fix' || currPhase[0].name === 'Approval') {
       // Check if the user created a submission in the Submission phase - only such users
       // will be allowed to submit during final phase
-      const userSubmission = yield fetchFromES({
+      const userSubmission = await fetchFromES({
         challengeId,
         memberId: authUser.userId
       }, camelize('Submission'))
@@ -505,7 +508,7 @@ function * checkCreateAccess (authUser, subEntity) {
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function * checkGetAccess (authUser, submission) {
+async function checkGetAccess(authUser, submission) {
   let resources
   let challengeDetails
   // Allow downloading Own submission
@@ -513,11 +516,11 @@ function * checkGetAccess (authUser, submission) {
     return true
   }
 
-  const token = yield getM2Mtoken()
-  const challengeId = yield getV5ChallengeId(submission.challengeId)
+  const token = await getM2Mtoken()
+  const challengeId = await getV5ChallengeId(submission.challengeId)
 
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
+    resources = await request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
@@ -527,7 +530,7 @@ function * checkGetAccess (authUser, submission) {
   }
 
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    challengeDetails = await request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
@@ -537,7 +540,7 @@ function * checkGetAccess (authUser, submission) {
   }
 
   // Get map of role id to role name
-  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+  const resourceRolesMap = await getRoleIdToRoleNameMap()
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
@@ -596,7 +599,7 @@ function * checkGetAccess (authUser, submission) {
         if (appealsResponseStatus !== 'Closed' && appealsResponseStatus !== 'Invalid') {
           throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
         } else {
-          const userSubmission = yield fetchFromES({
+          const userSubmission = await fetchFromES({
             challengeId: submission.challengeId,
             memberId: authUser.userId
           }, camelize('Submission'))
@@ -628,14 +631,14 @@ function * checkGetAccess (authUser, submission) {
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function * checkReviewGetAccess (authUser, submission) {
+async function checkReviewGetAccess(authUser, submission) {
   let resources
   let challengeDetails
-  const token = yield getM2Mtoken()
-  const challengeId = yield getV5ChallengeId(submission.challengeId)
+  const token = await getM2Mtoken()
+  const challengeId = await getV5ChallengeId(submission.challengeId)
 
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
+    resources = await request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
@@ -645,7 +648,7 @@ function * checkReviewGetAccess (authUser, submission) {
   }
 
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    challengeDetails = await request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
@@ -655,7 +658,7 @@ function * checkReviewGetAccess (authUser, submission) {
   }
 
   // Get map of role id to role name
-  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+  const resourceRolesMap = await getRoleIdToRoleNameMap()
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
@@ -706,10 +709,10 @@ function * checkReviewGetAccess (authUser, submission) {
  * @param{String} fileURL S3 URL of the file to be downloaded
  * @returns {Buffer} Buffer of downloaded file
  */
-function * downloadFile (fileURL) {
+async function downloadFile(fileURL) {
   const { bucket, key } = AmazonS3URI(fileURL)
   logger.info(`downloadFile(): file is on S3 ${bucket} / ${key}`)
-  const downloadedFile = yield s3.getObject({ Bucket: bucket, Key: key }).promise()
+  const downloadedFile = await s3.getObject({ Bucket: bucket, Key: key }).promise()
   return downloadedFile.Body
 }
 
@@ -718,7 +721,7 @@ function * downloadFile (fileURL) {
  * @param{String} fileURL S3 URL of the file to be downloaded
  * @returns {Object} ReadStream of downloaded file
  */
-function createS3ReadStream (fileURL) {
+function createS3ReadStream(fileURL) {
   const { bucket, key } = AmazonS3URI(fileURL)
   logger.info(`create s3 readStream(): file is on S3 ${bucket} / ${key}`)
   return s3.getObject({ Bucket: bucket, Key: key }).createReadStream()
@@ -730,11 +733,11 @@ function createS3ReadStream (fileURL) {
  * Also stores the original topic in the payload
  * @param {Object} payload Data that needs to be posted to the bus api
  */
-function * postToBusApi (payload) {
+async function postToBusApi(payload) {
   const busApiClient = getBusApiClient()
   const originalTopic = payload.topic
 
-  yield busApiClient.postEvent(payload)
+  await busApiClient.postEvent(payload)
 
   // Post to aggregate topic
   payload.topic = config.get('KAFKA_AGGREGATE_TOPIC')
@@ -742,7 +745,7 @@ function * postToBusApi (payload) {
   // Store the original topic
   payload.payload.originalTopic = originalTopic
 
-  yield busApiClient.postEvent(payload)
+  await busApiClient.postEvent(payload)
 }
 
 /**
@@ -750,7 +753,7 @@ function * postToBusApi (payload) {
  * @param  {Array} reviews The reviews to remove metadata from
  * @param  {Object} authUser The authenticated user details
  */
-function cleanseReviews (reviews, authUser) {
+function cleanseReviews(reviews, authUser) {
   // Not a machine user
   if (!authUser.scopes) {
     logger.info('Not a machine user. Filtering reviews...')
@@ -784,12 +787,12 @@ function cleanseReviews (reviews, authUser) {
  * Function to get role id to role name map
  * @returns {Object|null} <Role Id, Role Name> map
  */
-function * getRoleIdToRoleNameMap () {
+async function getRoleIdToRoleNameMap() {
   let resourceRoles
   let resourceRolesMap = null
-  const token = yield getM2Mtoken()
+  const token = await getM2Mtoken()
   try {
-    resourceRoles = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
+    resourceRoles = await request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
@@ -812,7 +815,7 @@ function * getRoleIdToRoleNameMap () {
  * @param {Object} challengeDetails the challenge details
  * @returns {('Scheduled' | 'Open' | 'Closed' | 'Invalid')} status of the phase
  */
-function getPhaseStatus (phaseName, challengeDetails) {
+function getPhaseStatus(phaseName, challengeDetails) {
   const { phases } = challengeDetails
   const queriedPhaseIndex = _.findIndex(phases, phase => {
     return phase.name === phaseName
@@ -844,7 +847,7 @@ function getPhaseStatus (phaseName, challengeDetails) {
  * Change challengeId to v5ChallengeId and legacyChallengeId to challengeId
  * @param {Object} submission
  */
-function adjustSubmissionChallengeId (submission) {
+function adjustSubmissionChallengeId(submission) {
   if (submission.challengeId && submission.legacyChallengeId) {
     submission.v5ChallengeId = submission.challengeId
     submission.challengeId = submission.legacyChallengeId
@@ -858,18 +861,18 @@ function adjustSubmissionChallengeId (submission) {
  * @param {Number} page page index
  * @returns {Array} an array of challenge
  */
-function * getLatestChallenges (page) {
+async function getLatestChallenges(page) {
   page = page || 1
-  const token = yield getM2Mtoken()
+  const token = await getM2Mtoken()
   const url = `${config.CHALLENGEAPI_V5_URL}?createdDateStart=${config.FETCH_CREATED_DATE_START}&page=${page}&perPage=${config.FETCH_PAGE_SIZE}&isLightweight=true`
   try {
-    const response = yield request.get(url)
+    const response = await request.get(url)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
     const challenges = _.map(_.filter(_.get(response, 'body'), 'legacyId'), c => _.pick(c, 'id', 'legacyId'))
     logger.debug(`Fetched ${challenges.length} challenges in this iteration. More may follow...`)
     if (_.get(response, 'headers.x-total-pages') > page) {
-      const leftChallenges = yield getLatestChallenges(page + 1)
+      const leftChallenges = await getLatestChallenges(page + 1)
       challenges.push(...leftChallenges)
     }
     return challenges
@@ -884,7 +887,7 @@ function * getLatestChallenges (page) {
  * @param {String} scoreCardId Scorecard ID
  * @returns {String} Legacy scorecard ID of the given challengeId
  */
-function getLegacyScoreCardId (scoreCardId) {
+function getLegacyScoreCardId(scoreCardId) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(scoreCardId)) {
     logger.debug(`${scoreCardId} detected as uuid. Converting to legacy scorecard id`)
 

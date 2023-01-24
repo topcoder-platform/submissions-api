@@ -10,8 +10,9 @@ const helper = require('../common/helper')
  * @param req the http request
  * @param res the http response
  */
-function * getSubmission (req, res) {
-  res.json(yield SubmissionService.getSubmission(req.authUser, req.params.submissionId))
+async function getSubmission(req, res) {
+  const value = await SubmissionService.getSubmission(req.authUser, req.params.submissionId)
+  res.json(value)
 }
 
 /**
@@ -19,8 +20,8 @@ function * getSubmission (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * downloadSubmission (req, res) {
-  const result = yield SubmissionService.downloadSubmission(req.authUser, req.params.submissionId)
+async function downloadSubmission(req, res) {
+  const result = await SubmissionService.downloadSubmission(req.authUser, req.params.submissionId)
   let fileName
   if (result.submission.legacySubmissionId) {
     fileName = `submission-${result.submission.legacySubmissionId}-${result.submission.id}.zip`
@@ -36,8 +37,8 @@ function * downloadSubmission (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * listSubmissions (req, res) {
-  const data = yield SubmissionService.listSubmissions(req.authUser, req.query)
+async function listSubmissions(req, res) {
+  const data = await SubmissionService.listSubmissions(req.authUser, req.query)
   helper.setPaginationHeaders(req, res, data)
 }
 
@@ -46,8 +47,8 @@ function * listSubmissions (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * createSubmission (req, res) {
-  res.json(yield SubmissionService.createSubmission(req.authUser, req.files, req.body))
+async function createSubmission(req, res) {
+  res.json(await SubmissionService.createSubmission(req.authUser, req.files, req.body))
 }
 
 /**
@@ -55,8 +56,8 @@ function * createSubmission (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * updateSubmission (req, res) {
-  res.json(yield SubmissionService.updateSubmission(req.authUser, req.params.submissionId, req.body))
+async function updateSubmission(req, res) {
+  res.json(await SubmissionService.updateSubmission(req.authUser, req.params.submissionId, req.body))
 }
 
 /**
@@ -64,8 +65,8 @@ function * updateSubmission (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * patchSubmission (req, res) {
-  res.json(yield SubmissionService.patchSubmission(req.authUser, req.params.submissionId, req.body))
+async function patchSubmission(req, res) {
+  res.json(await SubmissionService.patchSubmission(req.authUser, req.params.submissionId, req.body))
 }
 
 /**
@@ -73,8 +74,8 @@ function * patchSubmission (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * deleteSubmission (req, res) {
-  yield SubmissionService.deleteSubmission(req.authUser, req.params.submissionId)
+async function deleteSubmission(req, res) {
+  await SubmissionService.deleteSubmission(req.authUser, req.params.submissionId)
   res.status(204).send()
 }
 

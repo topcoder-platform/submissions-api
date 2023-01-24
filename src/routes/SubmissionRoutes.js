@@ -18,7 +18,7 @@ module.exports = {
       auth: 'jwt',
       access: ['Topcoder User', 'Administrator', 'Copilot'],
       scopes: ['read:submission', 'all:submission'],
-      blockByIp: true
+      blockByIp: false
     }
   },
   '/submissions/:submissionId': {

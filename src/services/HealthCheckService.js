@@ -9,11 +9,11 @@ const helper = require('../common/helper')
  * Check if the elasticsearch connection is active
  */
 
-function * check () {
+async function check() {
   const esClient = helper.getEsClient()
 
   try {
-    yield esClient.ping({
+    await esClient.ping({
       requestTimeout: 10000
     })
   } catch (e) {

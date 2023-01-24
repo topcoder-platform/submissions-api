@@ -13,9 +13,9 @@ const SubmissionService = require('./SubmissionService')
  * @return {boolean} Returns true if all references are valid
  * @throws {Error} if any of the reference is invalid
  */
-function * _checkRef (entity) {
+async function _checkRef(entity) {
   if (entity.typeId) {
-    const existReviewType = yield ReviewTypeService._getReviewType(entity.typeId)
+    const existReviewType = await ReviewTypeService._getReviewType(entity.typeId)
 
     if (!existReviewType) {
       throw new errors.HttpStatusError(400, `Review type with ID = ${entity.typeId} does not exist`)
@@ -23,7 +23,7 @@ function * _checkRef (entity) {
   }
 
   if (entity.submissionId) {
-    const existSubmission = yield SubmissionService._getSubmission(entity.submissionId, false)
+    const existSubmission = await SubmissionService._getSubmission(entity.submissionId, false)
 
     if (!existSubmission) {
       throw new errors.HttpStatusError(400, `Submission with ID = ${entity.submissionId} does not exist`)

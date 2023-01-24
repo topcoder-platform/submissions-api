@@ -31,15 +31,15 @@ let reviewId // Used to store reviewId after creating review
 
 describe('Review Service tests', () => {
   // Before hook to load ES
-  before(function * () {
+  before(async function () {
     this.timeout(25000)
-    yield loadReviews()
-    const reviewType = yield chai.request(app)
+    await loadReviews()
+    const reviewType = await chai.request(app)
       .post(`${config.API_VERSION}/reviewTypes`)
       .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
       .send(_.omit(testReviewType.Item, ['id']))
     reviewTypeId = reviewType.body.id
-    const submission = yield chai.request(app)
+    const submission = await chai.request(app)
       .post(`${config.API_VERSION}/submissions`)
       .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
       .send(_.omit(testSubmission.Item, ['id', 'created', 'updated', 'createdBy', 'updatedBy']))

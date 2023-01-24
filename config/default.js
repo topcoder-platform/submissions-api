@@ -29,7 +29,7 @@ module.exports = {
   AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
   AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
   esConfig: {
-    HOST: process.env.ES_HOST || 'localhost:9200',
+    HOST: process.env.ES_HOST || 'https://localhost:9200',
     API_VERSION: process.env.ES_API_VERSION || '6.3',
     ES_INDEX: process.env.ES_INDEX || 'submission',
     ES_TYPE: process.env.ES_TYPE || '_doc' // ES 6.x accepts only 1 Type per index and it's mandatory to define it
@@ -52,5 +52,8 @@ module.exports = {
     'c56a4180-65aa-42ec-a945-5fd21dec0505': 987123456,
     '9ecc88e5-a4ee-44a4-8ec1-70bd98022510': 123789456,
     'd6d31f34-8ee5-4589-ae65-45652fcc01a6': 30000720
-  }
+  },
+  GRPC_CHALLENGE_SERVER_HOST: process.env.GRPC_CHALLENGE_SERVER_HOST || 'localhost',
+  GRPC_CHALLENGE_SERVER_PORT: process.env.GRPC_CHALLENGE_SERVER_PORT || 50052,
+
 }
