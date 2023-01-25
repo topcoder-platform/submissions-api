@@ -475,22 +475,21 @@
 
 "@topcoder-framework/domain-submission@^v0.4.1-ci.0":
   version "0.4.1-ci.0"
-  resolved "http://localhost:4873/@topcoder-framework%2fdomain-submission/-/domain-submission-0.4.1-ci.0.tgz#6fdf0decf6b8dec4665224586d81c2e92eba5517"
-  integrity sha512-ZKfuyElucuZy3vkjRSk/7jIYxjNSB8S1lEHEXSqM01kTLaQbkT6AC4o8WQhVy9TNUyTc/n8XR/9Iyoq6NzKzlg==
+  resolved "http://localhost:4873/@topcoder-framework%2fdomain-submission/-/domain-submission-0.4.1-ci.0.tgz#21dc331fdde9ab244bc41bf9ff92e71a5bcd4295"
+  integrity sha512-nfaQrbZKi/xo9KoZGTojvHzmyDc8SBlbROg5VkQQi5mVZYFpqi+MxidLpNMfDmqbIvDIb++hHKNXxD5mtiDCGQ==
   dependencies:
     "@topcoder-framework/lib-common" "^0.2.1"
     dotenv "^16.0.3"
-    topcoder-interface "file:../plat-interface-definition"
     tslib "^2.4.1"
 
 "@topcoder-framework/lib-common@^0.2.1", "@topcoder-framework/lib-common@^v0.4.1-ci.0":
   version "0.4.1-ci.0"
-  resolved "http://localhost:4873/@topcoder-framework%2flib-common/-/lib-common-0.4.1-ci.0.tgz#92a81a3c1568d8fdddef263747c95df81b9d5072"
-  integrity sha512-kzCkoNn3O+7CQB+HSBBXGfa1JyM94R171qh5k8+N3wi3hG6FiS774OUKQ0QTEN1ORmM88zJzx5KbBtpxrIRpnA==
+  resolved "http://localhost:4873/@topcoder-framework%2flib-common/-/lib-common-0.4.1-ci.0.tgz#4bd9b9105a4bf65ead015466d7651f2da4679a70"
+  integrity sha512-0lvHEvO9+R+UWfdCUAkLqqMUn7EBbQLzklPkfw57bQNa85eHD9CBAS5oDuuEaKv+cMmWVytV5+1+qdDFa4QPxQ==
   dependencies:
     "@grpc/grpc-js" "^1.8.0"
     rimraf "^3.0.2"
-    topcoder-interface "github:topcoder-platform/plat-interface-definition#v0.0.7"
+    topcoder-interface "file:../plat-interface-definition"
     tslib "^2.4.1"
 
 "@tsconfig/node10@^1.0.7":
@@ -1046,9 +1045,9 @@ aws-sdk-mock@^4.0.0:
     traverse "^0.6.6"
 
 aws-sdk@^2.265.1, aws-sdk@^2.483.0:
-  version "2.1300.0"
-  resolved "http://localhost:4873/aws-sdk/-/aws-sdk-2.1300.0.tgz#40190f3ccea8693c3764edab7aa5bd26db350fa7"
-  integrity sha512-1pz/+Kot+kTiH0WDH5A8Ao06dwz73xX6oCIpTbGTt/AKdmGTC8aAkMbk+KXoQatJSsQyqqxrtWIeKIQUaeUYDw==
+  version "2.1301.0"
+  resolved "http://localhost:4873/aws-sdk/-/aws-sdk-2.1301.0.tgz#fbe971fca51deccecc6729f2f01fc2b0ff41ba1f"
+  integrity sha512-AxCt0GfWV14AWC0yvN3+WEBr45JMu2X3FHb8r3H8EhZjJfHk3hWcDwu6vS5Qd8NFDATlFdWJfyQjPVU1YuaDfw==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -5526,9 +5525,9 @@ propagate@^1.0.0:
   integrity sha512-T/rqCJJaIPYObiLSmaDsIf4PGA7y+pkgYFHmwoXQyOHiDDSO1YCxcztNiRBmV4EZha4QIbID3vQIHkqKu5k0Xg==
 
 protobufjs@^7.0.0:
-  version "7.1.2"
-  resolved "http://localhost:4873/protobufjs/-/protobufjs-7.1.2.tgz#a0cf6aeaf82f5625bffcf5a38b7cd2a7de05890c"
-  integrity sha512-4ZPTPkXCdel3+L81yw3dG6+Kq3umdWKh7Dc7GW/CpNk4SX3hK58iPCWeCyhVTDrbkNeKrYNZ7EojM5WDaEWTLQ==
+  version "7.2.0"
+  resolved "http://localhost:4873/protobufjs/-/protobufjs-7.2.0.tgz#ca6b1ceb9a9efe21186ba96178089ec563011a5e"
+  integrity sha512-hYCqTDuII4iJ4stZqiuGCSU8xxWl5JeXYpwARGtn/tWcKCAro6h3WQz+xpsNbXW0UYqpmTQFEyFWO0G0Kjt64g==
   dependencies:
     "@protobufjs/aspromise" "^1.1.2"
     "@protobufjs/base64" "^1.1.2"
@@ -6728,12 +6727,8 @@ toidentifier@1.0.1:
   resolved "http://localhost:4873/toidentifier/-/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==
 
-topcoder-interface@/Users/hamidtavakoli/topcoder/plat-interface-definition:
+"topcoder-interface@file:/Users/hamidtavakoli/topcoder/plat-interface-definition":
   version "1.0.0"
-
-"topcoder-interface@github:topcoder-platform/plat-interface-definition#v0.0.7":
-  version "1.0.0"
-  resolved "https://codeload.github.com/topcoder-platform/plat-interface-definition/tar.gz/6c0ef6bb00fcb599eb3e606502e386e15971d43c"
 
 topo@3.x.x:
   version "3.0.3"
