@@ -24,8 +24,8 @@ const {
 const { SubmissionDomain } = require("@topcoder-framework/domain-submission");
 
 const submissionDomain = new SubmissionDomain(
-  config.GRPC_CHALLENGE_SERVER_HOST,
-  config.GRPC_CHALLENGE_SERVER_PORT
+  config.GRPC_SUBMISSION_SERVER_HOST,
+  config.GRPC_SUBMISSION_SERVER_PORT
 );
 
 const table = "Submission";
@@ -361,6 +361,7 @@ async function createSubmission(authUser, files, entity) {
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
+  //TODO: move this to domain layer
   const challengeId = await helper.getV5ChallengeId(entity.challengeId);
   const legacyChallengeId = await helper.getLegacyChallengeId(
     entity.challengeId
@@ -368,17 +369,11 @@ async function createSubmission(authUser, files, entity) {
   const currDate = new Date().getTime();
 
   const item = {
-    id: submissionId,
     challengeId,
-    createdBy: authUser.handle || authUser.sub,
-    fileType: "",
-    memberId: entity.memberId,
-    submittedDate: currDate,
+    fileType: entity.fileType || fileType,
     type: entity.type,
-    updatedBy: authUser.handle || authUser.sub,
+    // memberId: +entity.memberId,
     url: url,
-    created: currDate,
-    updated: currDate,
   };
 
   // Pure v5 challenges won't have a legacy challenge id
@@ -429,8 +424,8 @@ async function createSubmission(authUser, files, entity) {
     );
   }
 
-  item.submittedDate = new Date(entity.submittedDate || item.created).getTime();
-  item.createdBy = entity.createdBy || "";
+  // item.submittedDate = new Date(entity.submittedDate || item.created).getTime();
+  // item.createdBy = entity.createdBy || "";
 
   if (!item.submissionPhaseId) {
     delete item.submissionPhaseId;

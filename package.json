@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.6.0",
-    "@topcoder-framework/domain-submission": "^v0.4.18-ci.0",
+    "@topcoder-framework/domain-submission": "0.5.4-ci.0",
     "@topcoder-framework/lib-common": "^v0.4.18-ci.0",
     "amazon-s3-uri": "0.0.3",
     "aws-sdk": "^2.265.1",
