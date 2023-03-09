@@ -88,7 +88,7 @@ async function _getSubmission(submissionId, fetchReview = true) {
     id: submissionId,
   });
 
-  const result = await submissionDomain.scan({
+  const result = await submissionDomain.scan({ // TODO: @Hamid, why scan? why not lookup?
     scanCriteria,
   });
   const submission = result[0];
@@ -542,63 +542,39 @@ async function _updateSubmission(authUser, submissionId, entity) {
       `Cannot update submission with v5 challenge id since it already has a legacy challenge id associated with it`
     );
   }
-  // Record used for updating in Database
-  const record = {
-    TableName: table,
-    Key: {
-      id: submissionId,
-    },
-    UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c, updated = :ua, updatedBy = :ub, submittedDate = :sb`,
-    ExpressionAttributeValues: {
-      ":t": entity.type || exist.type,
-      ":u": entity.url || exist.url,
-      ":m": entity.memberId || exist.memberId,
-      ":c": challengeId,
-      ":ua": currDate,
-      ":ub": authUser.handle || authUser.sub,
-      ":sb": entity.submittedDate || exist.submittedDate || exist.created,
-    },
-    ExpressionAttributeNames: {
-      "#type": "type",
-      "#url": "url",
-    },
-  };
-
-  if (legacyChallengeId) {
-    record.UpdateExpression =
-      record.UpdateExpression + ", legacyChallengeId = :lc";
-    record.ExpressionAttributeValues[":lc"] = legacyChallengeId;
+  const updatedData = {
+    type: entity.type || exist.type,
+    url: entity.url || exist.url,
+    memberId: entity.memberId || exist.memberId,
+    challengeId,
+    submittedDate: entity.submittedDate || exist.submittedDate || exist.created,
   }
-
-  // If legacy submission ID exists, add it to the update expression
+  if (legacyChallengeId) {
+    updatedData.legacyChallengeId = legacyChallengeId;
+  }
   if (entity.legacySubmissionId || exist.legacySubmissionId) {
-    record.UpdateExpression =
-      record.UpdateExpression + ", legacySubmissionId = :ls";
-    record.ExpressionAttributeValues[":ls"] =
-      entity.legacySubmissionId || exist.legacySubmissionId;
+    updatedData.legacySubmissionId = entity.legacySubmissionId || exist.legacySubmissionId;
   }
 
   // If legacy upload ID exists, add it to the update expression
   if (entity.legacyUploadId || exist.legacyUploadId) {
-    record.UpdateExpression =
-      record.UpdateExpression + ", legacyUploadId = :lu";
-    record.ExpressionAttributeValues[":lu"] =
-      entity.legacyUploadId || exist.legacyUploadId;
+    updatedData.legacyUploadId = entity.legacyUploadId || exist.legacyUploadId;
   }
 
   // If submissionPhaseId exists, add it to the update expression
   if (entity.submissionPhaseId || exist.submissionPhaseId) {
-    record.UpdateExpression =
-      record.UpdateExpression + ", submissionPhaseId = :sp";
-    record.ExpressionAttributeValues[":sp"] =
-      entity.submissionPhaseId || exist.submissionPhaseId;
+    updatedData.submissionPhaseId = entity.submissionPhaseId || exist.submissionPhaseId;
   }
 
   logger.info("Prepared submission item to update in Dynamodb. Updating...");
 
-  //TODO: upgrade to GRPC
-  await dbhelper.updateRecord(record);
-  const updatedSub = await _getSubmission(submissionId);
+  const { items } = await submissionDomain.update({
+    filterCriteria: getScanCriteria({
+      id: submissionId,
+    }),
+    updateInput: updatedData
+  })
+  const [updatedSub] = items;
 
   helper.adjustSubmissionChallengeId(updatedSub);
   // Push Submission updated event to Bus API
@@ -612,13 +588,15 @@ async function _updateSubmission(authUser, submissionId, entity) {
       {
         resource: helper.camelize(table),
         id: submissionId,
-        challengeId: updatedSub.challengeId,
-        v5ChallengeId: updatedSub.v5ChallengeId,
-        memberId: updatedSub.memberId,
-        submissionPhaseId: updatedSub.submissionPhaseId,
-        type: updatedSub.type,
-        submittedDate: updatedSub.submittedDate,
-        legacyChallengeId: updatedSub.legacyChallengeId,
+        ..._.pick(updatedSub, [
+          'challengeId',
+          'v5ChallengeId',
+          'memberId',
+          'submissionPhaseId',
+          'type',
+          'submittedDate',
+          'legacyChallengeId'
+        ])
       },
       entity
     ),
