@@ -6,9 +6,9 @@ const config = require('config')
 const AWS = require('aws-sdk')
 
 // Database instance mapping
-const dbs = { }
+const dbs = {}
 // Database Document client mapping
-const dbClients = { }
+const dbClients = {}
 
 AWS.config.update({
   region: config.aws.AWS_REGION
@@ -18,7 +18,7 @@ AWS.config.update({
  * Get DynamoDB Connection Instance
  * @return {Object} DynamoDB Connection Instance
  */
-function getDb () {
+function getDb() {
   if (!dbs.conn) {
     dbs.conn = new AWS.DynamoDB()
   }
@@ -29,7 +29,7 @@ function getDb () {
  * Get DynamoDB Document Client
  * @return {Object} DynamoDB Document Client Instance
  */
-function getDbClient () {
+function getDbClient() {
   if (!dbClients.client) {
     dbClients.client = new AWS.DynamoDB.DocumentClient()
   }
@@ -41,16 +41,9 @@ function getDbClient () {
  * @param     {object} model Table structure in JSON format
  * @return    {promise}
  */
-function * createTable (model) {
+async function createTable(model) {
   const db = getDb()
-  return new Promise((resolve, reject) => {
-    db.createTable(model, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  return await db.createTable(model).promise()
 }
 
 /**
@@ -58,19 +51,12 @@ function * createTable (model) {
  * @param     {String} tableName Name of the table to be deleted
  * @return    {promise}
  */
-function * deleteTable (tableName) {
+async function deleteTable(tableName) {
   const db = getDb()
   const item = {
     TableName: tableName
   }
-  return new Promise((resolve, reject) => {
-    db.deleteTable(item, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  return await db.deleteTable(item).promise()
 }
 
 /**
@@ -78,16 +64,9 @@ function * deleteTable (tableName) {
  * @param     {object} record Data to be inserted
  * @return    {promise}
  */
-function * insertRecord (record) {
+async function insertRecord(record) {
   const dbClient = getDbClient()
-  return new Promise((resolve, reject) => {
-    dbClient.put(record, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  return await dbClient.put(record).promise()
 }
 
 /**
@@ -95,16 +74,9 @@ function * insertRecord (record) {
  * @param     {object} filter Filter to be applied on the database
  * @return    {promise}
  */
-function * getRecord (filter) {
+async function getRecord(filter) {
   const dbClient = getDbClient()
-  return new Promise((resolve, reject) => {
-    dbClient.get(filter, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  await dbClient.get(filter).promise()
 }
 
 /**
@@ -112,16 +84,9 @@ function * getRecord (filter) {
  * @param     {object} record Data to be updated
  * @return    {promise}
  */
-function * updateRecord (record) {
+async function updateRecord(record) {
   const dbClient = getDbClient()
-  return new Promise((resolve, reject) => {
-    dbClient.update(record, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  return await dbClient.update(record).promise()
 }
 
 /**
@@ -129,16 +94,9 @@ function * updateRecord (record) {
  * @param     {object} filter Filter to be used for deleting records
  * @return    {promise}
  */
-function * deleteRecord (filter) {
+async function deleteRecord(filter) {
   const dbClient = getDbClient()
-  return new Promise((resolve, reject) => {
-    dbClient.delete(filter, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  await dbClient.delete(filter).promise()
 }
 
 /**
@@ -146,16 +104,10 @@ function * deleteRecord (filter) {
  * @param     {object} params Parameters to be used for Scanning
  * @return    {promise}
  */
-function * scanRecords (params) {
+async function scanRecords(params) {
   const dbClient = getDbClient()
-  return new Promise((resolve, reject) => {
-    dbClient.scan(params, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  const results = await dbClient.scan(params).promise()
+  return results
 }
 
 /**
@@ -163,16 +115,9 @@ function * scanRecords (params) {
  * @param     {object} filter Secondary index filter to be applied on the database
  * @return    {promise}
  */
-function * queryRecords (filter) {
+async function queryRecords(filter) {
   const dbClient = getDbClient()
-  return new Promise((resolve, reject) => {
-    dbClient.query(filter, (err, data) => {
-      if (err) {
-        reject(err)
-      }
-      resolve(data)
-    })
-  })
+  return await dbClient.query(filter).promise()
 }
 
 // exports the functions

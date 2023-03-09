@@ -2,7 +2,6 @@
  * Initialize application and load routes
  */
 
-global.Promise = require('bluebird')
 const config = require('config')
 const fs = require('fs')
 const joi = require('joi')
@@ -15,7 +14,7 @@ joi.pageSize = () => joi.number().integer().min(1).max(config.get('MAX_PAGE_SIZE
 joi.sortOrder = () => joi.string().valid('asc', 'desc', 'ASC', 'DESC')
 joi.reviewStatus = () => joi.string().valid('queued', 'completed')
 
-function buildServices (dir) {
+function buildServices(dir) {
   const files = fs.readdirSync(dir)
 
   files.forEach((file) => {

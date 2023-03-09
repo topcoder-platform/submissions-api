@@ -17,7 +17,7 @@ const esClient = helper.getEsClient()
  * @param customFunction {Function} custom function to handle record
  * @returns {Promise}
  */
-function * migrateRecords (tableName, customFunction) {
+async function migrateRecords(tableName, customFunction) {
   let body = []
   let batchCounter = 1
   const params = {
@@ -25,7 +25,7 @@ function * migrateRecords (tableName, customFunction) {
   }
   // Process until all the records from DB is fetched
   while (true) {
-    const records = yield dbhelper.scanRecords(params)
+    const records = await dbhelper.scanRecords(params)
     logger.debug(`Number of ${tableName}s currently fetched from DB - ` + records.Items.length)
     let i = 0
     for (const recordItem of records.Items) {
@@ -39,13 +39,20 @@ function * migrateRecords (tableName, customFunction) {
       // data
       body.push(_.extend({ resource: helper.camelize(tableName) }, item))
 
+
       if (i % config.ES_BATCH_SIZE === 0) {
         logger.debug(`${tableName} - Processing batch # ` + batchCounter)
-        yield esClient.bulk({
-          index: config.get('esConfig.ES_INDEX'),
-          type: config.get('esConfig.ES_TYPE'),
-          body
-        })
+        try {
+
+          await esClient.bulk({
+            index: config.get('esConfig.ES_INDEX'),
+            // type: config.get('esConfig.ES_TYPE'),
+            body
+          })
+        } catch (err) {
+          console.log("************** Error **************");
+          console.log(err);
+        }
         body = []
         batchCounter++
       }
@@ -58,9 +65,9 @@ function * migrateRecords (tableName, customFunction) {
     } else {
       if (body.length > 0) {
         logger.debug(`${tableName} - Final batch processing...`)
-        yield esClient.bulk({
+        await esClient.bulk({
           index: config.get('esConfig.ES_INDEX'),
-          type: config.get('esConfig.ES_TYPE'),
+          // type: config.get('esConfig.ES_TYPE'),
           body
         })
       }
@@ -69,7 +76,7 @@ function * migrateRecords (tableName, customFunction) {
   }
 }
 
-co(function * () {
+co(function* () {
   const promises = []
   const reviews = []
   const reviewSummations = []

@@ -10,8 +10,8 @@ const helper = require('../common/helper')
  * @param req the http request
  * @param res the http response
  */
-function * getReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.getReviewSummation(req.params.reviewSummationId))
+async function getReviewSummation(req, res) {
+  res.json(await ReviewSummationService.getReviewSummation(req.params.reviewSummationId))
 }
 
 /**
@@ -19,8 +19,8 @@ function * getReviewSummation (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * listReviewSummations (req, res) {
-  const data = yield ReviewSummationService.listReviewSummations(req.query)
+async function listReviewSummations(req, res) {
+  const data = await ReviewSummationService.listReviewSummations(req.query)
   helper.setPaginationHeaders(req, res, data)
 }
 
@@ -29,8 +29,8 @@ function * listReviewSummations (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * createReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.createReviewSummation(req.authUser, req.body))
+async function createReviewSummation(req, res) {
+  res.json(await ReviewSummationService.createReviewSummation(req.authUser, req.body))
 }
 
 /**
@@ -38,8 +38,8 @@ function * createReviewSummation (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * updateReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.updateReviewSummation(req.authUser, req.params.reviewSummationId, req.body))
+async function updateReviewSummation(req, res) {
+  res.json(await ReviewSummationService.updateReviewSummation(req.authUser, req.params.reviewSummationId, req.body))
 }
 
 /**
@@ -47,8 +47,8 @@ function * updateReviewSummation (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * patchReviewSummation (req, res) {
-  res.json(yield ReviewSummationService.patchReviewSummation(req.authUser, req.params.reviewSummationId, req.body))
+async function patchReviewSummation(req, res) {
+  res.json(await ReviewSummationService.patchReviewSummation(req.authUser, req.params.reviewSummationId, req.body))
 }
 
 /**
@@ -56,8 +56,8 @@ function * patchReviewSummation (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * deleteReviewSummation (req, res) {
-  yield ReviewSummationService.deleteReviewSummation(req.params.reviewSummationId)
+async function deleteReviewSummation(req, res) {
+  await ReviewSummationService.deleteReviewSummation(req.params.reviewSummationId)
   res.status(204).send()
 }
 

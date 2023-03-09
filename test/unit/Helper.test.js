@@ -22,13 +22,13 @@ coMocha(mocha)
 chai.use(chaiHttp)
 
 describe('Helper tests', () => {
-  it('Create table should create table in DynamoDB', function * () {
-    const result = yield dbhelper.createTable(ReviewType)
+  it('Create table should create table in DynamoDB', async function () {
+    const result = await dbhelper.createTable(ReviewType)
     result.message.should.be.eql('Table created')
   })
 
-  it('Delete table should delete table in DynamoDB', function * () {
-    const result = yield dbhelper.deleteTable(ReviewType.TableName)
+  it('Delete table should delete table in DynamoDB', async function () {
+    const result = await dbhelper.deleteTable(ReviewType.TableName)
     result.message.should.be.eql('Table deleted')
   })
 

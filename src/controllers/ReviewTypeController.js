@@ -10,8 +10,8 @@ const helper = require('../common/helper')
  * @param req the http request
  * @param res the http response
  */
-function * getReviewType (req, res) {
-  res.json(yield ReviewTypeService.getReviewType(req.params.reviewTypeId))
+async function getReviewType(req, res) {
+  res.json(await ReviewTypeService.getReviewType(req.params.reviewTypeId))
 }
 
 /**
@@ -19,8 +19,8 @@ function * getReviewType (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * listReviewTypes (req, res) {
-  const data = yield ReviewTypeService.listReviewTypes(req.query)
+async function listReviewTypes(req, res) {
+  const data = await ReviewTypeService.listReviewTypes(req.query)
   helper.setPaginationHeaders(req, res, data)
 }
 
@@ -29,8 +29,8 @@ function * listReviewTypes (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * createReviewType (req, res) {
-  res.json(yield ReviewTypeService.createReviewType(req.body))
+async function createReviewType(req, res) {
+  res.json(await ReviewTypeService.createReviewType(req.body))
 }
 
 /**
@@ -38,8 +38,8 @@ function * createReviewType (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * updateReviewType (req, res) {
-  res.json(yield ReviewTypeService.updateReviewType(req.params.reviewTypeId, req.body))
+async function updateReviewType(req, res) {
+  res.json(await ReviewTypeService.updateReviewType(req.params.reviewTypeId, req.body))
 }
 
 /**
@@ -47,8 +47,8 @@ function * updateReviewType (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * patchReviewType (req, res) {
-  res.json(yield ReviewTypeService.patchReviewType(req.params.reviewTypeId, req.body))
+async function patchReviewType(req, res) {
+  res.json(await ReviewTypeService.patchReviewType(req.params.reviewTypeId, req.body))
 }
 
 /**
@@ -56,8 +56,8 @@ function * patchReviewType (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * deleteReviewType (req, res) {
-  yield ReviewTypeService.deleteReviewType(req.params.reviewTypeId)
+async function deleteReviewType(req, res) {
+  await ReviewTypeService.deleteReviewType(req.params.reviewTypeId)
   res.status(204).send()
 }
 

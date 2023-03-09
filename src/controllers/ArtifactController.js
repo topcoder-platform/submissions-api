@@ -9,8 +9,8 @@ const ArtifactService = require('../services/ArtifactService')
  * @param req the http request
  * @param res the http response
  */
-function * downloadArtifact (req, res) {
-  const result = yield ArtifactService.downloadArtifact(req.params.submissionId, req.params.file)
+async function downloadArtifact(req, res) {
+  const result = await ArtifactService.downloadArtifact(req.params.submissionId, req.params.file)
   res.attachment(result.fileName)
   res.send(result.file)
 }
@@ -20,8 +20,8 @@ function * downloadArtifact (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * listArtifacts (req, res) {
-  res.json(yield ArtifactService.listArtifacts(req.params.submissionId))
+async function listArtifacts(req, res) {
+  res.json(await ArtifactService.listArtifacts(req.params.submissionId))
 }
 
 /**
@@ -29,8 +29,8 @@ function * listArtifacts (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * createArtifact (req, res) {
-  res.json(yield ArtifactService.createArtifact(req.files, req.params.submissionId, req.body))
+async function createArtifact(req, res) {
+  res.json(await ArtifactService.createArtifact(req.files, req.params.submissionId, req.body))
 }
 
 /**
@@ -38,8 +38,8 @@ function * createArtifact (req, res) {
  * @param req the http request
  * @param res the http response
  */
-function * deleteArtifact (req, res) {
-  yield ArtifactService.deleteArtifact(req.params.submissionId, req.params.file)
+async function deleteArtifact(req, res) {
+  await ArtifactService.deleteArtifact(req.params.submissionId, req.params.file)
   res.status(204).json()
 }
 
