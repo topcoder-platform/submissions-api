@@ -10,8 +10,20 @@ const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
+const config = require('config')
 
 const table = 'ReviewSummation'
+
+const { ReviewSummationDomain } = require("@topcoder-framework/domain-submission");
+
+const {
+  DomainHelper: { getLookupCriteria, getScanCriteria },
+} = require("@topcoder-framework/lib-common");
+
+const reviewSummationDomain = new ReviewSummationDomain(
+  config.GRPC_SUBMISSION_SERVER_HOST,
+  config.GRPC_SUBMISSION_SERVER_PORT
+);
 
 /**
  * Function to get Review summation based on ID from DynamoDB
@@ -21,14 +33,7 @@ const table = 'ReviewSummation'
  */
 async function _getReviewSummation(reviewSummationId) {
   // Construct filter to retrieve record from Database
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewSummationId
-    }
-  }
-  const result = await dbhelper.getRecord(filter)
-  return result.Item
+  return reviewSummationDomain.lookup(getLookupCriteria("id", reviewSummationId))
 }
 
 /**
@@ -90,32 +95,16 @@ async function createReviewSummation(authUser, entity) {
 
   const currDate = (new Date()).toISOString()
 
-  const item = _.extend({
-    id: uuid(),
-    created: currDate,
-    updated: currDate,
-    createdBy: authUser.handle || authUser.sub,
-    updatedBy: authUser.handle || authUser.sub
-  }, entity)
-
-  if (entity.isFinal) {
-    item.isFinal = entity.isFinal
-  }
-
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     if (entity.reviewedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `reviewedDate` attribute on a review summation')
     }
   }
 
-  item.reviewedDate = entity.reviewedDate || item.created
-
-  const record = {
-    TableName: table,
-    Item: item
-  }
-
-  await dbhelper.insertRecord(record)
+  const item = await reviewSummationDomain.create({
+    ...entity,
+    reviewedDate: entity.reviewedDate || currDate,
+  });
 
   // Push Review Summation created event to Bus API
   // Request body for Posting to Bus API
@@ -175,46 +164,22 @@ async function _updateReviewSummation(authUser, reviewSummationId, entity) {
 
   const currDate = (new Date()).toISOString()
 
-  // Record used for updating in Database
-  const record = {
-    TableName: table,
-    Key: {
-      id: reviewSummationId
-    },
-    UpdateExpression: `set aggregateScore = :s, scoreCardId = :sc, submissionId = :su, 
-                        isPassing = :ip, updated = :ua, updatedBy = :ub, reviewedDate = :rd`,
-    ExpressionAttributeValues: {
-      ':s': entity.aggregateScore || exist.aggregateScore,
-      ':sc': entity.scoreCardId || exist.scoreCardId,
-      ':su': entity.submissionId || exist.submissionId,
-      ':ip': isPassing,
-      ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub,
-      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created
-    }
-  }
+  const updatedData = {
+    aggregateScore: entity.aggregateScore || exist.aggregateScore,
+    scoreCardId: entity.scoreCardId || exist.scoreCardId,
+    submissionId: entity.submissionId || exist.submissionId,
+    isPassing: isPassing,
+    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created,
+    ...(entity.metadata || exist.metadata ? { metadata: _.merge({}, exist.metadata, entity.metadata) } : {}),
+    ...(entity.isFinal || exist.isFinal ? { isFinal: entity.isFinal || exist.isFinal } : {})
+  };
 
-  // If metadata exists, add it to the update expression
-  if (entity.metadata || exist.metadata) {
-    record.UpdateExpression = record.UpdateExpression + ', metadata = :ma'
-    record.ExpressionAttributeValues[':ma'] = _.merge({}, exist.metadata, entity.metadata)
-  }
-
-  // If legacy submission ID exists, add it to the update expression
-  if (entity.isFinal || exist.isFinal) {
-    let isFinal // Attribute to store boolean value
-
-    if (entity.isFinal === undefined) {
-      isFinal = exist.isFinal
-    } else {
-      isFinal = entity.isFinal
-    }
-
-    record.UpdateExpression = record.UpdateExpression + ', isFinal = :ls'
-    record.ExpressionAttributeValues[':ls'] = isFinal
-  }
-
-  await dbhelper.updateRecord(record)
+  await reviewSummationDomain.update({
+    filterCriteria: getScanCriteria({
+      id: reviewSummationId,
+    }),
+    updateInput: updatedData
+  })
 
   // Push Review Summation updated event to Bus API
   // Request body for Posting to Bus API
@@ -229,7 +194,7 @@ async function _updateReviewSummation(authUser, reviewSummationId, entity) {
       updated: currDate,
       updatedBy: authUser.handle || authUser.sub,
       reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
-    }, entity)
+    }, updatedData)
   }
 
   // Post to Bus API using Client
@@ -239,7 +204,7 @@ async function _updateReviewSummation(authUser, reviewSummationId, entity) {
   // Hence returning the response which will be in compliance with Swagger
   return _.extend(
     exist,
-    entity,
+    updatedData,
     {
       updated: currDate,
       updatedBy: authUser.handle || authUser.sub,
@@ -309,15 +274,7 @@ async function deleteReviewSummation(reviewSummationId) {
     throw new errors.HttpStatusError(404, `Review summation with ID = ${reviewSummationId} is not found`)
   }
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewSummationId
-    }
-  }
-
-  await dbhelper.deleteRecord(filter)
+  await reviewSummationDomain.delete(getLookupCriteria("id", reviewSummationId))
 
   // Push Review Summation deleted event to Bus API
   // Request body for Posting to Bus API

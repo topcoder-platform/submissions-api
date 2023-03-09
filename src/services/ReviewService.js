@@ -7,12 +7,24 @@ const _ = require('lodash')
 const uuid = require('uuid/v4')
 const joi = require('joi')
 const logger = require('winston')
+const config = require('config')
 
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
 const SubmissionService = require('./SubmissionService')
+
+const { ReviewDomain } = require("@topcoder-framework/domain-submission");
+
+const {
+  DomainHelper: { getLookupCriteria, getScanCriteria },
+} = require("@topcoder-framework/lib-common");
+
+const reviewDomain = new ReviewDomain(
+  config.GRPC_SUBMISSION_SERVER_HOST,
+  config.GRPC_SUBMISSION_SERVER_PORT
+);
 
 const table = 'Review'
 
@@ -24,14 +36,7 @@ const table = 'Review'
  */
 async function _getReview(reviewId) {
   // Construct filter to retrieve record from Database
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewId
-    }
-  }
-  const result = await dbhelper.getRecord(filter)
-  return result.Item
+  return reviewDomain.lookup(getLookupCriteria("id", reviewId))
 }
 
 /**
@@ -157,33 +162,17 @@ async function createReview(authUser, entity) {
     entity.v5ScoreCardId = possibleV5ScoreCardId
   }
 
-  const item = _.extend(
-    {
-      id: uuid(),
-      created: currDate,
-      updated: currDate,
-      createdBy: authUser.handle || authUser.sub,
-      updatedBy: authUser.handle || authUser.sub,
-      status: entity.status || 'completed'
-    },
-    entity
-  )
-
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     if (entity.reviewedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `reviewedDate` attribute on a review')
     }
   }
 
-  item.reviewedDate = entity.reviewedDate || item.created
-
-  // Prepare record to be inserted
-  const record = {
-    TableName: table,
-    Item: item
-  }
-
-  await dbhelper.insertRecord(record)
+  const createdItem = await reviewDomain.create({
+    ...entity,
+    status: entity.status || 'completed',
+    reviewedDate: entity.reviewedDate || item.created,
+  })
 
   // Push Review created event to Bus API
   // Request body for Posting to Bus API
@@ -196,7 +185,7 @@ async function createReview(authUser, entity) {
       {
         resource: helper.camelize(table)
       },
-      item
+      createdItem
     )
   }
 
@@ -205,7 +194,7 @@ async function createReview(authUser, entity) {
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
-  return item
+  return createdItem
 }
 
 createReview.schema = {
@@ -285,45 +274,24 @@ async function _updateReview(authUser, reviewId, entity) {
     }
   }
 
-  // Record used for updating in Database
-  const record = {
-    TableName: table,
-    Key: {
-      id: reviewId
-    },
-    UpdateExpression: `set score = :s, scoreCardId = :sc, submissionId = :su,
-                        typeId = :t, reviewerId = :r, #st = :st,
-                        updated = :ua, updatedBy = :ub, reviewedDate = :rd
-                        ${v5ScoreCardId ? ', v5ScoreCardId = :v5s' : ''}`,
-    ExpressionAttributeValues: {
-      ':s': entity.score || exist.score,
-      ':sc': scoreCardId,
-      ':su': entity.submissionId || exist.submissionId,
-      ':t': entity.typeId || exist.typeId,
-      ':r': entity.reviewerId || exist.reviewerId,
-      ':st': entity.status || exist.status || 'completed',
-      ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub,
-      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created,
-      ...(v5ScoreCardId ? { ':v5s': v5ScoreCardId } : {})
-    },
-    ExpressionAttributeNames: {
-      '#st': 'status'
-    }
+  const updatedData = {
+    score: entity.score || exist.score,
+    scoreCardId,
+    submissionId: entity.submissionId || exist.submissionId,
+    typeId: entity.typeId || exist.typeId,
+    reviewerId: entity.reviewerId || exist.reviewerId,
+    status: entity.status || exist.status || 'completed',
+    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created,
+    ...(v5ScoreCardId ? { v5ScoreCardId } : {}),
+    ...(entity.metadata || exist.metadata ? { metadata: _.merge({}, exist.metadata, entity.metadata) } : {})
   }
 
-  // If metadata exists, add it to the update expression
-  if (entity.metadata || exist.metadata) {
-    record.UpdateExpression =
-      record.UpdateExpression + ', metadata = :ma'
-    record.ExpressionAttributeValues[':ma'] = _.merge(
-      {},
-      exist.metadata,
-      entity.metadata
-    )
-  }
-
-  await dbhelper.updateRecord(record)
+  await reviewDomain.update({
+    filterCriteria: getScanCriteria({
+      id: reviewId,
+    }),
+    updateInput: updatedData
+  })
 
   // Push Review updated event to Bus API
   // Request body for Posting to Bus API
@@ -340,7 +308,7 @@ async function _updateReview(authUser, reviewId, entity) {
         updatedBy: authUser.handle || authUser.sub,
         reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
       },
-      entity,
+      updatedData,
       {
         scoreCardId,
         v5ScoreCardId
@@ -353,7 +321,7 @@ async function _updateReview(authUser, reviewId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, {
+  return _.extend(exist, updatedData, {
     updated: currDate,
     updatedBy: authUser.handle || authUser.sub,
     reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created,
@@ -446,15 +414,7 @@ async function deleteReview(reviewId) {
     )
   }
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewId
-    }
-  }
-
-  await dbhelper.deleteRecord(filter)
+  await reviewDomain.delete(getLookupCriteria("id", reviewId))
 
   // Push Review deleted event to Bus API
   // Request body for Posting to Bus API
