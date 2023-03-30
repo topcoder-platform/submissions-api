@@ -352,6 +352,24 @@ function * getV5ChallengeId (challengeId) {
   return challengeId
 }
 
+/**
+ * Get challenge details from Challenge API
+ * @param {String} challengeId Challenge ID
+ * @returns {Object} Challenge details
+ */
+function * getChallenge (challengeId) {
+  try {
+    const token = yield getM2Mtoken()
+    const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+    return response.body
+  } catch (e) {
+    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    throw e
+  }
+}
+
 /*
  * Get submission phase ID of a challenge from Challenge API
  * @param challengeId Challenge ID
@@ -914,5 +932,6 @@ module.exports = {
   getV5ChallengeId,
   adjustSubmissionChallengeId,
   getLatestChallenges,
-  getLegacyScoreCardId
+  getLegacyScoreCardId,
+  getChallenge
 }

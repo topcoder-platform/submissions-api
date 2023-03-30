@@ -316,6 +316,15 @@ function * createSubmission (authUser, files, entity) {
     item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
   }
 
+  if (item.submissionPhaseId) {
+    // make sure the phase is open
+    const challenge = yield helper.getChallenge(challengeId)
+    const openPhase = _.find(challenge.phases, { phaseId: item.submissionPhaseId, isOpen: true })
+    if (!openPhase) {
+      throw new errors.HttpStatusError(400, `The phase ${item.submissionPhaseId} is not open`)
+    }
+  }
+
   if (entity.fileType) {
     item.fileType = entity.fileType
   } else {
