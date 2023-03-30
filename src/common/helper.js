@@ -301,11 +301,11 @@ function * getM2Mtoken () {
 }
 
 /**
- * Get legacy challenge id if the challenge id is uuid form
- * @param {String} challengeId Challenge ID
- * @returns {String} Legacy Challenge ID of the given challengeId
+ * Function to get challenge by id
+ * @param {String} challengeId Challenge id
+ * @returns {Promise}
  */
-function * getLegacyChallengeId (challengeId) {
+function * getChallenge (challengeId) {
   if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
     const token = yield getM2Mtoken()
@@ -313,17 +313,39 @@ function * getLegacyChallengeId (challengeId) {
       const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
-      if (_.get(response.body, 'legacy.pureV5')) {
-        // pure V5 challenges don't have a legacy ID
-        return null
-      }
-      const legacyId = parseInt(response.body.legacyId, 10)
-      logger.debug(`Legacy challenge id is ${legacyId} for v5 challenge id ${challengeId}`)
-      return legacyId
+      return response.body
     } catch (err) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       throw err
     }
+  } else {
+    logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
+    const token = yield getM2Mtoken()
+    try {
+      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('Content-Type', 'application/json')
+      return response.body[0]
+    } catch (err) {
+      logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
+      throw err
+    }
+  }
+}
+
+/**
+ * Get legacy challenge id if the challenge id is uuid form
+ * @param {String} challengeId Challenge ID
+ * @returns {String} Legacy Challenge ID of the given challengeId
+ */
+function * getLegacyChallengeId (challengeId) {
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
+    const challenge = yield getChallenge(challengeId)
+    if (_.get(challenge, 'legacy.pureV5')) {
+      return null
+    }
+    const legacyId = parseInt(challenge.legacyId, 10)
+    return legacyId
   }
   return challengeId
 }
@@ -335,39 +357,10 @@ function * getLegacyChallengeId (challengeId) {
  */
 function * getV5ChallengeId (challengeId) {
   if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId))) {
-    logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
-    try {
-      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .set('Content-Type', 'application/json')
-      const v5Uuid = _.get(response, 'body[0].id')
-      logger.debug(`V5 challenge id is ${v5Uuid} for legacy challenge id ${challengeId}`)
-      return v5Uuid
-    } catch (err) {
-      logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
-      throw err
-    }
+    const challenge = yield getChallenge(challengeId)
+    return challenge.id
   }
   return challengeId
-}
-
-/**
- * Get challenge details from Challenge API
- * @param {String} challengeId Challenge ID
- * @returns {Object} Challenge details
- */
-function * getChallenge (challengeId) {
-  try {
-    const token = yield getM2Mtoken()
-    const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-    return response.body
-  } catch (e) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-    throw e
-  }
 }
 
 /*
@@ -930,8 +923,8 @@ module.exports = {
   cleanseReviews,
   getRoleIdToRoleNameMap,
   getV5ChallengeId,
+  getChallenge,
   adjustSubmissionChallengeId,
   getLatestChallenges,
-  getLegacyScoreCardId,
-  getChallenge
+  getLegacyScoreCardId
 }
