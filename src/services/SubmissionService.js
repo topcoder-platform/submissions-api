@@ -284,6 +284,11 @@ function * createSubmission (authUser, files, entity) {
   const challengeId = yield helper.getV5ChallengeId(entity.challengeId)
   const legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
   const currDate = (new Date()).toISOString()
+  const challenge = yield helper.getChallenge(challengeId)
+
+  if (challenge.status !== 'Active') {
+    throw new errors.HttpStatusError(400, 'Challenge is not active')
+  }
 
   const item = {
     id: submissionId,
@@ -318,7 +323,6 @@ function * createSubmission (authUser, files, entity) {
 
   if (item.submissionPhaseId) {
     // make sure the phase is open
-    const challenge = yield helper.getChallenge(challengeId)
     const openPhase = _.find(challenge.phases, { phaseId: item.submissionPhaseId, isOpen: true })
     if (!openPhase) {
       throw new errors.HttpStatusError(400, `The phase ${item.submissionPhaseId} is not open`)
