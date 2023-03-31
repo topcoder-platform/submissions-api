@@ -281,12 +281,13 @@ function * createSubmission (authUser, files, entity) {
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
+  const challenge = yield helper.getChallenge(entity.challengeId)
   const {
     id: challengeId,
     status,
     phases,
     legacyId: legacyChallengeId
-  } = yield helper.getChallenge(entity.challengeId)
+  } = challenge
   const currDate = (new Date()).toISOString()
 
   if (status !== 'Active') {
@@ -321,7 +322,7 @@ function * createSubmission (authUser, files, entity) {
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
   } else {
-    item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
+    item.submissionPhaseId = helper.getSubmissionPhaseId(challenge)
   }
 
   if (item.submissionPhaseId) {
@@ -341,7 +342,7 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Check User access before creating the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
-    yield helper.checkCreateAccess(authUser, item)
+    yield helper.checkCreateAccess(authUser, item, challenge)
 
     if (entity.submittedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')

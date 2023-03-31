@@ -363,30 +363,15 @@ function * getV5ChallengeId (challengeId) {
   return challengeId
 }
 
-/*
+/**
  * Get submission phase ID of a challenge from Challenge API
- * @param challengeId Challenge ID
+ * @param challenge Challenge
  * @returns {Integer} Submission phase ID of the given challengeId
  */
-function * getSubmissionPhaseId (challengeId) {
+function getSubmissionPhaseId (challenge) {
   let phaseId = null
-  let response
-  challengeId = yield getV5ChallengeId(challengeId)
-
-  try {
-    logger.info(`Calling to challenge API to find submission phase Id for ${challengeId}`)
-    const token = yield getM2Mtoken()
-    response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-    logger.info(`returned from finding submission phase Id for ${challengeId}`)
-  } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-    logger.debug('Setting submissionPhaseId to Null')
-    response = null
-  }
-  if (response) {
-    const phases = _.get(response.body, 'phases', [])
+  if (challenge) {
+    const phases = _.get(challenge, 'phases', [])
     const checkPoint = _.filter(phases, { name: 'Checkpoint Submission', isOpen: true })
     const submissionPh = _.filter(phases, { name: 'Submission', isOpen: true })
     const finalFixPh = _.filter(phases, { name: 'Final Fix', isOpen: true })
@@ -404,14 +389,14 @@ function * getSubmissionPhaseId (challengeId) {
   return phaseId
 }
 
-/*
+/**
  * Function to check user access to create a submission
  * @param authUser Authenticated user
  * @param subEntity Submission Entity
+ * @param challengeDetails Challenge
  * @returns {Promise}
  */
-function * checkCreateAccess (authUser, subEntity) {
-  let challengeDetails
+function * checkCreateAccess (authUser, subEntity, challengeDetails) {
   let resources
 
   const challengeId = yield getV5ChallengeId(subEntity.challengeId)
@@ -422,18 +407,6 @@ function * checkCreateAccess (authUser, subEntity) {
   }
 
   const token = yield getM2Mtoken()
-
-  try {
-    logger.info(`Calling to challenge API for fetch phases and winners for ${challengeId}`)
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-    logger.info(`returned for ${challengeId} with ${JSON.stringify(challengeDetails)}`)
-  } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-    logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${challengeId}`)
-  }
 
   try {
     resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
@@ -462,7 +435,7 @@ function * checkCreateAccess (authUser, subEntity) {
     })
 
     // Get phases and winner detail from challengeDetails
-    const phases = challengeDetails.body.phases
+    const { phases } = challengeDetails
 
     // Check if the User is assigned as the reviewer for the contest
     const reviewers = _.filter(currUserRoles, { role: 'Reviewer' })
@@ -482,7 +455,7 @@ function * checkCreateAccess (authUser, subEntity) {
       throw new errors.HttpStatusError(403, `Register for the contest before you can submit`)
     }
 
-    const submissionPhaseId = yield getSubmissionPhaseId(subEntity.challengeId)
+    const submissionPhaseId = yield getSubmissionPhaseId(challengeDetails)
 
     if (submissionPhaseId == null) {
       throw new errors.HttpStatusError(403, 'You cannot create a submission in the current phase')
