@@ -281,9 +281,18 @@ function * createSubmission (authUser, files, entity) {
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
-  const challengeId = yield helper.getV5ChallengeId(entity.challengeId)
-  const legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
+  const challenge = yield helper.getChallenge(entity.challengeId)
+  const {
+    id: challengeId,
+    status,
+    phases,
+    legacyId: legacyChallengeId
+  } = challenge
   const currDate = (new Date()).toISOString()
+
+  if (status !== 'Active') {
+    throw new errors.HttpStatusError(400, 'Challenge is not active')
+  }
 
   const item = {
     id: submissionId,
@@ -313,7 +322,15 @@ function * createSubmission (authUser, files, entity) {
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
   } else {
-    item.submissionPhaseId = yield helper.getSubmissionPhaseId(entity.challengeId)
+    item.submissionPhaseId = helper.getSubmissionPhaseId(challenge)
+  }
+
+  if (item.submissionPhaseId) {
+    // make sure the phase is open
+    const openPhase = _.find(phases, { phaseId: item.submissionPhaseId, isOpen: true })
+    if (!openPhase) {
+      throw new errors.HttpStatusError(400, `The phase ${item.submissionPhaseId} is not open`)
+    }
   }
 
   if (entity.fileType) {
@@ -325,7 +342,7 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Check User access before creating the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
-    yield helper.checkCreateAccess(authUser, item)
+    yield helper.checkCreateAccess(authUser, item, challenge)
 
     if (entity.submittedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')
