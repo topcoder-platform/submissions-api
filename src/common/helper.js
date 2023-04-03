@@ -455,7 +455,7 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
       throw new errors.HttpStatusError(403, `Register for the contest before you can submit`)
     }
 
-    const submissionPhaseId = yield getSubmissionPhaseId(challengeDetails)
+    const submissionPhaseId = getSubmissionPhaseId(challengeDetails)
 
     if (submissionPhaseId == null) {
       throw new errors.HttpStatusError(403, 'You cannot create a submission in the current phase')
