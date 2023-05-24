@@ -509,7 +509,14 @@ function * _updateSubmission (authUser, submissionId, entity) {
       submissionPhaseId: updatedSub.submissionPhaseId,
       type: updatedSub.type,
       submittedDate: updatedSub.submittedDate,
-      legacyChallengeId: updatedSub.legacyChallengeId
+      legacyChallengeId: updatedSub.legacyChallengeId,
+      url: updatedSub.url,
+      fileType: updatedSub.fileType,
+      isFileSubmission: updatedSub.fileType !== 'url',
+      updated: currDate,
+      updatedBy: authUser.handle || authUser.sub,
+      created: updatedSub.created,
+      createdBy: updatedSub.createdBy
     }, entity)
   }
 
