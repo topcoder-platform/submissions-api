@@ -757,7 +757,7 @@ function cleanseReviews (reviews, authUser) {
         cleansedReviews.push(review)
       })
 
-      return cleansedReviews
+      return cleansedReviews.filter(r => r != null)
     }
   }
 
