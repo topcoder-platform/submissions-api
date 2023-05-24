@@ -761,7 +761,7 @@ function cleanseReviews (reviews, authUser) {
     }
   }
 
-  return reviews
+  return reviews.filter(r => r != null)
 }
 
 /**
