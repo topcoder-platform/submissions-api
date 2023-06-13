@@ -9,4 +9,4 @@ WORKDIR /submissions-api
 
 # Install the dependencies from package.json
 RUN yarn install
-ENTRYPOINT yarn start
+ENTRYPOINT node app.js

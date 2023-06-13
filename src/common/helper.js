@@ -551,6 +551,13 @@ function * checkGetAccess (authUser, submission) {
     if (clientManager.length !== 0) {
       return true
     }
+
+    // Check if the User is a Manager
+    const manager = _.filter(currUserRoles, { role: 'Manager' })
+    // Managers have access to all submissions regardless of Phases
+    if (manager.length !== 0) {
+      return true
+    }
     // Check for Reviewer / Submitter roles
     if (subTrack === 'FIRST_2_FINISH') {
       const iterativeReviewer = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
