@@ -431,9 +431,17 @@ function * _updateSubmission (authUser, submissionId, entity) {
   const currDate = (new Date()).toISOString()
   let challengeId = exist.challengeId
   let legacyChallengeId = exist.legacyChallengeId
+  let hasIterativeReview = false
+
   if (entity.challengeId) {
-    challengeId = yield helper.getV5ChallengeId(entity.challengeId)
-    legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
+    const challenge = yield helper.getChallenge(entity.challengeId)
+    if (!challenge) {
+      throw new errors.HttpStatusError(404, `Challenge with ID = ${entity.challengeId} is not found`)
+    }
+
+    challengeId = challenge.id
+    legacyChallengeId = challenge.legacyId
+    hasIterativeReview = challenge.legacy != null && challenge.legacy.subTrack.indexOf('FIRST_2_FINISH') > -1
   }
   if (exist.legacyChallengeId && !legacyChallengeId) {
     // Original submission contains a legacy challenge id
@@ -515,6 +523,10 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   // Post to Bus API using Client
   yield helper.postToBusApi(reqBody)
+
+  if (hasIterativeReview && entity.legacySubmissionId !== exist.legacySubmissionId) {
+    yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'close')
+  }
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger

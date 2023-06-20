@@ -333,6 +333,22 @@ function * getChallenge (challengeId) {
   }
 }
 
+function * advanceChallengePhase (challengeId, phase, operation) {
+  const token = yield getM2Mtoken()
+  try {
+    const response = yield request.patch(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+      .send({
+        phase,
+        operation
+      })
+    return response.body
+  } catch (err) {
+    logger.warn(`Error while advancing phase for challenge ${challengeId}`)
+  }
+}
+
 /**
  * Get legacy challenge id if the challenge id is uuid form
  * @param {String} challengeId Challenge ID
@@ -906,5 +922,6 @@ module.exports = {
   getChallenge,
   adjustSubmissionChallengeId,
   getLatestChallenges,
-  getLegacyScoreCardId
+  getLegacyScoreCardId,
+  advanceChallengePhase
 }
