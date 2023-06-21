@@ -525,7 +525,10 @@ function * _updateSubmission (authUser, submissionId, entity) {
   yield helper.postToBusApi(reqBody)
 
   if (hasIterativeReview && entity.legacySubmissionId !== exist.legacySubmissionId) {
-    yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'close')
+    console.log('Submission uploaded. Attempt to open review phase')
+    yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'open')
+  } else {
+    console.log('Submission uploaded. No need to open review phase')
   }
 
   // Updating records in DynamoDB doesn't return any response

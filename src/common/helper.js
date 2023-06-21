@@ -336,7 +336,7 @@ function * getChallenge (challengeId) {
 function * advanceChallengePhase (challengeId, phase, operation) {
   const token = yield getM2Mtoken()
   try {
-    const response = yield request.patch(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`)
+    const response = yield request.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
       .send({
@@ -757,7 +757,7 @@ function * postToBusApi (payload) {
  * @param  {Array} reviews The reviews to remove metadata from
  * @param  {Object} authUser The authenticated user details
  */
-function cleanseReviews (reviews, authUser) {
+function cleanseReviews (reviews = [], authUser) {
   // Not a machine user
   if (!authUser.scopes) {
     logger.info('Not a machine user. Filtering reviews...')
