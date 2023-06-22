@@ -442,6 +442,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
     challengeId = challenge.id
     legacyChallengeId = challenge.legacyId
     hasIterativeReview = challenge.legacy != null && challenge.legacy.subTrack.indexOf('FIRST_2_FINISH') > -1
+
+    console.log(`Log data. Challenge ID: ${challengeId}, Legacy Challenge ID: ${legacyChallengeId}, Has Iterative Review: ${hasIterativeReview}`)
   }
   if (exist.legacyChallengeId && !legacyChallengeId) {
     // Original submission contains a legacy challenge id
@@ -528,7 +530,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
     console.log('Submission uploaded. Attempt to open review phase')
     yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'open')
   } else {
-    console.log('Submission uploaded. No need to open review phase')
+    console.log('Submission uploaded. No need to open review phase', hasIterativeReview, entity.legacySubmissionId, exist.legacySubmissionId)
   }
 
   // Updating records in DynamoDB doesn't return any response
