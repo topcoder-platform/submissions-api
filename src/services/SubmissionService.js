@@ -433,10 +433,10 @@ function * _updateSubmission (authUser, submissionId, entity) {
   let legacyChallengeId = exist.legacyChallengeId
   let hasIterativeReview = false
 
-  if (entity.challengeId) {
-    const challenge = yield helper.getChallenge(entity.challengeId)
+  if (entity.challengeId || challengeId) {
+    const challenge = yield helper.getChallenge(entity.challengeId || challengeId)
     if (!challenge) {
-      throw new errors.HttpStatusError(404, `Challenge with ID = ${entity.challengeId} is not found`)
+      throw new errors.HttpStatusError(404, `Challenge with ID = ${entity.challengeId || challengeId} is not found`)
     }
 
     challengeId = challenge.id
@@ -526,7 +526,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   // Post to Bus API using Client
   yield helper.postToBusApi(reqBody)
 
-  if (hasIterativeReview && entity.legacySubmissionId !== exist.legacySubmissionId) {
+  if (hasIterativeReview && entity.legacySubmissionId != null && entity.legacySubmissionId !== exist.legacySubmissionId) {
     console.log('Submission uploaded. Attempt to open review phase')
     yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'open')
   } else {
