@@ -336,6 +336,7 @@ function * getChallenge (challengeId) {
 function * advanceChallengePhase (challengeId, phase, operation) {
   const token = yield getM2Mtoken()
   try {
+    // Ideally we should be using ChallengeScheduler - however it's additional work and better handled when we have actual Review API
     const response = yield request.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
@@ -345,7 +346,7 @@ function * advanceChallengePhase (challengeId, phase, operation) {
       })
     return response.body
   } catch (err) {
-    logger.warn(`Error while advancing phase for challenge ${challengeId}`)
+    logger.warn(`Error while advancing phase for challenge ${challengeId}. ${JSON.stringify(err)}`)
   }
 }
 
