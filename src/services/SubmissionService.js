@@ -527,7 +527,10 @@ function * _updateSubmission (authUser, submissionId, entity) {
   yield helper.postToBusApi(reqBody)
 
   if (hasIterativeReview && entity.legacySubmissionId != null && entity.legacySubmissionId !== exist.legacySubmissionId) {
-    console.log('Submission uploaded. Attempt to open review phase')
+    console.log('Submission uploaded.')
+    console.log('Attempt to close submission phase')
+    yield helper.advanceChallengePhase(challengeId, 'Submission', 'close')
+    console.log('Attempt to open review phase')
     yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'open')
   } else {
     console.log('Submission uploaded. No need to open review phase', hasIterativeReview, entity.legacySubmissionId, exist.legacySubmissionId)
