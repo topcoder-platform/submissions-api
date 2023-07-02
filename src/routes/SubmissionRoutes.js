@@ -102,5 +102,15 @@ module.exports = {
       scopes: ['read:submission', 'all:submission'],
       blockByIp: true
     }
+  },
+  '/submissions/:challengeId/count': {
+    get: {
+      controller: 'SubmissionController',
+      method: 'countSubmissions',
+      auth: 'jwt',
+      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      scopes: ['read:submission', 'all:submission'],
+      blockByIp: true
+    },
   }
 }
