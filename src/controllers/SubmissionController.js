@@ -78,6 +78,15 @@ function * deleteSubmission (req, res) {
   res.status(204).send()
 }
 
+/**
+ * Get submission count
+ * @param req the http request
+ * @param res the http response
+ */
+function * countSubmissions (req, res) {
+  res.json(yield SubmissionService.countSubmissions(req.params.challengeId))
+}
+
 module.exports = {
   getSubmission,
   downloadSubmission,
@@ -85,5 +94,6 @@ module.exports = {
   createSubmission,
   updateSubmission,
   patchSubmission,
-  deleteSubmission
+  deleteSubmission,
+  countSubmissions
 }

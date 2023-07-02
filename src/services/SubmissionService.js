@@ -632,6 +632,46 @@ deleteSubmission.schema = {
   submissionId: joi.string().guid().required()
 }
 
+/**
+ * Function to get submission count
+ * @param {String} challengeId submissionId which need to be retrieved
+ * @return {Object} Data retrieved from database
+ */
+function * countSubmissions (challengeId) {
+  logger.debug(`countSubmissions ${challengeId}`)
+  const esQuery = {
+    index: config.get('esConfig.ES_INDEX'),
+    type: config.get('esConfig.ES_TYPE'),
+    body: {
+      query: {
+        term: { challengeId }
+      },
+      aggs: {
+        group_by_type: {
+          terms: {
+            field: "type"
+          }
+        }
+      }
+    }
+  }
+
+  const esClient = helper.getEsClient()
+  let result
+  try {
+    result = yield esClient.count(esQuery)
+  } catch (err) {
+    logger.error(`Get Submission Count Error ${JSON.stringify(err)}`)
+    throw err
+  }
+  const response = _.mapValues(_.keyBy(_.get(result, 'aggregations.group_by_type.buckets'), 'key'), (v) => v.doc_count)
+  return response
+}
+
+countSubmissions.schema = {
+  challengeId: joi.string().uuid().required()
+}
+
 module.exports = {
   getSubmission,
   _getSubmission,
