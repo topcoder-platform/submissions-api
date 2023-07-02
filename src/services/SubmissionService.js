@@ -642,6 +642,7 @@ function * countSubmissions (challengeId) {
   const esQuery = {
     index: config.get('esConfig.ES_INDEX'),
     type: config.get('esConfig.ES_TYPE'),
+    size: 0,
     body: {
       query: {
         term: { challengeId }
@@ -659,7 +660,7 @@ function * countSubmissions (challengeId) {
   const esClient = helper.getEsClient()
   let result
   try {
-    result = yield esClient.count(esQuery)
+    result = yield esClient.search(esQuery)
   } catch (err) {
     logger.error(`Get Submission Count Error ${JSON.stringify(err)}`)
     throw err
