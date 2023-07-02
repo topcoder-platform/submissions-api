@@ -69,7 +69,7 @@ workflows:
           context : org-global
           filters:
             branches:
-              only: ['develop']
+              only: ['develop', 'fix/PLAT-3088']
       - "build-prod":
           context : org-global
           filters:
