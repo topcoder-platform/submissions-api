@@ -680,5 +680,6 @@ module.exports = {
   createSubmission,
   updateSubmission,
   patchSubmission,
-  deleteSubmission
+  deleteSubmission,
+  countSubmissions
 }
