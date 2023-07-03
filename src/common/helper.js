@@ -409,11 +409,11 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
   const token = yield getM2Mtoken()
 
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
     logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
