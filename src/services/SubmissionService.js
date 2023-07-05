@@ -670,7 +670,7 @@ function * countSubmissions (challengeId) {
       aggs: {
         group_by_type: {
           terms: {
-            field: "type"
+            field: 'type'
           }
         }
       }
