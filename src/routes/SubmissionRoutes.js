@@ -111,6 +111,6 @@ module.exports = {
       access: ['Topcoder User', 'Administrator', 'Copilot'],
       scopes: ['read:submission', 'all:submission'],
       blockByIp: true
-    },
+    }
   }
 }

@@ -333,6 +333,25 @@ function * getChallenge (challengeId) {
   }
 }
 
+function * advanceChallengePhase (challengeId, phase, operation) {
+  const token = yield getM2Mtoken()
+  try {
+    console.log(`[Advance-Phase]: Initiate challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}`)
+    // Ideally we should be using ChallengeScheduler - however it's additional work and better handled when we have actual Review API
+    const response = yield request.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('Content-Type', 'application/json')
+      .send({
+        phase,
+        operation
+      })
+    console.log(`[Advance-Phase]: Success challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}. With response: ${JSON.stringify(response.body)}`)
+    return response.body
+  } catch (err) {
+    logger.warn(`[Advance-Phase]: Success challenge ${challengeId}. ${JSON.stringify(err)}`)
+  }
+}
+
 /**
  * Get legacy challenge id if the challenge id is uuid form
  * @param {String} challengeId Challenge ID
@@ -741,7 +760,7 @@ function * postToBusApi (payload) {
  * @param  {Array} reviews The reviews to remove metadata from
  * @param  {Object} authUser The authenticated user details
  */
-function cleanseReviews (reviews, authUser) {
+function cleanseReviews (reviews = [], authUser) {
   // Not a machine user
   if (!authUser.scopes) {
     logger.info('Not a machine user. Filtering reviews...')
@@ -906,5 +925,6 @@ module.exports = {
   getChallenge,
   adjustSubmissionChallengeId,
   getLatestChallenges,
-  getLegacyScoreCardId
+  getLegacyScoreCardId,
+  advanceChallengePhase
 }

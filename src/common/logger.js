@@ -79,17 +79,22 @@ logger.decorateWithLogging = (service) => {
   _.each(service, (method, name) => {
     const params = method.params || getParams(method)
     service[name] = function * () {
-      logger.debug(`ENTER ${name}`)
-      logger.debug('input arguments')
-      const args = Array.prototype.slice.call(arguments);  // eslint-disable-line
-      logger.debug(util.inspect(_sanitizeObject(_combineObject(params, args))))
+      let shouldLog = name !== 'check'
+      if (shouldLog) {
+        logger.debug(`ENTER ${name}`)
+        logger.debug('input arguments')
+        const args = Array.prototype.slice.call(arguments);  // eslint-disable-line
+        logger.debug(util.inspect(_sanitizeObject(_combineObject(params, args))))
+      }
       try {
         const result = yield* method.apply(this, arguments); // eslint-disable-line
-        logger.debug(`EXIT ${name}`)
-        logger.debug('output arguments')
-        if (result !== null && result !== undefined) {
+        if (shouldLog) {
+          logger.debug(`EXIT ${name}`)
           logger.debug('output arguments')
-          logger.debug(util.inspect(_sanitizeObject(result)))
+          if (result !== null && result !== undefined) {
+            logger.debug('output arguments')
+            logger.debug(util.inspect(_sanitizeObject(result)))
+          }
         }
         return result
       } catch (e) {
