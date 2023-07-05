@@ -431,9 +431,19 @@ function * _updateSubmission (authUser, submissionId, entity) {
   const currDate = (new Date()).toISOString()
   let challengeId = exist.challengeId
   let legacyChallengeId = exist.legacyChallengeId
-  if (entity.challengeId) {
-    challengeId = yield helper.getV5ChallengeId(entity.challengeId)
-    legacyChallengeId = yield helper.getLegacyChallengeId(entity.challengeId)
+  let hasIterativeReview = false
+
+  if (entity.challengeId || challengeId) {
+    const challenge = yield helper.getChallenge(entity.challengeId || challengeId)
+    if (!challenge) {
+      throw new errors.HttpStatusError(404, `Challenge with ID = ${entity.challengeId || challengeId} is not found`)
+    }
+
+    challengeId = challenge.id
+    legacyChallengeId = challenge.legacyId
+    hasIterativeReview = challenge.legacy != null && challenge.legacy.subTrack.indexOf('FIRST_2_FINISH') > -1
+
+    console.log(`Log data. Challenge ID: ${challengeId}, Legacy Challenge ID: ${legacyChallengeId}, Has Iterative Review: ${hasIterativeReview}`)
   }
   if (exist.legacyChallengeId && !legacyChallengeId) {
     // Original submission contains a legacy challenge id
@@ -515,6 +525,16 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   // Post to Bus API using Client
   yield helper.postToBusApi(reqBody)
+
+  if (hasIterativeReview && entity.legacySubmissionId != null && entity.legacySubmissionId !== exist.legacySubmissionId) {
+    console.log('Submission uploaded.')
+    console.log('Attempt to close submission phase')
+    yield helper.advanceChallengePhase(challengeId, 'Submission', 'close')
+    console.log('Attempt to open review phase')
+    yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'open')
+  } else {
+    console.log('Submission uploaded. No need to open review phase', hasIterativeReview, entity.legacySubmissionId, exist.legacySubmissionId)
+  }
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -650,7 +670,7 @@ function * countSubmissions (challengeId) {
       aggs: {
         group_by_type: {
           terms: {
-            field: "type"
+            field: 'type'
           }
         }
       }
