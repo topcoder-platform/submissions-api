@@ -4,7 +4,7 @@
 
 const errors = require('common-errors')
 const _ = require('lodash')
-const uuid = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const joi = require('joi')
 const logger = require('winston')
 
@@ -159,7 +159,7 @@ function * createReview (authUser, entity) {
 
   const item = _.extend(
     {
-      id: uuid(),
+      id: uuidv4(),
       created: currDate,
       updated: currDate,
       createdBy: authUser.handle || authUser.sub,

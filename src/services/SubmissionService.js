@@ -8,7 +8,7 @@ const errors = require('common-errors')
 const fileTypeFinder = require('file-type')
 const joi = require('joi')
 const _ = require('lodash')
-const uuid = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
@@ -264,7 +264,7 @@ function * createSubmission (authUser, files, entity) {
 
   let url = entity.url
   // Submission ID will be used for file name in S3 bucket as well
-  const submissionId = uuid()
+  const submissionId = uuidv4()
 
   if (files && files.submission) {
     const pFileType = entity.fileType || fileType // File type parameter

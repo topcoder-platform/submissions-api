@@ -13,6 +13,7 @@ const logger = require('./logger')
 const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
+const { validate: uuidValidate } = require('uuid')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
 
@@ -306,7 +307,7 @@ function * getM2Mtoken () {
  * @returns {Promise}
  */
 function * getChallenge (challengeId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
+  if (uuidValidate(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
     const token = yield getM2Mtoken()
     try {
@@ -358,7 +359,7 @@ function * advanceChallengePhase (challengeId, phase, operation) {
  * @returns {String} Legacy Challenge ID of the given challengeId
  */
 function * getLegacyChallengeId (challengeId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
+  if (uuidValidate(challengeId)) {
     const challenge = yield getChallenge(challengeId)
     if (_.get(challenge, 'legacy.pureV5')) {
       return null
@@ -375,7 +376,7 @@ function * getLegacyChallengeId (challengeId) {
  * @returns {String} v5 uuid Challenge ID of the given challengeId
  */
 function * getV5ChallengeId (challengeId) {
-  if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId))) {
+  if (!(uuidValidate(challengeId))) {
     const challenge = yield getChallenge(challengeId)
     return challenge.id
   }
@@ -895,7 +896,7 @@ function * getLatestChallenges (page) {
  * @returns {String} Legacy scorecard ID of the given challengeId
  */
 function getLegacyScoreCardId (scoreCardId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(scoreCardId)) {
+  if (uuidValidate(scoreCardId)) {
     logger.debug(`${scoreCardId} detected as uuid. Converting to legacy scorecard id`)
 
     return config.get('V5TOLEGACYSCORECARDMAPPING')[scoreCardId]
