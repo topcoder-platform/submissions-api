@@ -525,7 +525,7 @@ function * checkGetAccess (authUser, submission) {
 
   try {
     challengeDetails = yield getChallenge(submission.challengeId)
-    challengeId = challengeDetails.body.id
+    challengeId = challengeDetails.id
   } catch (ex) {
     throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${submission.challengeId}`)
   }
@@ -559,7 +559,7 @@ function * checkGetAccess (authUser, submission) {
       currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
     })
 
-    const subTrack = challengeDetails.body.legacy.subTrack
+    const subTrack = challengeDetails.legacy.subTrack
 
     // Check if the User is a Copilot
     const copilot = _.filter(currUserRoles, { role: 'Copilot' })
@@ -595,15 +595,15 @@ function * checkGetAccess (authUser, submission) {
 
       // User is either a Reviewer or Screener
       if (screener.length !== 0 || reviewer.length !== 0) {
-        const screeningPhaseStatus = getPhaseStatus('Screening', challengeDetails.body)
-        const reviewPhaseStatus = getPhaseStatus('Review', challengeDetails.body)
+        const screeningPhaseStatus = getPhaseStatus('Screening', challengeDetails)
+        const reviewPhaseStatus = getPhaseStatus('Review', challengeDetails)
 
         // Neither Screening Nor Review is Opened / Closed
         if (screeningPhaseStatus === 'Scheduled' && reviewPhaseStatus === 'Scheduled') {
           throw new errors.HttpStatusError(403, 'You can access the submission only when Screening / Review is open')
         }
       } else {
-        const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
+        const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails)
 
         // Appeals Response is not closed yet
         if (appealsResponseStatus !== 'Closed' && appealsResponseStatus !== 'Invalid') {
@@ -648,7 +648,7 @@ function * checkReviewGetAccess (authUser, submission) {
   const token = yield getM2Mtoken()
   try {
     challengeDetails = yield getChallenge(submission.challengeId)
-    challengeId = challengeDetails.body.id
+    challengeId = challengeDetails.id
   } catch (ex) {
     return false
   }
@@ -680,7 +680,7 @@ function * checkReviewGetAccess (authUser, submission) {
       currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
     })
 
-    const subTrack = challengeDetails.body.legacy.subTrack
+    const subTrack = challengeDetails.legacy.subTrack
 
     // Check if the User is a Copilot, Manager or Observer for that contest
     const validRoles = ['Copilot', 'Manager', 'Observer']
@@ -694,7 +694,7 @@ function * checkReviewGetAccess (authUser, submission) {
       logger.info('No access check for Marathon match')
       return true
     } else {
-      const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
+      const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails)
 
       // Appeals Response is not closed yet
       if (appealsResponseStatus !== 'Closed') {
