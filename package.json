@@ -44,11 +44,12 @@
     "http-status": "^1.2.0",
     "joi": "^13.4.0",
     "lodash": "^4.17.15",
+    "node-cache": "^5.1.2",
     "superagent": "^3.8.3",
     "swagger-ui-express": "^4.1.6",
     "tc-bus-api-wrapper": "topcoder-platform/tc-bus-api-wrapper.git#feature/auth0-proxy-server",
     "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.6.4",
-    "uuid": "^3.3.0",
+    "uuid": "^9.0.0",
     "winston": "^2.4.3",
     "yamljs": "^0.3.0"
   },
@@ -77,5 +78,9 @@
     "hooks": {
       "pre-commit": "npm run lint"
     }
+  },
+  "volta": {
+    "node": "12.22.12",
+    "yarn": "1.22.19"
   }
 }

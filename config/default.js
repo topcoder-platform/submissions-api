@@ -52,5 +52,7 @@ module.exports = {
     'c56a4180-65aa-42ec-a945-5fd21dec0505': 987123456,
     '9ecc88e5-a4ee-44a4-8ec1-70bd98022510': 123789456,
     'd6d31f34-8ee5-4589-ae65-45652fcc01a6': 30000720
-  }
+  },
+
+  INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800
 }

@@ -8,7 +8,7 @@ const errors = require('common-errors')
 const fileTypeFinder = require('file-type')
 const joi = require('joi')
 const _ = require('lodash')
-const uuid = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
@@ -264,7 +264,7 @@ function * createSubmission (authUser, files, entity) {
 
   let url = entity.url
   // Submission ID will be used for file name in S3 bucket as well
-  const submissionId = uuid()
+  const submissionId = uuidv4()
 
   if (files && files.submission) {
     const pFileType = entity.fileType || fileType // File type parameter
@@ -401,7 +401,7 @@ createSubmission.schema = {
   entity: joi.object().keys({
     type: joi.string().required(),
     fileType: joi.string(),
-    url: joi.string().uri().trim(),
+    url: joi.string().uri().trim().max(1000),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
@@ -567,7 +567,7 @@ updateSubmission.schema = {
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
     type: joi.string(),
-    url: joi.string().uri().trim().required(),
+    url: joi.string().uri().trim().max(1000).required(),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
@@ -593,7 +593,7 @@ patchSubmission.schema = {
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
     type: joi.string(),
-    url: joi.string().uri().trim(),
+    url: joi.string().uri().trim().max(1000),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),

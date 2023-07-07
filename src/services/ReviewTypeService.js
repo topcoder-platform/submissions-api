@@ -4,7 +4,7 @@
 
 const errors = require('common-errors')
 const _ = require('lodash')
-const uuid = require('uuid/v4')
+const { v4: uuidv4 } = require('uuid')
 const joi = require('joi')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
@@ -80,7 +80,7 @@ listReviewTypes.schema = {
  * @return {Promise}
  */
 function * createReviewType (entity) {
-  const item = _.extend({ id: uuid() }, entity)
+  const item = _.extend({ id: uuidv4() }, entity)
   // Prepare record to be inserted
   const record = {
     TableName: table,
