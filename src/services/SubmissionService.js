@@ -104,6 +104,27 @@ function * _getSubmission (submissionId, fetchReview = true) {
 }
 
 /**
+ * Function to populate review from dynamodb if not exists in ES
+ * @param {Object} submissionRecord submission
+ * @param {String} submissionId submission id
+ */
+function * _populateSubmissionReviews (submissionRecord, submissionId) {
+  if (!submissionRecord.review || submissionRecord.review.length < 1) {
+    logger.info(`submission ${submissionId} from ES has no reviews. Double checking the db`)
+    const review = yield _getReviewsForSubmission(submissionId)
+    logger.info(`${review}`)
+    submissionRecord.review = review.Items || []
+  }
+
+  if (!submissionRecord.reviewSummation || submissionRecord.reviewSummation.length < 1) {
+    logger.info(`submission ${submissionId} from ES has no reviewSummations. Double checking the db`)
+    const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+    logger.info(`${reviewSummation}`)
+    submissionRecord.reviewSummation = reviewSummation.Items || []
+  }
+}
+
+/**
  * Function to get submission based on ID from ES
  * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be retrieved
@@ -112,6 +133,7 @@ function * _getSubmission (submissionId, fetchReview = true) {
 function * getSubmission (authUser, submissionId) {
   const response = yield helper.fetchFromES({ id: submissionId }, helper.camelize(table))
   let submissionRecord = null
+  let fetchedFromES = false
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
   if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
     logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
@@ -124,20 +146,7 @@ function * getSubmission (authUser, submissionId) {
   } else {
     logger.info(`getSubmission: submissionId found in ES: ${submissionId}`)
     submissionRecord = response.rows[0]
-
-    if (!submissionRecord.review || submissionRecord.review.length < 1) {
-      logger.info(`submission ${submissionId} from ES has no reviews. Double checking the db`)
-      const review = yield _getReviewsForSubmission(submissionId)
-      logger.info(`${review}`)
-      submissionRecord.review = review.Items || []
-    }
-
-    if (!submissionRecord.reviewSummation || submissionRecord.reviewSummation.length < 1) {
-      logger.info(`submission ${submissionId} from ES has no reviewSummations. Double checking the db`)
-      const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
-      logger.info(`${reviewSummation}`)
-      submissionRecord.reviewSummation = reviewSummation.Items || []
-    }
+    fetchedFromES = true
   }
 
   if (!submissionRecord) { // CWD-- couldn't find it in ES nor the DB
@@ -148,6 +157,10 @@ function * getSubmission (authUser, submissionId) {
   logger.info('Check User access before returning the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     yield helper.checkGetAccess(authUser, submissionRecord)
+  }
+
+  if (fetchedFromES) {
+    yield _populateSubmissionReviews(submissionRecord, submissionId)
   }
 
   submissionRecord.review = helper.cleanseReviews(submissionRecord.review, authUser)
