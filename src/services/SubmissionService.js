@@ -275,22 +275,8 @@ function * createSubmission (authUser, files, entity) {
     throw new errors.HttpStatusError(400, 'Either file to be uploaded or URL should be present')
   }
 
-  let url = entity.url
   // Submission ID will be used for file name in S3 bucket as well
   const submissionId = uuidv4()
-
-  if (files && files.submission) {
-    const pFileType = entity.fileType || fileType // File type parameter
-    const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
-    if (pFileType !== uFileType) {
-      logger.info('Actual file type of the file does not match the file type attribute in the request')
-      throw new errors.HttpStatusError(400, 'fileType parameter doesn\'t match the type of the uploaded file')
-    }
-    const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
-    url = file.Location
-  } else if (files) {
-    throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
-  }
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
@@ -298,7 +284,6 @@ function * createSubmission (authUser, files, entity) {
   const {
     id: challengeId,
     status,
-    phases,
     legacyId: legacyChallengeId
   } = challenge
   const currDate = (new Date()).toISOString()
@@ -310,7 +295,6 @@ function * createSubmission (authUser, files, entity) {
   const item = {
     id: submissionId,
     type: entity.type,
-    url: url,
     memberId: entity.memberId,
     challengeId,
     created: currDate,
@@ -334,16 +318,6 @@ function * createSubmission (authUser, files, entity) {
 
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
-  } else {
-    item.submissionPhaseId = helper.getSubmissionPhaseId(challenge)
-  }
-
-  if (item.submissionPhaseId) {
-    // make sure the phase is open
-    const openPhase = _.find(phases, { phaseId: item.submissionPhaseId, isOpen: true })
-    if (!openPhase) {
-      throw new errors.HttpStatusError(400, `The phase ${item.submissionPhaseId} is not open`)
-    }
   }
 
   if (entity.fileType) {
@@ -355,16 +329,33 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Check User access before creating the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
-    yield helper.checkCreateAccess(authUser, item, challenge)
+    yield helper.checkCreateAccess(authUser, item.memberId, challenge)
 
     if (entity.submittedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')
     }
+    item.submissionPhaseId = helper.getSubmissionPhaseId(challenge)
   } else {
     logger.info(`No need to call checkCreateAccess for ${JSON.stringify(authUser)}`)
   }
 
   item.submittedDate = entity.submittedDate || item.created
+
+  let url = entity.url
+  if (files && files.submission) {
+    const pFileType = entity.fileType || fileType // File type parameter
+    const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
+    if (pFileType !== uFileType) {
+      logger.info('Actual file type of the file does not match the file type attribute in the request')
+      throw new errors.HttpStatusError(400, 'fileType parameter doesn\'t match the type of the uploaded file')
+    }
+    const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
+    url = file.Location
+  } else if (files) {
+    throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
+  }
+
+  item.url = url
 
   // Prepare record to be inserted
   const record = {
