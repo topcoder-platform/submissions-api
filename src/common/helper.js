@@ -312,26 +312,28 @@ function * getM2Mtoken () {
 function * getChallenge (challengeId) {
   if (uuidValidate(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
     try {
+      const token = yield getM2Mtoken()
       const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
       return response.body
     } catch (err) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+      logger.error(err)
       throw err
     }
   } else {
     logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
     try {
+      const token = yield getM2Mtoken()
       const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
         .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
       return response.body[0]
     } catch (err) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
+      logger.error(err)
       throw err
     }
   }
