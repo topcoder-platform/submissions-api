@@ -401,7 +401,7 @@ createSubmission.schema = {
   entity: joi.object().keys({
     type: joi.string().required(),
     fileType: joi.string(),
-    url: joi.string().uri().trim(),
+    url: joi.string().uri().trim().max(1000),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
@@ -567,7 +567,7 @@ updateSubmission.schema = {
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
     type: joi.string(),
-    url: joi.string().uri().trim().required(),
+    url: joi.string().uri().trim().max(1000).required(),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()).required(),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
@@ -593,7 +593,7 @@ patchSubmission.schema = {
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
     type: joi.string(),
-    url: joi.string().uri().trim(),
+    url: joi.string().uri().trim().max(1000),
     memberId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
     legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
