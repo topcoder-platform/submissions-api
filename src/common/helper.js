@@ -417,17 +417,17 @@ function getSubmissionPhaseId (challenge) {
 /**
  * Function to check user access to create a submission
  * @param authUser Authenticated user
- * @param subEntity Submission Entity
+ * @param memberId Member Id of the submitter
  * @param challengeDetails Challenge
  * @returns {Promise}
  */
-function * checkCreateAccess (authUser, subEntity, challengeDetails) {
+function * checkCreateAccess (authUser, memberId, challengeDetails) {
   let resources
 
   const challengeId = challengeDetails.id
 
   // User can only create submission for themselves
-  if (authUser.userId !== subEntity.memberId) {
+  if (authUser.userId !== memberId) {
     throw new errors.HttpStatusError(403, 'You are not allowed to submit on behalf of others')
   }
 
@@ -448,7 +448,7 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${subEntity.challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   if (resources && challengeDetails) {
@@ -493,7 +493,7 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
       // will be allowed to submit during final phase
       const userSubmission = yield fetchFromES({
         challengeId,
-        memberId: authUser.userId
+        memberId
       }, camelize('Submission'))
 
       // User requesting submission haven't made any submission - prevent them for creating one
@@ -504,7 +504,7 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
   } else {
     // We don't have enough details to validate the access
     logger.debug('No enough details to validate the Permissions')
-    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${subEntity.challengeId}`)
+    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${challengeId}`)
   }
 }
 
