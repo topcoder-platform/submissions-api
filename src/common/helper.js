@@ -14,6 +14,7 @@ const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
 const { validate: uuidValidate } = require('uuid')
+const NodeCache = require('node-cache')
 const m2mAuth = require('tc-core-library-js').auth.m2m
 const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
 
@@ -26,6 +27,8 @@ const esClients = {}
 
 // Bus API Client
 let busApiClient
+
+const internalCache = new NodeCache({ stdTTL: config.INTERNAL_CACHE_TTL })
 
 /**
  * Wrap generator function to standard express function
@@ -419,7 +422,7 @@ function getSubmissionPhaseId (challenge) {
 function * checkCreateAccess (authUser, subEntity, challengeDetails) {
   let resources
 
-  const challengeId = yield getV5ChallengeId(subEntity.challengeId)
+  const challengeId = challengeDetails.id
 
   // User can only create submission for themselves
   if (authUser.userId !== subEntity.memberId) {
@@ -447,7 +450,7 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
   }
 
   if (resources && challengeDetails) {
-    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+    const currUserRoles = _.get(resources, 'body', [])
 
     // Populate the role names for the current user role ids
     _.forEach(currUserRoles, currentUserRole => {
@@ -512,32 +515,29 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
 function * checkGetAccess (authUser, submission) {
   let resources
   let challengeDetails
+  let challengeId
   // Allow downloading Own submission
   if (submission.memberId === authUser.userId) {
     return true
   }
 
-  const token = yield getM2Mtoken()
-  const challengeId = yield getV5ChallengeId(submission.challengeId)
-
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
+    challengeDetails = yield getChallenge(submission.challengeId)
+    challengeId = challengeDetails.body.id
   } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-    logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${submission.challengeId}`)
   }
 
+  const token = yield getM2Mtoken()
+
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
     logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   // Get map of role id to role name
@@ -550,7 +550,7 @@ function * checkGetAccess (authUser, submission) {
 
   if (resources && challengeDetails) {
     // Fetch all roles of the User pertaining to the current challenge
-    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+    const currUserRoles = _.get(resources, 'body', [])
 
     // Populate the role names for the current user role ids
     _.forEach(currUserRoles, currentUserRole => {
@@ -642,27 +642,23 @@ function * checkGetAccess (authUser, submission) {
 function * checkReviewGetAccess (authUser, submission) {
   let resources
   let challengeDetails
+  let challengeId
   const token = yield getM2Mtoken()
-  const challengeId = yield getV5ChallengeId(submission.challengeId)
-
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
+    challengeDetails = yield getChallenge(submission.challengeId)
+    challengeId = challengeDetails.body.id
   } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-    logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
+    return false
   }
 
   try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
       .set('Authorization', `Bearer ${token}`)
       .set('Content-Type', 'application/json')
   } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
     logger.error(ex)
-    return false
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   // Get map of role id to role name
@@ -675,7 +671,7 @@ function * checkReviewGetAccess (authUser, submission) {
 
   if (resources && challengeDetails) {
     // Fetch all roles of the User pertaining to the current challenge
-    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+    const currUserRoles = _.get(resources, 'body', [])
 
     // Populate the role names for the current user role ids
     _.forEach(currUserRoles, currentUserRole => {
@@ -798,23 +794,31 @@ function cleanseReviews (reviews = [], authUser) {
 function * getRoleIdToRoleNameMap () {
   let resourceRoles
   let resourceRolesMap = null
-  const token = yield getM2Mtoken()
-  try {
-    resourceRoles = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-  } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
-    logger.error(ex)
-    resourceRoles = null
+
+  const cacheKey = 'RoleIdToRoleNameMap'
+  let records = getFromInternalCache(cacheKey)
+  if (_.isEmpty(records)) {
+    const token = yield getM2Mtoken()
+    try {
+      resourceRoles = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
+        .set('Authorization', `Bearer ${token}`)
+        .set('Content-Type', 'application/json')
+    } catch (ex) {
+      logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
+      logger.error(ex)
+      resourceRoles = null
+    }
+    if (resourceRoles) {
+      resourceRolesMap = {}
+      _.forEach(resourceRoles.body, resourceRole => {
+        resourceRolesMap[resourceRole.id] = resourceRole.name
+      })
+    }
+    records = resourceRolesMap
+    setToInternalCache(cacheKey, records)
   }
-  if (resourceRoles) {
-    resourceRolesMap = {}
-    _.forEach(resourceRoles.body, resourceRole => {
-      resourceRolesMap[resourceRole.id] = resourceRole.name
-    })
-  }
-  return resourceRolesMap
+
+  return records
 }
 
 /**
@@ -905,6 +909,18 @@ function getLegacyScoreCardId (scoreCardId) {
   return scoreCardId
 }
 
+function getFromInternalCache (key) {
+  return internalCache.get(key)
+}
+
+function setToInternalCache (key, value) {
+  internalCache.set(key, value)
+}
+
+function flushInternalCache () {
+  internalCache.flushAll()
+}
+
 module.exports = {
   wrapExpress,
   autoWrapExpress,
@@ -927,5 +943,8 @@ module.exports = {
   adjustSubmissionChallengeId,
   getLatestChallenges,
   getLegacyScoreCardId,
-  advanceChallengePhase
+  advanceChallengePhase,
+  getFromInternalCache,
+  setToInternalCache,
+  flushInternalCache
 }
