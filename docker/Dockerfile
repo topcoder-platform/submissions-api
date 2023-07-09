@@ -1,5 +1,5 @@
 # Use the base image with Node.js
-FROM node:12.22.12-buster
+FROM node:14.21.3-buster
 
 # Copy the current directory into the Docker image
 COPY . /submissions-api
