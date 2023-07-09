@@ -5,7 +5,7 @@
 const AWS = require('aws-sdk')
 const config = require('config')
 const errors = require('common-errors')
-const { fileTypeFromBuffer } = require('file-type')
+const FileType = require('file-type')
 const joi = require('joi')
 const path = require('path')
 const _ = require('lodash')
@@ -93,7 +93,7 @@ async function createArtifact (files, submissionId, entity) {
   let fileName
   logger.info('Creating a new Artifact')
   if (files && files.artifact) {
-    const uFileType = (await fileTypeFromBuffer(files.artifact.data)).ext // File type of uploaded file
+    const uFileType = (await FileType.fromBuffer(files.artifact.data)).ext // File type of uploaded file
     fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
 
     // Upload the artifact to S3

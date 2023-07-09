@@ -5,7 +5,7 @@
 const AWS = require('aws-sdk')
 const config = require('config')
 const errors = require('common-errors')
-const { fileTypeFromBuffer } = require('file-type')
+const FileType = require('file-type')
 const joi = require('joi')
 const _ = require('lodash')
 const { v4: uuidv4 } = require('uuid')
@@ -352,7 +352,7 @@ async function createSubmission (authUser, files, entity) {
   let url = entity.url
   if (files && files.submission) {
     const pFileType = entity.fileType || fileType // File type parameter
-    const uFileType = (await fileTypeFromBuffer(files.submission.data)).ext // File type of uploaded file
+    const uFileType = (await FileType.fromBuffer(files.submission.data)).ext // File type of uploaded file
     if (pFileType !== uFileType) {
       logger.info('Actual file type of the file does not match the file type attribute in the request')
       throw new errors.HttpStatusError(400, 'fileType parameter doesn\'t match the type of the uploaded file')
