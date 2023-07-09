@@ -96,7 +96,7 @@ describe('Review Summation Service tests', () => {
       chai.request(app)
         .post(`${config.API_VERSION}/reviewSummations`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.extend({ submissionId: submissionId }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .send(_.extend({ submissionId }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))
@@ -256,7 +256,7 @@ describe('Review Summation Service tests', () => {
       chai.request(app)
         .put(`${config.API_VERSION}/reviewSummations/${reviewSummationId}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.extend({ submissionId: submissionId }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .send(_.extend({ submissionId }, _.omit(testReviewSummation.Item, ['id', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReviewSummation.Item))

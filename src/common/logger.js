@@ -4,29 +4,37 @@
 
 const _ = require('lodash')
 const Joi = require('joi')
-const winston = require('winston')
+const { createLogger, format, transports } = require('winston')
 const util = require('util')
 const config = require('config')
 const getParams = require('get-parameter-names')
 
-const transports = []
-if (!JSON.parse(config.DISABLE_LOGGING)) {
-  transports.push(new (winston.transports.Console)({ level: config.LOG_LEVEL }))
-}
-const logger = new (winston.Logger)({ transports })
+const logger = createLogger({
+  level: config.LOG_LEVEL,
+  transports: [
+    new transports.Console({
+      format: format.combine(format.colorize(), format.simple())
+    })
+  ]
+})
 
 /**
  * Log error details with signature
  * @param err the error
+ * @param signature the signature
  */
-logger.logFullError = (err) => {
+logger.logFullError = (err, signature) => {
   if (!err) {
     return
   }
-  const args = Array.prototype.slice.call(arguments);// eslint-disable-line
-  args.shift()
+  if (signature) {
+    logger.error(`Error happened in ${signature}`)
+  }
   logger.error(util.inspect(err))
-  err.logged = true; // eslint-disable-line
+  if (!err.logged) {
+    logger.error(err.stack)
+    err.logged = true
+  }
 }
 
 /**
@@ -78,8 +86,8 @@ logger.decorateWithLogging = (service) => {
   }
   _.each(service, (method, name) => {
     const params = method.params || getParams(method)
-    service[name] = function * () {
-      let shouldLog = name !== 'check'
+    service[name] = async function () {
+      const shouldLog = name !== 'check'
       if (shouldLog) {
         logger.debug(`ENTER ${name}`)
         logger.debug('input arguments')
@@ -87,7 +95,7 @@ logger.decorateWithLogging = (service) => {
         logger.debug(util.inspect(_sanitizeObject(_combineObject(params, args))))
       }
       try {
-        const result = yield* method.apply(this, arguments); // eslint-disable-line
+        const result = await method.apply(this, arguments); // eslint-disable-line
         if (shouldLog) {
           logger.debug(`EXIT ${name}`)
           logger.debug('output arguments')
@@ -117,7 +125,7 @@ logger.decorateWithValidators = function (service) {
       return
     }
     const params = getParams(method)
-    service[name] = function * () {
+    service[name] = async function () {
       const args = Array.prototype.slice.call(arguments); // eslint-disable-line
       const value = _combineObject(params, args)
       const normalized = Joi.attempt(value, method.schema)
@@ -129,7 +137,7 @@ logger.decorateWithValidators = function (service) {
       _.each(params, (param) => {
         newArgs.push(normalized[param])
       })
-      return yield method.apply(this, newArgs)
+      return method.apply(this, newArgs)
     }
     service[name].params = params
   })

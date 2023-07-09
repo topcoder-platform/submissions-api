@@ -3,7 +3,6 @@
  */
 
 const _ = require('lodash')
-const co = require('co')
 const config = require('config')
 const logger = require('../src/common/logger')
 const dbhelper = require('../src/common/dbhelper')
@@ -17,7 +16,7 @@ const esClient = helper.getEsClient()
  * @param customFunction {Function} custom function to handle record
  * @returns {Promise}
  */
-function * migrateRecords (tableName, customFunction) {
+async function migrateRecords (tableName, customFunction) {
   let body = []
   let batchCounter = 1
   const params = {
@@ -25,7 +24,7 @@ function * migrateRecords (tableName, customFunction) {
   }
   // Process until all the records from DB is fetched
   while (true) {
-    const records = yield dbhelper.scanRecords(params)
+    const records = await dbhelper.scanRecords(params)
     logger.debug(`Number of ${tableName}s currently fetched from DB - ` + records.Items.length)
     let i = 0
     for (const recordItem of records.Items) {
@@ -41,7 +40,7 @@ function * migrateRecords (tableName, customFunction) {
 
       if (i % config.ES_BATCH_SIZE === 0) {
         logger.debug(`${tableName} - Processing batch # ` + batchCounter)
-        yield esClient.bulk({
+        await esClient.bulk({
           index: config.get('esConfig.ES_INDEX'),
           type: config.get('esConfig.ES_TYPE'),
           body
@@ -58,7 +57,7 @@ function * migrateRecords (tableName, customFunction) {
     } else {
       if (body.length > 0) {
         logger.debug(`${tableName} - Final batch processing...`)
-        yield esClient.bulk({
+        await esClient.bulk({
           index: config.get('esConfig.ES_INDEX'),
           type: config.get('esConfig.ES_TYPE'),
           body
@@ -69,7 +68,7 @@ function * migrateRecords (tableName, customFunction) {
   }
 }
 
-co(function * () {
+async function init () {
   const promises = []
   const reviews = []
   const reviewSummations = []
@@ -83,8 +82,8 @@ co(function * () {
     return t
   }))
   // Process migration in parallel
-  yield promises
-  yield migrateRecords('Submission', t => {
+  await Promise.all(promises)
+  await migrateRecords('Submission', t => {
     t.review = _.map(_.filter(reviews, ['submissionId', t.id]), r => _.omit(r, ['resource']))
     t.reviewSummation = _.map(_.filter(reviewSummations, ['submissionId', t.id]), r => _.omit(r, ['resource']))
     if (_.isEmpty(t.review)) {
@@ -95,6 +94,7 @@ co(function * () {
     }
     return t
   })
-}).catch((err) => {
+}
+init().catch((err) => {
   logger.logFullError(err)
 })

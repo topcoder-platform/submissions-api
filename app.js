@@ -10,7 +10,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const httpStatus = require('http-status')
 const _ = require('lodash')
-const winston = require('winston')
+const logger = require('./src/common/logger')
 const helper = require('./src/common/helper')
 const errorMiddleware = require('./src/common/ErrorMiddleware')
 const routes = require('./src/routes')
@@ -25,10 +25,12 @@ const http = require('http').Server(app)
 
 app.set('port', config.WEB_SERVER_PORT)
 
-app.use(bodyParser.json({ limit: '150mb' }))
-app.use(bodyParser.urlencoded({ limit: '150mb', extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 app.use(cors())
-app.use(fileUpload())
+app.use(fileUpload({
+  limits: { fileSize: 150 * 1024 * 1024 }
+}))
 
 const apiRouter = express.Router()
 
@@ -127,7 +129,7 @@ _.each(routes, (verbs, url) => {
     }
 
     actions.push(method)
-    winston.info(`API : ${verb.toLocaleUpperCase()} ${config.API_VERSION}${url}`)
+    logger.info(`API : ${verb.toLocaleUpperCase()} ${config.API_VERSION}${url}`)
     apiRouter[verb](`${config.API_VERSION}${url}`, helper.autoWrapExpress(actions))
   })
 })
@@ -152,7 +154,7 @@ app.use('*', (req, res) => {
 })
 
 http.listen(app.get('port'), () => {
-  winston.info(`Express server listening on port ${app.get('port')}`)
+  logger.info(`Express server listening on port ${app.get('port')}`)
 })
 
 module.exports = app

@@ -16,9 +16,9 @@ const table = 'ReviewType'
  * Function to get review type based on ID from DyanmoDB
  * This function will be used all by other functions to check existence of review type
  * @param {Number} reviewTypeId ReviewTypeId which need to be retrieved
- * @return {Object} Data retrieved from database
+ * @return {Promise<Object>} Data retrieved from database
  */
-function * _getReviewType (reviewTypeId) {
+async function _getReviewType (reviewTypeId) {
   // Construct filter to retrieve record from Database
   const filter = {
     TableName: table,
@@ -26,17 +26,17 @@ function * _getReviewType (reviewTypeId) {
       id: reviewTypeId
     }
   }
-  const result = yield dbhelper.getRecord(filter)
+  const result = await dbhelper.getRecord(filter)
   return result.Item
 }
 
 /**
  * Function to get review type based on ID from ES
  * @param {Number} reviewTypeId ReviewTypeId which need to be found
- * @return {Object} Data found from database
+ * @return {Promise<Object>} Data found from database
  */
-function * getReviewType (reviewTypeId) {
-  const response = yield helper.fetchFromES({ id: reviewTypeId }, helper.camelize(table))
+async function getReviewType (reviewTypeId) {
+  const response = await helper.fetchFromES({ id: reviewTypeId }, helper.camelize(table))
   if (response.total === 0) {
     throw new errors.HttpStatusError(404, `Review type with ID = ${reviewTypeId} is not found`)
   }
@@ -44,17 +44,17 @@ function * getReviewType (reviewTypeId) {
   return response.rows[0]
 }
 
-getReviewType.schema = {
+getReviewType.schema = joi.object({
   reviewTypeId: joi.string().uuid().required()
-}
+}).required()
 
 /**
  * Function to list review types from Elastic Search
  * @param {Object} query Query filters passed in HTTP request
- * @return {Object} Data fetched from ES
+ * @return {Promise<Object>} Data fetched from ES
  */
-function * listReviewTypes (query) {
-  return yield helper.fetchFromES(query, helper.camelize(table))
+async function listReviewTypes (query) {
+  return helper.fetchFromES(query, helper.camelize(table))
 }
 
 const listReviewTypesQuerySchema = {
@@ -65,21 +65,21 @@ const listReviewTypesQuerySchema = {
   orderBy: joi.sortOrder()
 }
 
-listReviewTypesQuerySchema.sortBy = joi.string().valid(_.difference(
+listReviewTypesQuerySchema.sortBy = joi.string().valid(..._.difference(
   Object.keys(listReviewTypesQuerySchema),
   ['page', 'perPage', 'orderBy', 'name']
 ))
 
-listReviewTypes.schema = {
+listReviewTypes.schema = joi.object({
   query: joi.object().keys(listReviewTypesQuerySchema).with('orderBy', 'sortBy')
-}
+}).required()
 
 /**
  * Function to create review type in database
  * @param {Object} entity Data to be inserted
  * @return {Promise}
  */
-function * createReviewType (entity) {
+async function createReviewType (entity) {
   const item = _.extend({ id: uuidv4() }, entity)
   // Prepare record to be inserted
   const record = {
@@ -87,42 +87,42 @@ function * createReviewType (entity) {
     Item: item
   }
 
-  yield dbhelper.insertRecord(record)
+  await dbhelper.insertRecord(record)
 
   // Push Review Type created event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.create,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was created
     'mime-type': mimeType,
     payload: _.extend({ resource: helper.camelize(table) }, item)
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
   return item
 }
 
-createReviewType.schema = {
+createReviewType.schema = joi.object({
   entity: joi.object().keys({
     name: joi.string().required(),
     isActive: joi.boolean().required()
   }).required()
-}
+}).required()
 
-/*
+/**
  * Function to update review type in the database
  * This function will be used internally by both PUT and PATCH
  * @param {Number} reviewTypeId ReviewTypeId which need to be updated
  * @param {Object} entity Data to be updated
  * @return {Promise}
  **/
-function * _updateReviewType (reviewTypeId, entity) {
-  const exist = yield _getReviewType(reviewTypeId)
+async function _updateReviewType (reviewTypeId, entity) {
+  const exist = await _getReviewType(reviewTypeId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Review type with ID = ${reviewTypeId} is not found`)
   }
@@ -150,13 +150,13 @@ function * _updateReviewType (reviewTypeId, entity) {
       '#name': 'name'
     }
   }
-  yield dbhelper.updateRecord(record)
+  await dbhelper.updateRecord(record)
 
   // Push Review Type updated event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.update,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was updated
     'mime-type': mimeType,
     payload: _.extend({
@@ -166,7 +166,7 @@ function * _updateReviewType (reviewTypeId, entity) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -179,17 +179,17 @@ function * _updateReviewType (reviewTypeId, entity) {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  */
-function * updateReviewType (reviewTypeId, entity) {
-  return yield _updateReviewType(reviewTypeId, entity)
+async function updateReviewType (reviewTypeId, entity) {
+  return _updateReviewType(reviewTypeId, entity)
 }
 
-updateReviewType.schema = {
+updateReviewType.schema = joi.object({
   reviewTypeId: joi.string().uuid().required(),
   entity: joi.object().keys({
     name: joi.string().required(),
     isActive: joi.boolean().required()
   }).required()
-}
+}).required()
 
 /**
  * Function to patch review type in database
@@ -197,25 +197,25 @@ updateReviewType.schema = {
  * @param {Object} entity Data to be patched
  * @return {Promise}
  */
-function * patchReviewType (reviewTypeId, entity) {
-  return yield _updateReviewType(reviewTypeId, entity)
+async function patchReviewType (reviewTypeId, entity) {
+  return _updateReviewType(reviewTypeId, entity)
 }
 
-patchReviewType.schema = {
+patchReviewType.schema = joi.object({
   reviewTypeId: joi.string().uuid().required(),
   entity: joi.object().keys({
     name: joi.string(),
     isActive: joi.boolean()
   })
-}
+}).required()
 
 /**
  * Function to delete review type from database
  * @param {Number} reviewTypeId ReviewTypeId which need to be deleted
  * @return {Promise}
  */
-function * deleteReviewType (reviewTypeId) {
-  const exist = yield _getReviewType(reviewTypeId)
+async function deleteReviewType (reviewTypeId) {
+  const exist = await _getReviewType(reviewTypeId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Review type with ID = ${reviewTypeId} is not found`)
   }
@@ -228,13 +228,13 @@ function * deleteReviewType (reviewTypeId) {
     }
   }
 
-  yield dbhelper.deleteRecord(filter)
+  await dbhelper.deleteRecord(filter)
 
   // Push Review Type deleted event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.delete,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was deleted
     'mime-type': mimeType,
     payload: {
@@ -244,12 +244,12 @@ function * deleteReviewType (reviewTypeId) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 }
 
-deleteReviewType.schema = {
+deleteReviewType.schema = joi.object({
   reviewTypeId: joi.string().uuid().required()
-}
+}).required()
 
 module.exports = {
   getReviewType,
