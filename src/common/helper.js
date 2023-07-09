@@ -359,23 +359,6 @@ function * advanceChallengePhase (challengeId, phase, operation) {
 }
 
 /**
- * Get legacy challenge id if the challenge id is uuid form
- * @param {String} challengeId Challenge ID
- * @returns {String} Legacy Challenge ID of the given challengeId
- */
-function * getLegacyChallengeId (challengeId) {
-  if (uuidValidate(challengeId)) {
-    const challenge = yield getChallenge(challengeId)
-    if (_.get(challenge, 'legacy.pureV5')) {
-      return null
-    }
-    const legacyId = parseInt(challenge.legacyId, 10)
-    return legacyId
-  }
-  return challengeId
-}
-
-/**
  * Get v5 challenge id (uuid) if legacy challenge id
  * @param {Integer} challengeId Challenge ID
  * @returns {String} v5 uuid Challenge ID of the given challengeId
@@ -930,7 +913,6 @@ module.exports = {
   fetchFromES,
   camelize,
   setPaginationHeaders,
-  getLegacyChallengeId,
   getSubmissionPhaseId,
   checkCreateAccess,
   checkGetAccess,
