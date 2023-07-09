@@ -121,7 +121,7 @@ function * createReviewSummation (authUser, entity) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.create,
-    originator: originator,
+    originator,
     timestamp: currDate, // time when submission was created
     'mime-type': mimeType,
     payload: _.extend({ resource: helper.camelize(table) }, item)
@@ -220,7 +220,7 @@ function * _updateReviewSummation (authUser, reviewSummationId, entity) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.update,
-    originator: originator,
+    originator,
     timestamp: currDate, // time when submission was updated
     'mime-type': mimeType,
     payload: _.extend({
@@ -323,7 +323,7 @@ function * deleteReviewSummation (reviewSummationId) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.delete,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was deleted
     'mime-type': mimeType,
     payload: {

@@ -374,7 +374,7 @@ function * createSubmission (authUser, files, entity) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.create,
-    originator: originator,
+    originator,
     timestamp: currDate, // time when submission was created
     'mime-type': mimeType,
     payload: _.extend({ resource: helper.camelize(table) }, item)
@@ -454,7 +454,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
     // But with this update, it does not
     // Prevent updates to current submission
     // else we will be left with a submission with wrong legacy challenge id
-    throw new errors.HttpStatusError(400, `Cannot update submission with v5 challenge id since it already has a legacy challenge id associated with it`)
+    throw new errors.HttpStatusError(400, 'Cannot update submission with v5 challenge id since it already has a legacy challenge id associated with it')
   }
   // Record used for updating in Database
   const record = {
@@ -462,7 +462,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
     Key: {
       id: submissionId
     },
-    UpdateExpression: `set #type = :t, #url = :u, memberId = :m, challengeId = :c, updated = :ua, updatedBy = :ub, submittedDate = :sb`,
+    UpdateExpression: 'set #type = :t, #url = :u, memberId = :m, challengeId = :c, updated = :ua, updatedBy = :ub, submittedDate = :sb',
     ExpressionAttributeValues: {
       ':t': entity.type || exist.type,
       ':u': entity.url || exist.url,
@@ -511,7 +511,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.update,
-    originator: originator,
+    originator,
     timestamp: currDate, // time when submission was updated
     'mime-type': mimeType,
     payload: _.extend({
@@ -637,7 +637,7 @@ function * deleteSubmission (authUser, submissionId) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.delete,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was deleted
     'mime-type': mimeType,
     payload: {

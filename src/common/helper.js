@@ -238,7 +238,7 @@ function * fetchFromES (query, resource) {
     total: docs.hits.total,
     pageSize: filter.size,
     page: query.page || 1,
-    rows: rows
+    rows
   }
   return response
 }
@@ -448,19 +448,19 @@ function * checkCreateAccess (authUser, memberId, challengeDetails) {
     // Check if the User is assigned as the reviewer for the contest
     const reviewers = _.filter(currUserRoles, { role: 'Reviewer' })
     if (reviewers.length !== 0) {
-      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are a reviewer`)
+      throw new errors.HttpStatusError(400, 'You cannot create a submission for a challenge while you are a reviewer')
     }
 
     // Check if the User is assigned as the iterative reviewer for the contest
     const iterativeReviewers = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
     if (iterativeReviewers.length !== 0) {
-      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are an iterative reviewer`)
+      throw new errors.HttpStatusError(400, 'You cannot create a submission for a challenge while you are an iterative reviewer')
     }
 
     // Check if the User is registered for the contest
     const submitters = _.filter(currUserRoles, { role: 'Submitter' })
     if (submitters.length === 0) {
-      throw new errors.HttpStatusError(403, `Register for the contest before you can submit`)
+      throw new errors.HttpStatusError(403, 'Register for the contest before you can submit')
     }
 
     const submissionPhaseId = getSubmissionPhaseId(challengeDetails)

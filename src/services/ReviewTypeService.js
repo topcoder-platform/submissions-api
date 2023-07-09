@@ -93,7 +93,7 @@ function * createReviewType (entity) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.create,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was created
     'mime-type': mimeType,
     payload: _.extend({ resource: helper.camelize(table) }, item)
@@ -156,7 +156,7 @@ function * _updateReviewType (reviewTypeId, entity) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.update,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was updated
     'mime-type': mimeType,
     payload: _.extend({
@@ -234,7 +234,7 @@ function * deleteReviewType (reviewTypeId) {
   // Request body for Posting to Bus API
   const reqBody = {
     topic: events.submission.delete,
-    originator: originator,
+    originator,
     timestamp: (new Date()).toISOString(), // time when submission was deleted
     'mime-type': mimeType,
     payload: {

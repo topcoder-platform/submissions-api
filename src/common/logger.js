@@ -79,7 +79,7 @@ logger.decorateWithLogging = (service) => {
   _.each(service, (method, name) => {
     const params = method.params || getParams(method)
     service[name] = function * () {
-      let shouldLog = name !== 'check'
+      const shouldLog = name !== 'check'
       if (shouldLog) {
         logger.debug(`ENTER ${name}`)
         logger.debug('input arguments')

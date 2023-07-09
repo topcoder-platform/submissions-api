@@ -31,7 +31,7 @@ function * updateRecord (submission, failedContainer) {
     Key: {
       id: submission.id
     },
-    UpdateExpression: `set challengeId = :c, legacyChallengeId = :l`,
+    UpdateExpression: 'set challengeId = :c, legacyChallengeId = :l',
     ExpressionAttributeValues: {
       ':c': v5challengeId,
       ':l': submission.challengeId
