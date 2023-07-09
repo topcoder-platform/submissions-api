@@ -5,7 +5,7 @@
 const AWS = require('aws-sdk')
 const config = require('config')
 const errors = require('common-errors')
-const fileTypeFinder = require('file-type')
+const { fileTypeFromBuffer } = require('file-type')
 const joi = require('joi')
 const _ = require('lodash')
 const { v4: uuidv4 } = require('uuid')
@@ -18,13 +18,13 @@ const logger = require('winston')
 
 const table = 'Submission'
 
-/*
+/**
  * Function to upload file to S3
  * @param {Object} file File to be uploaded
  * @param {String} name File name
  * @return {Promise}
  **/
-function * _uploadToS3 (file, name) {
+function _uploadToS3 (file, name) {
   return new Promise((resolve, reject) => {
     const params = {
       Bucket: config.aws.S3_BUCKET,
@@ -43,7 +43,11 @@ function * _uploadToS3 (file, name) {
   })
 }
 
-function * _getReviewsForSubmission (submissionId) {
+/**
+ * @param {string} submissionId
+ * @return {Promise}
+ **/
+function _getReviewsForSubmission (submissionId) {
   const reviewFilter = {
     TableName: 'Review',
     IndexName: submissionIndex,
@@ -53,10 +57,14 @@ function * _getReviewsForSubmission (submissionId) {
     }
   }
 
-  return yield dbhelper.queryRecords(reviewFilter)
+  return dbhelper.queryRecords(reviewFilter)
 }
 
-function * _getReviewSummationsForSubmission (submissionId) {
+/**
+ * @param {string} submissionId
+ * @return {Promise}
+ **/
+function _getReviewSummationsForSubmission (submissionId) {
   const reviewSummationFilter = {
     TableName: 'ReviewSummation',
     IndexName: submissionIndex,
@@ -66,7 +74,7 @@ function * _getReviewSummationsForSubmission (submissionId) {
     }
   }
 
-  return yield dbhelper.queryRecords(reviewSummationFilter)
+  return dbhelper.queryRecords(reviewSummationFilter)
 }
 
 /**
@@ -74,9 +82,9 @@ function * _getReviewSummationsForSubmission (submissionId) {
  * This function will be used all by other functions to check existence of a submission
  * @param {String} submissionId submissionId which need to be retrieved
  * @param {Boolean} fetchReview if True, associated reviews and review summations will be fetched
- * @return {Object} Data retrieved from database
+ * @return {Promise<Object>} Data retrieved from database
  */
-function * _getSubmission (submissionId, fetchReview = true) {
+async function _getSubmission (submissionId, fetchReview = true) {
   // Construct filter to retrieve record from Database
   const filter = {
     TableName: table,
@@ -84,17 +92,17 @@ function * _getSubmission (submissionId, fetchReview = true) {
       id: submissionId
     }
   }
-  const result = yield dbhelper.getRecord(filter)
+  const result = await dbhelper.getRecord(filter)
   const submission = result.Item
   if (fetchReview) {
     // Fetch associated reviews
-    const review = yield _getReviewsForSubmission(submissionId)
+    const review = await _getReviewsForSubmission(submissionId)
 
     if (review.Count !== 0) {
       submission.review = review.Items
     }
     // Fetch associated review summations
-    const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+    const reviewSummation = await _getReviewSummationsForSubmission(submissionId)
 
     if (reviewSummation.Count !== 0) {
       submission.reviewSummation = reviewSummation.Items
@@ -108,17 +116,17 @@ function * _getSubmission (submissionId, fetchReview = true) {
  * @param {Object} submissionRecord submission
  * @param {String} submissionId submission id
  */
-function * _populateSubmissionReviews (submissionRecord, submissionId) {
+async function _populateSubmissionReviews (submissionRecord, submissionId) {
   if (!submissionRecord.review || submissionRecord.review.length < 1) {
     logger.info(`submission ${submissionId} from ES has no reviews. Double checking the db`)
-    const review = yield _getReviewsForSubmission(submissionId)
+    const review = await _getReviewsForSubmission(submissionId)
     logger.info(`${review}`)
     submissionRecord.review = review.Items || []
   }
 
   if (!submissionRecord.reviewSummation || submissionRecord.reviewSummation.length < 1) {
     logger.info(`submission ${submissionId} from ES has no reviewSummations. Double checking the db`)
-    const reviewSummation = yield _getReviewSummationsForSubmission(submissionId)
+    const reviewSummation = await _getReviewSummationsForSubmission(submissionId)
     logger.info(`${reviewSummation}`)
     submissionRecord.reviewSummation = reviewSummation.Items || []
   }
@@ -128,16 +136,16 @@ function * _populateSubmissionReviews (submissionRecord, submissionId) {
  * Function to get submission based on ID from ES
  * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be retrieved
- * @return {Object} Data retrieved from database
+ * @return {Promise<Object>} Data retrieved from database
  */
-function * getSubmission (authUser, submissionId) {
-  const response = yield helper.fetchFromES({ id: submissionId }, helper.camelize(table))
+async function getSubmission (authUser, submissionId) {
+  const response = await helper.fetchFromES({ id: submissionId }, helper.camelize(table))
   let submissionRecord = null
   let fetchedFromES = false
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
   if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
     logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
-    submissionRecord = yield _getSubmission(submissionId)
+    submissionRecord = await _getSubmission(submissionId)
 
     if (!_.get(submissionRecord, 'id', null)) {
       logger.info(`getSubmission: submissionId not found in ES nor the DB: ${submissionId}`)
@@ -156,11 +164,11 @@ function * getSubmission (authUser, submissionId) {
 
   logger.info('Check User access before returning the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
-    yield helper.checkGetAccess(authUser, submissionRecord)
+    await helper.checkGetAccess(authUser, submissionRecord)
   }
 
   if (fetchedFromES) {
-    yield _populateSubmissionReviews(submissionRecord, submissionId)
+    await _populateSubmissionReviews(submissionRecord, submissionId)
   }
 
   submissionRecord.review = helper.cleanseReviews(submissionRecord.review, authUser)
@@ -171,19 +179,19 @@ function * getSubmission (authUser, submissionId) {
   return submissionRecord
 }
 
-getSubmission.schema = {
+getSubmission.schema = joi.object({
   authUser: joi.object().required(),
   submissionId: joi.string().uuid().required()
-}
+}).required()
 
 /**
  * Function to get submission
  * @param {Object} authUser Authenticated User
  * @param {String} submissionId ID of the Submission which need to be retrieved
- * @return {Object} Submission retrieved
+ * @return {Promise<Object>} Submission retrieved
  */
-function * downloadSubmission (authUser, submissionId) {
-  const record = yield getSubmission(authUser, submissionId)
+async function downloadSubmission (authUser, submissionId) {
+  const record = await getSubmission(authUser, submissionId)
   return { submission: record }
 }
 
@@ -191,13 +199,13 @@ function * downloadSubmission (authUser, submissionId) {
  * Function to list submissions from Elastic Search
  * @param {Object} authUser Authenticated User
  * @param {Object} query Query filters passed in HTTP request
- * @return {Object} Data fetched from ES
+ * @return {Promise<Object>} Data fetched from ES
  */
-function * listSubmissions (authUser, query) {
+async function listSubmissions (authUser, query) {
   if (query.challengeId) {
     // Submission api now only works with v5 challenge id
     // If it is a legacy challenge id, get the associated v5 challenge id
-    query.challengeId = yield helper.getV5ChallengeId(query.challengeId)
+    query.challengeId = await helper.getV5ChallengeId(query.challengeId)
   }
 
   // TODO - support v5 for review scorecardid
@@ -209,7 +217,7 @@ function * listSubmissions (authUser, query) {
     }
   }
 
-  const data = yield helper.fetchFromES(query, helper.camelize(table))
+  const data = await helper.fetchFromES(query, helper.camelize(table))
   logger.info(`Data returned from ES: ${JSON.stringify(data, null, 4)}`)
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
@@ -251,10 +259,10 @@ listSubmissionsQuerySchema.sortBy = joi.string().valid(_.difference(
   ['page', 'perPage', 'orderBy']
 ))
 
-listSubmissions.schema = {
+listSubmissions.schema = joi.object({
   authUser: joi.object().required(),
   query: joi.object().keys(listSubmissionsQuerySchema).with('orderBy', 'sortBy')
-}
+}).required()
 
 /**
  * Function to upload and create submission
@@ -263,7 +271,7 @@ listSubmissions.schema = {
  * @param {Object} entity Data to be inserted
  * @return {Promise}
  */
-function * createSubmission (authUser, files, entity) {
+async function createSubmission (authUser, files, entity) {
   logger.info('Creating a new submission')
   if (files && entity.url) {
     logger.info('Cannot create submission. Neither file nor url to upload has been passed')
@@ -280,7 +288,7 @@ function * createSubmission (authUser, files, entity) {
 
   // Submission api only works with legacy challenge id
   // If it is a v5 challenge id, get the associated legacy challenge id
-  const challenge = yield helper.getChallenge(entity.challengeId)
+  const challenge = await helper.getChallenge(entity.challengeId)
   const {
     id: challengeId,
     status,
@@ -329,7 +337,7 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Check User access before creating the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
     logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
-    yield helper.checkCreateAccess(authUser, item.memberId, challenge)
+    await helper.checkCreateAccess(authUser, item.memberId, challenge)
 
     if (entity.submittedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')
@@ -344,12 +352,12 @@ function * createSubmission (authUser, files, entity) {
   let url = entity.url
   if (files && files.submission) {
     const pFileType = entity.fileType || fileType // File type parameter
-    const uFileType = fileTypeFinder(files.submission.data).ext // File type of uploaded file
+    const uFileType = (await fileTypeFromBuffer(files.submission.data)).ext // File type of uploaded file
     if (pFileType !== uFileType) {
       logger.info('Actual file type of the file does not match the file type attribute in the request')
       throw new errors.HttpStatusError(400, 'fileType parameter doesn\'t match the type of the uploaded file')
     }
-    const file = yield _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
+    const file = await _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
     url = file.Location
   } else if (files) {
     throw new errors.HttpStatusError(400, 'The file should be uploaded under the "submission" attribute')
@@ -365,7 +373,7 @@ function * createSubmission (authUser, files, entity) {
 
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
   logger.info(JSON.stringify(record, null, 2))
-  yield dbhelper.insertRecord(record)
+  await dbhelper.insertRecord(record)
 
   // After save to db, adjust challengeId to busApi and response
   helper.adjustSubmissionChallengeId(item)
@@ -391,7 +399,7 @@ function * createSubmission (authUser, files, entity) {
   logger.info('Prepared submission create event payload to pass to the Bus')
   logger.info(`Posting to bus ${JSON.stringify(reqBody)}`)
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the entity which is in compliance with Swagger
@@ -399,7 +407,7 @@ function * createSubmission (authUser, files, entity) {
   return item
 }
 
-createSubmission.schema = {
+createSubmission.schema = joi.object({
   authUser: joi.object().required(),
   files: joi.any(),
   entity: joi.object().keys({
@@ -413,9 +421,9 @@ createSubmission.schema = {
     submissionPhaseId: joi.id(),
     submittedDate: joi.string()
   }).required()
-}
+}).required()
 
-/*
+/**
  * Function to update submission
  * This function will be used internally by both PUT and PATCH
  * @param {Object} authUser Authenticated User
@@ -423,10 +431,10 @@ createSubmission.schema = {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  **/
-function * _updateSubmission (authUser, submissionId, entity) {
+async function _updateSubmission (authUser, submissionId, entity) {
   logger.info(`Updating submission with submission id ${submissionId}`)
 
-  const exist = yield _getSubmission(submissionId)
+  const exist = await _getSubmission(submissionId)
   if (!exist) {
     logger.info(`Submission with ID = ${submissionId} is not found`)
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
@@ -438,7 +446,7 @@ function * _updateSubmission (authUser, submissionId, entity) {
   let hasIterativeReview = false
 
   if (entity.challengeId || challengeId) {
-    const challenge = yield helper.getChallenge(entity.challengeId || challengeId)
+    const challenge = await helper.getChallenge(entity.challengeId || challengeId)
     if (!challenge) {
       throw new errors.HttpStatusError(404, `Challenge with ID = ${entity.challengeId || challengeId} is not found`)
     }
@@ -503,8 +511,8 @@ function * _updateSubmission (authUser, submissionId, entity) {
 
   logger.info('Prepared submission item to update in Dynamodb. Updating...')
 
-  yield dbhelper.updateRecord(record)
-  const updatedSub = yield _getSubmission(submissionId)
+  await dbhelper.updateRecord(record)
+  const updatedSub = await _getSubmission(submissionId)
 
   helper.adjustSubmissionChallengeId(updatedSub)
   // Push Submission updated event to Bus API
@@ -528,14 +536,14 @@ function * _updateSubmission (authUser, submissionId, entity) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   if (hasIterativeReview && entity.legacySubmissionId != null && entity.legacySubmissionId !== exist.legacySubmissionId) {
     console.log('Submission uploaded.')
     console.log('Attempt to close submission phase')
-    yield helper.advanceChallengePhase(challengeId, 'Submission', 'close')
+    await helper.advanceChallengePhase(challengeId, 'Submission', 'close')
     console.log('Attempt to open review phase')
-    yield helper.advanceChallengePhase(challengeId, 'Iterative Review', 'open')
+    await helper.advanceChallengePhase(challengeId, 'Iterative Review', 'open')
   } else {
     console.log('Submission uploaded. No need to open review phase', hasIterativeReview, entity.legacySubmissionId, exist.legacySubmissionId)
   }
@@ -562,11 +570,11 @@ function * _updateSubmission (authUser, submissionId, entity) {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  */
-function * updateSubmission (authUser, submissionId, entity) {
-  return yield _updateSubmission(authUser, submissionId, entity)
+async function updateSubmission (authUser, submissionId, entity) {
+  return _updateSubmission(authUser, submissionId, entity)
 }
 
-updateSubmission.schema = {
+updateSubmission.schema = joi.object({
   authUser: joi.object().required(),
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
@@ -579,7 +587,7 @@ updateSubmission.schema = {
     submissionPhaseId: joi.id(),
     submittedDate: joi.string()
   }).required()
-}
+}).required()
 
 /**
  * Function to patch submission
@@ -588,11 +596,11 @@ updateSubmission.schema = {
  * @param {Object} entity Data to be patched
  * @return {Promise}
  */
-function * patchSubmission (authUser, submissionId, entity) {
-  return yield _updateSubmission(authUser, submissionId, entity)
+async function patchSubmission (authUser, submissionId, entity) {
+  return _updateSubmission(authUser, submissionId, entity)
 }
 
-patchSubmission.schema = {
+patchSubmission.schema = joi.object({
   authUser: joi.object().required(),
   submissionId: joi.string().uuid().required(),
   entity: joi.object().keys({
@@ -605,7 +613,7 @@ patchSubmission.schema = {
     submissionPhaseId: joi.id(),
     submittedDate: joi.string()
   })
-}
+}).required()
 
 /**
  * Function to delete submission
@@ -613,8 +621,8 @@ patchSubmission.schema = {
  * @param {String} submissionId submissionId which need to be deleted
  * @return {Promise}
  */
-function * deleteSubmission (authUser, submissionId) {
-  const exist = yield _getSubmission(submissionId)
+async function deleteSubmission (authUser, submissionId) {
+  const exist = await _getSubmission(submissionId)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
@@ -631,7 +639,7 @@ function * deleteSubmission (authUser, submissionId) {
     }
   }
 
-  yield dbhelper.deleteRecord(filter)
+  await dbhelper.deleteRecord(filter)
 
   // Push Submission deleted event to Bus API
   // Request body for Posting to Bus API
@@ -648,20 +656,20 @@ function * deleteSubmission (authUser, submissionId) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 }
 
-deleteSubmission.schema = {
+deleteSubmission.schema = joi.object({
   authUser: joi.object().required(),
   submissionId: joi.string().guid().required()
-}
+}).required()
 
 /**
  * Function to get submission count
  * @param {String} challengeId submissionId which need to be retrieved
- * @return {Object} Data retrieved from database
+ * @return {Promise<Object>} Data retrieved from database
  */
-function * countSubmissions (challengeId) {
+async function countSubmissions (challengeId) {
   logger.debug(`countSubmissions ${challengeId}`)
   const esQuery = {
     index: config.get('esConfig.ES_INDEX'),
@@ -684,7 +692,7 @@ function * countSubmissions (challengeId) {
   const esClient = helper.getEsClient()
   let result
   try {
-    result = yield esClient.search(esQuery)
+    result = await esClient.search(esQuery)
   } catch (err) {
     logger.error(`Get Submission Count Error ${JSON.stringify(err)}`)
     throw err
@@ -693,9 +701,9 @@ function * countSubmissions (challengeId) {
   return response
 }
 
-countSubmissions.schema = {
+countSubmissions.schema = joi.object({
   challengeId: joi.string().uuid().required()
-}
+}).required()
 
 module.exports = {
   getSubmission,

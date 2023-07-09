@@ -25,10 +25,12 @@ const http = require('http').Server(app)
 
 app.set('port', config.WEB_SERVER_PORT)
 
-app.use(bodyParser.json({ limit: '150mb' }))
-app.use(bodyParser.urlencoded({ limit: '150mb', extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 app.use(cors())
-app.use(fileUpload())
+app.use(fileUpload({
+  limits: { fileSize: 150 * 1024 * 1024 }
+}))
 
 const apiRouter = express.Router()
 

@@ -30,7 +30,7 @@ function deleteDatafromES () {
 /*
  * Load Review Types from JSON into ES
  */
-function * loadReviewTypes () {
+async function loadReviewTypes () {
   const promises = []
   reviewTypes.forEach((reviewType) => {
     const record = {
@@ -41,13 +41,13 @@ function * loadReviewTypes () {
     }
     promises.push(esClient.create(record))
   })
-  yield promises
+  await Promise.all(promises)
 }
 
 /*
  * Load Submissions from JSON into ES
  */
-function * loadSubmissions () {
+async function loadSubmissions () {
   const promises = []
   submissions.forEach((submission) => {
     const record = {
@@ -58,13 +58,13 @@ function * loadSubmissions () {
     }
     promises.push(esClient.create(record))
   })
-  yield promises
+  await Promise.all(promises)
 }
 
 /*
  * Load Reviews from JSON into ES
  */
-function * loadReviews () {
+async function loadReviews () {
   const promises = []
   reviews.forEach((review) => {
     const record = {
@@ -75,13 +75,13 @@ function * loadReviews () {
     }
     promises.push(esClient.create(record))
   })
-  yield promises
+  await Promise.all(promises)
 }
 
 /*
  * Load Review Summations from JSON into ES
  */
-function * loadReviewSummations () {
+async function loadReviewSummations () {
   const promises = []
   reviewSummations.forEach((reviewSummation) => {
     const record = {
@@ -92,19 +92,19 @@ function * loadReviewSummations () {
     }
     promises.push(esClient.create(record))
   })
-  yield promises
+  await Promise.all(promises)
 }
 
 /*
  * Load data into ES after removing existing data
  */
-function * loadES () {
-  yield deleteDatafromES()
+async function loadES () {
+  await deleteDatafromES()
   logger.info('ES Loading started!')
-  yield loadReviewTypes()
-  yield loadSubmissions()
-  yield loadReviews()
-  yield loadReviewSummations()
+  await loadReviewTypes()
+  await loadSubmissions()
+  await loadReviews()
+  await loadReviewSummations()
   logger.info('ES Loading succeeded!')
 }
 

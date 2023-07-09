@@ -9,8 +9,8 @@ const HealthCheckService = require('../services/HealthCheckService')
  * @param req the http request
  * @param res the http response
  */
-function * check (req, res) {
-  res.json(yield HealthCheckService.check())
+async function check (req, res) {
+  res.json(await HealthCheckService.check())
 }
 
 module.exports = {

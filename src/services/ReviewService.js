@@ -6,8 +6,7 @@ const errors = require('common-errors')
 const _ = require('lodash')
 const { v4: uuidv4 } = require('uuid')
 const joi = require('joi')
-const logger = require('winston')
-
+const logger = require('../common/logger')
 const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
@@ -20,9 +19,9 @@ const table = 'Review'
  * Function to get review based on ID from DynamoDB
  * This function will be used all by other functions to check existence of review
  * @param {Number} reviewId reviewId which need to be retrieved
- * @return {Object} Data retrieved from database
+ * @return {Promise<Object>} Data retrieved from database
  */
-function * _getReview (reviewId) {
+async function _getReview (reviewId) {
   // Construct filter to retrieve record from Database
   const filter = {
     TableName: table,
@@ -30,7 +29,7 @@ function * _getReview (reviewId) {
       id: reviewId
     }
   }
-  const result = yield dbhelper.getRecord(filter)
+  const result = await dbhelper.getRecord(filter)
   return result.Item
 }
 
@@ -38,11 +37,11 @@ function * _getReview (reviewId) {
  * Function to get review based on ID from ES
  * @param {Object} authUser Authenticated User
  * @param {Number} reviewId reviewId which need to be found
- * @return {Object} Data found from database or ES
+ * @return {Promise<Object>} Data found from database or ES
  */
-function * getReview (authUser, reviewId) {
+async function getReview (authUser, reviewId) {
   let review
-  const response = yield helper.fetchFromES(
+  const response = await helper.fetchFromES(
     {
       id: reviewId
     },
@@ -51,7 +50,7 @@ function * getReview (authUser, reviewId) {
 
   if (response.total === 0) {
     logger.info(`Couldn't find review ${reviewId} in ES. Checking db`)
-    review = yield _getReview(reviewId)
+    review = await _getReview(reviewId)
     logger.debug(`Review: ${review}`)
 
     if (!review) {
@@ -65,32 +64,32 @@ function * getReview (authUser, reviewId) {
   }
 
   // Fetch submission without review and review summations
-  const submission = yield SubmissionService._getSubmission(
+  const submission = await SubmissionService._getSubmission(
     review.submissionId,
     false
   )
   logger.info('Check User access before returning the review')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
-    yield helper.checkReviewGetAccess(authUser, submission)
+    await helper.checkReviewGetAccess(authUser, submission)
   }
   // Return the review
   return review
 }
 
-getReview.schema = {
+getReview.schema = joi.object({
   authUser: joi.object().required(),
   reviewId: joi
     .string()
     .uuid()
     .required()
-}
+}).required()
 
 /**
  * Function to list reviews from Elastic Search
  * @param {Object} query Query filters passed in HTTP request
- * @return {Object} Data fetched from ES
+ * @return {Promise<Object>} Data fetched from ES
  */
-function * listReviews (query) {
+async function listReviews (query) {
   if (query.scoreCardId) {
     // Always use legacy scorecard id since v5 isn't stored in db
     query.scoreCardId = helper.getLegacyScoreCardId(query.scoreCardId)
@@ -100,7 +99,7 @@ function * listReviews (query) {
     }
   }
 
-  return yield helper.fetchFromES(query, helper.camelize(table))
+  return helper.fetchFromES(query, helper.camelize(table))
 }
 
 const listReviewsQuerySchema = {
@@ -125,21 +124,21 @@ listReviewsQuerySchema.sortBy = joi
     ])
   )
 
-listReviews.schema = {
+listReviews.schema = joi.object({
   query: joi
     .object()
     .keys(listReviewsQuerySchema)
     .with('orderBy', 'sortBy')
-}
+}).required()
 
 /**
  * Function to create review in database
  * @param {Object} entity Data to be inserted
  * @return {Promise}
  */
-function * createReview (authUser, entity) {
+async function createReview (authUser, entity) {
   // Check the validness of references using Helper function
-  yield HelperService._checkRef(entity)
+  await HelperService._checkRef(entity)
 
   const currDate = new Date().toISOString()
 
@@ -183,7 +182,7 @@ function * createReview (authUser, entity) {
     Item: item
   }
 
-  yield dbhelper.insertRecord(record)
+  await dbhelper.insertRecord(record)
 
   // Push Review created event to Bus API
   // Request body for Posting to Bus API
@@ -201,14 +200,14 @@ function * createReview (authUser, entity) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Inserting records in DynamoDB doesn't return any response
   // Hence returning the same entity to be in compliance with Swagger
   return item
 }
 
-createReview.schema = {
+createReview.schema = joi.object({
   authUser: joi.object().required(),
   entity: joi
     .object()
@@ -226,7 +225,7 @@ createReview.schema = {
         .alternatives()
         .try(joi.id(), joi.string().uuid())
         .required()
-        .error(errors => ({
+        .error(_ => ({
           message: '"reviewerId" must be a number or a string'
         })),
       scoreCardId: joi.alternatives().try(joi.id().required(), joi.string().uuid().required()),
@@ -239,9 +238,9 @@ createReview.schema = {
       reviewedDate: joi.string()
     })
     .required()
-}
+}).required()
 
-/*
+/**
  * Function to update review in the database
  * This function will be used internally by both PUT and PATCH
  * @param {Object} authUser Authenticated User
@@ -249,8 +248,8 @@ createReview.schema = {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  **/
-function * _updateReview (authUser, reviewId, entity) {
-  const exist = yield _getReview(reviewId)
+async function _updateReview (authUser, reviewId, entity) {
+  const exist = await _getReview(reviewId)
   if (!exist) {
     throw new errors.HttpStatusError(
       404,
@@ -259,7 +258,7 @@ function * _updateReview (authUser, reviewId, entity) {
   }
 
   // Check the validness of references using Helper function
-  yield HelperService._checkRef(entity)
+  await HelperService._checkRef(entity)
 
   const currDate = new Date().toISOString()
 
@@ -323,7 +322,7 @@ function * _updateReview (authUser, reviewId, entity) {
     )
   }
 
-  yield dbhelper.updateRecord(record)
+  await dbhelper.updateRecord(record)
 
   // Push Review updated event to Bus API
   // Request body for Posting to Bus API
@@ -349,7 +348,7 @@ function * _updateReview (authUser, reviewId, entity) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
@@ -369,11 +368,11 @@ function * _updateReview (authUser, reviewId, entity) {
  * @param {Object} entity Data to be updated
  * @return {Promise}
  */
-function * updateReview (authUser, reviewId, entity) {
-  return yield _updateReview(authUser, reviewId, entity)
+async function updateReview (authUser, reviewId, entity) {
+  return _updateReview(authUser, reviewId, entity)
 }
 
-updateReview.schema = {
+updateReview.schema = joi.object({
   authUser: joi.object().required(),
   reviewId: joi
     .string()
@@ -401,7 +400,7 @@ updateReview.schema = {
       reviewedDate: joi.string()
     })
     .required()
-}
+}).required()
 
 /**
  * Function to patch review in database
@@ -410,11 +409,11 @@ updateReview.schema = {
  * @param {Object} entity Data to be patched
  * @return {Promise}
  */
-function * patchReview (authUser, reviewId, entity) {
-  return yield _updateReview(authUser, reviewId, entity)
+async function patchReview (authUser, reviewId, entity) {
+  return _updateReview(authUser, reviewId, entity)
 }
 
-patchReview.schema = {
+patchReview.schema = joi.object({
   authUser: joi.object().required(),
   reviewId: joi
     .string()
@@ -430,15 +429,15 @@ patchReview.schema = {
     metadata: joi.object(),
     reviewedDate: joi.string()
   })
-}
+}).required()
 
 /**
  * Function to delete review from database
  * @param {Number} reviewId reviewId which need to be deleted
  * @return {Promise}
  */
-function * deleteReview (reviewId) {
-  const exist = yield _getReview(reviewId)
+async function deleteReview (reviewId) {
+  const exist = await _getReview(reviewId)
   if (!exist) {
     throw new errors.HttpStatusError(
       404,
@@ -454,7 +453,7 @@ function * deleteReview (reviewId) {
     }
   }
 
-  yield dbhelper.deleteRecord(filter)
+  await dbhelper.deleteRecord(filter)
 
   // Push Review deleted event to Bus API
   // Request body for Posting to Bus API
@@ -470,15 +469,15 @@ function * deleteReview (reviewId) {
   }
 
   // Post to Bus API using Client
-  yield helper.postToBusApi(reqBody)
+  await helper.postToBusApi(reqBody)
 }
 
-deleteReview.schema = {
+deleteReview.schema = joi.object({
   reviewId: joi
     .string()
     .uuid()
     .required()
-}
+}).required()
 
 module.exports = {
   getReview,

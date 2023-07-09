@@ -3,7 +3,6 @@
  */
 
 const _ = require('lodash')
-const co = require('co')
 const config = require('config')
 const logger = require('../src/common/logger')
 const dbhelper = require('../src/common/dbhelper')
@@ -16,7 +15,7 @@ const helper = require('../src/common/helper')
  * @param {String} v5challengeId The v5 challenge id
  * @returns {Promise}
  */
-function * updateRecord (submission, failedContainer, v5challengeId) {
+async function updateRecord (submission, failedContainer, v5challengeId) {
   const record = {
     TableName: 'Submission',
     Key: {
@@ -29,7 +28,7 @@ function * updateRecord (submission, failedContainer, v5challengeId) {
     }
   }
   try {
-    yield dbhelper.updateRecord(record)
+    await dbhelper.updateRecord(record)
   } catch (err) {
     logger.error(`update submission record error: ${err.message}`)
     failedContainer.push(submission)
@@ -40,12 +39,12 @@ function * updateRecord (submission, failedContainer, v5challengeId) {
  * Update all submission's challenge id to v5
  * @returns {Promise}
  */
-function * updateRecords () {
+async function updateRecords () {
   const tableName = config.SUBMISSION_TABLE_NAME
   const promises = []
   const failedRecords = []
   // Process until all the records from DB is fetched
-  const challengeIds = yield helper.getLatestChallenges()
+  const challengeIds = await helper.getLatestChallenges()
   logger.debug(`Total number of challenges fetched from api - ${challengeIds.length}.`)
   const batchIds = _.chunk(challengeIds, config.UPDATE_V5_CHALLENGE_BATCH_SIZE)
   for (const cId of batchIds) {
@@ -59,7 +58,7 @@ function * updateRecords () {
       ExpressionAttributeValues: queryParams
     }
     while (true) {
-      const records = yield dbhelper.scanRecords(params)
+      const records = await dbhelper.scanRecords(params)
       const totalRecords = records.Items.length
       logger.debug(`Number of ${tableName}s fetched from DB - ${totalRecords}. More fetch iterations may follow (pagination in progress)`)
       for (let i = 0; i < totalRecords; i++) {
@@ -77,7 +76,7 @@ function * updateRecords () {
   logger.debug(`All records fetched. Proceeding to update them in batches of ${config.UPDATE_V5_CHALLENGE_BATCH_SIZE}`)
   const paraRecords = _.chunk(promises, config.UPDATE_V5_CHALLENGE_BATCH_SIZE)
   for (const rs of paraRecords) {
-    yield rs
+    await Promise.all(rs)
   }
   logger.info(`Processed ${promises.length - failedRecords.length} records successfully`)
   if (failedRecords.length > 0) {
@@ -86,8 +85,10 @@ function * updateRecords () {
   }
 }
 
-co(function * () {
-  yield updateRecords()
-}).catch((err) => {
+async function init () {
+  await updateRecords()
+}
+
+init().catch((err) => {
   logger.logFullError(err)
 })
