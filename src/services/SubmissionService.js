@@ -326,6 +326,8 @@ async function createSubmission (authUser, files, entity) {
 
   if (entity.submissionPhaseId) {
     item.submissionPhaseId = entity.submissionPhaseId
+  } else {
+    item.submissionPhaseId = helper.getSubmissionPhaseId(challenge)
   }
 
   if (entity.fileType) {
@@ -342,6 +344,7 @@ async function createSubmission (authUser, files, entity) {
     if (entity.submittedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `submittedDate` attribute on a submission')
     }
+    // if not admin ovverride the submission phase id
     item.submissionPhaseId = helper.getSubmissionPhaseId(challenge)
   } else {
     logger.info(`No need to call checkCreateAccess for ${JSON.stringify(authUser)}`)
