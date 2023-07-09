@@ -10,7 +10,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const httpStatus = require('http-status')
 const _ = require('lodash')
-const winston = require('winston')
+const logger = require('./src/common/logger')
 const helper = require('./src/common/helper')
 const errorMiddleware = require('./src/common/ErrorMiddleware')
 const routes = require('./src/routes')
@@ -129,7 +129,7 @@ _.each(routes, (verbs, url) => {
     }
 
     actions.push(method)
-    winston.info(`API : ${verb.toLocaleUpperCase()} ${config.API_VERSION}${url}`)
+    logger.info(`API : ${verb.toLocaleUpperCase()} ${config.API_VERSION}${url}`)
     apiRouter[verb](`${config.API_VERSION}${url}`, helper.autoWrapExpress(actions))
   })
 })
@@ -154,7 +154,7 @@ app.use('*', (req, res) => {
 })
 
 http.listen(app.get('port'), () => {
-  winston.info(`Express server listening on port ${app.get('port')}`)
+  logger.info(`Express server listening on port ${app.get('port')}`)
 })
 
 module.exports = app

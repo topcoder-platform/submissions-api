@@ -254,7 +254,7 @@ const listSubmissionsQuerySchema = {
   'reviewSummation.isPassing': joi.boolean()
 }
 
-listSubmissionsQuerySchema.sortBy = joi.string().valid(_.difference(
+listSubmissionsQuerySchema.sortBy = joi.string().valid(..._.difference(
   Object.keys(listSubmissionsQuerySchema),
   ['page', 'perPage', 'orderBy']
 ))
