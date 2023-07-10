@@ -6,17 +6,14 @@ global.Promise = require('bluebird')
 const _ = require('lodash')
 const AWS = require('aws-sdk')
 const AmazonS3URI = require('amazon-s3-uri')
-const co = require('co')
 const config = require('config')
 const elasticsearch = require('elasticsearch')
 const logger = require('./logger')
-const request = require('superagent')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
-const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
-
-Promise.promisifyAll(request)
+const { validate: uuidValidate } = require('uuid')
+const NodeCache = require('node-cache')
+const { axiosInstance } = require('./axiosInstance')
 
 AWS.config.region = config.get('aws.AWS_REGION')
 const s3 = new AWS.S3()
@@ -26,6 +23,8 @@ const esClients = {}
 // Bus API Client
 let busApiClient
 
+const internalCache = new NodeCache({ stdTTL: config.INTERNAL_CACHE_TTL })
+
 /**
  * Wrap generator function to standard express function
  * @param {Function} fn the generator function
@@ -33,7 +32,7 @@ let busApiClient
  */
 function wrapExpress (fn) {
   return function wrap (req, res, next) {
-    co(fn(req, res, next)).catch(next)
+    fn(req, res, next).catch(next)
   }
 }
 
@@ -47,7 +46,7 @@ function autoWrapExpress (obj) {
     return obj.map(autoWrapExpress)
   }
   if (_.isFunction(obj)) {
-    if (obj.constructor.name === 'GeneratorFunction') {
+    if (obj.constructor.name === 'AsyncFunction') {
       return wrapExpress(obj)
     }
     return obj
@@ -214,19 +213,19 @@ function prepESFilter (query, actResource) {
   return searchCriteria
 }
 
-/*
+/**
  * Fetch data from ES and return to the caller
  * @param {Object} query Query filters passed in HTTP request
  * @param  {String} resource Resource name in ES
- * @return {Object} Data fetched from ES based on the filters
+ * @return {Promise<Object>} Data fetched from ES based on the filters
  */
-function * fetchFromES (query, resource) {
+async function fetchFromES (query, resource) {
   const esClient = getEsClient()
   // Construct ES filter
   const filter = prepESFilter(query, resource)
   // Search with constructed filter
   logger.debug(`The elasticsearch query is ${JSON.stringify(filter)}`)
-  const docs = yield esClient.search(filter)
+  const docs = await esClient.search(filter)
   // Extract data from hits
   const rows = _.map(docs.hits.hits, single => single._source)
 
@@ -234,12 +233,12 @@ function * fetchFromES (query, resource) {
     total: docs.hits.total,
     pageSize: filter.size,
     page: query.page || 1,
-    rows: rows
+    rows
   }
   return response
 }
 
-/*
+/**
  * Set paginated header and respond with data
  * @param req HTTP request
  * @param res HTTP response
@@ -293,90 +292,56 @@ function setPaginationHeaders (req, res, data) {
   res.json(data.rows)
 }
 
-/* Function to get M2M token
- * @returns {Promise}
- */
-function * getM2Mtoken () {
-  return yield m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
-}
-
 /**
  * Function to get challenge by id
  * @param {String} challengeId Challenge id
  * @returns {Promise}
  */
-function * getChallenge (challengeId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
+async function getChallenge (challengeId) {
+  if (uuidValidate(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
     try {
-      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .set('Content-Type', 'application/json')
-      return response.body
+      const response = await axiosInstance.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
+      return response.data
     } catch (err) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      throw err
+      throw errors.HttpStatusError(err.status || 500, `Cannot get challenge with id=${challengeId}`)
     }
   } else {
     logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
-    const token = yield getM2Mtoken()
     try {
-      const response = yield request.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
-        .set('Authorization', `Bearer ${token}`)
-        .set('Content-Type', 'application/json')
-      return response.body[0]
+      const response = await axiosInstance.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
+      return response.data[0]
     } catch (err) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
-      throw err
+      throw errors.HttpStatusError(err.status || 500, `Cannot get challenge with id=${challengeId}`)
     }
   }
 }
 
-function * advanceChallengePhase (challengeId, phase, operation) {
-  const token = yield getM2Mtoken()
+async function advanceChallengePhase (challengeId, phase, operation) {
   try {
     console.log(`[Advance-Phase]: Initiate challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}`)
     // Ideally we should be using ChallengeScheduler - however it's additional work and better handled when we have actual Review API
-    const response = yield request.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-      .send({
-        phase,
-        operation
-      })
-    console.log(`[Advance-Phase]: Success challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}. With response: ${JSON.stringify(response.body)}`)
-    return response.body
+    const response = await axiosInstance.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`, {
+      phase,
+      operation
+    })
+    console.log(`[Advance-Phase]: Success challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}. With response: ${JSON.stringify(response.data)}`)
+    return response.data
   } catch (err) {
     logger.warn(`[Advance-Phase]: Success challenge ${challengeId}. ${JSON.stringify(err)}`)
   }
 }
 
 /**
- * Get legacy challenge id if the challenge id is uuid form
- * @param {String} challengeId Challenge ID
- * @returns {String} Legacy Challenge ID of the given challengeId
- */
-function * getLegacyChallengeId (challengeId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId)) {
-    const challenge = yield getChallenge(challengeId)
-    if (_.get(challenge, 'legacy.pureV5')) {
-      return null
-    }
-    const legacyId = parseInt(challenge.legacyId, 10)
-    return legacyId
-  }
-  return challengeId
-}
-
-/**
  * Get v5 challenge id (uuid) if legacy challenge id
  * @param {Integer} challengeId Challenge ID
- * @returns {String} v5 uuid Challenge ID of the given challengeId
+ * @returns {Promise<String>} v5 uuid Challenge ID of the given challengeId
  */
-function * getV5ChallengeId (challengeId) {
-  if (!(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(challengeId))) {
-    const challenge = yield getChallenge(challengeId)
+async function getV5ChallengeId (challengeId) {
+  if (!(uuidValidate(challengeId))) {
+    const challenge = await getChallenge(challengeId)
     return challenge.id
   }
   return challengeId
@@ -411,42 +376,37 @@ function getSubmissionPhaseId (challenge) {
 /**
  * Function to check user access to create a submission
  * @param authUser Authenticated user
- * @param subEntity Submission Entity
+ * @param memberId Member Id of the submitter
  * @param challengeDetails Challenge
  * @returns {Promise}
  */
-function * checkCreateAccess (authUser, subEntity, challengeDetails) {
+async function checkCreateAccess (authUser, memberId, challengeDetails) {
   let resources
 
-  const challengeId = yield getV5ChallengeId(subEntity.challengeId)
+  const challengeId = challengeDetails.id
 
   // User can only create submission for themselves
-  if (authUser.userId !== subEntity.memberId) {
+  if (authUser.userId !== memberId) {
     throw new errors.HttpStatusError(403, 'You are not allowed to submit on behalf of others')
   }
 
-  const token = yield getM2Mtoken()
-
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
+    resources = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
   } catch (ex) {
     logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
-    logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   // Get map of role id to role name
-  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+  const resourceRolesMap = await getRoleIdToRoleNameMap()
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${subEntity.challengeId}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
   if (resources && challengeDetails) {
-    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+    const currUserRoles = _.get(resources, 'data', [])
 
     // Populate the role names for the current user role ids
     _.forEach(currUserRoles, currentUserRole => {
@@ -459,19 +419,19 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
     // Check if the User is assigned as the reviewer for the contest
     const reviewers = _.filter(currUserRoles, { role: 'Reviewer' })
     if (reviewers.length !== 0) {
-      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are a reviewer`)
+      throw new errors.HttpStatusError(400, 'You cannot create a submission for a challenge while you are a reviewer')
     }
 
     // Check if the User is assigned as the iterative reviewer for the contest
     const iterativeReviewers = _.filter(currUserRoles, { role: 'Iterative Reviewer' })
     if (iterativeReviewers.length !== 0) {
-      throw new errors.HttpStatusError(400, `You cannot create a submission for a challenge while you are an iterative reviewer`)
+      throw new errors.HttpStatusError(400, 'You cannot create a submission for a challenge while you are an iterative reviewer')
     }
 
     // Check if the User is registered for the contest
     const submitters = _.filter(currUserRoles, { role: 'Submitter' })
     if (submitters.length === 0) {
-      throw new errors.HttpStatusError(403, `Register for the contest before you can submit`)
+      throw new errors.HttpStatusError(403, 'Register for the contest before you can submit')
     }
 
     const submissionPhaseId = getSubmissionPhaseId(challengeDetails)
@@ -485,9 +445,9 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
     if (currPhase[0].name === 'Final Fix' || currPhase[0].name === 'Approval') {
       // Check if the user created a submission in the Submission phase - only such users
       // will be allowed to submit during final phase
-      const userSubmission = yield fetchFromES({
+      const userSubmission = await fetchFromES({
         challengeId,
-        memberId: authUser.userId
+        memberId
       }, camelize('Submission'))
 
       // User requesting submission haven't made any submission - prevent them for creating one
@@ -498,49 +458,41 @@ function * checkCreateAccess (authUser, subEntity, challengeDetails) {
   } else {
     // We don't have enough details to validate the access
     logger.debug('No enough details to validate the Permissions')
-    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${subEntity.challengeId}`)
+    throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${challengeId}`)
   }
 }
 
-/*
+/**
  * Function to check user access to get a submission
  * @param authUser Authenticated user
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function * checkGetAccess (authUser, submission) {
+async function checkGetAccess (authUser, submission) {
   let resources
   let challengeDetails
+  let challengeId
   // Allow downloading Own submission
   if (submission.memberId === authUser.userId) {
     return true
   }
 
-  const token = yield getM2Mtoken()
-  const challengeId = yield getV5ChallengeId(submission.challengeId)
+  try {
+    challengeDetails = await getChallenge(submission.challengeId)
+    challengeId = challengeDetails.id
+  } catch (ex) {
+    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${submission.challengeId}`)
+  }
 
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
+    resources = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
   } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-    logger.error(ex)
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
-  try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-  } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-    logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${challengeId}`)
-  }
-
   // Get map of role id to role name
-  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+  const resourceRolesMap = await getRoleIdToRoleNameMap()
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
@@ -549,14 +501,14 @@ function * checkGetAccess (authUser, submission) {
 
   if (resources && challengeDetails) {
     // Fetch all roles of the User pertaining to the current challenge
-    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+    const currUserRoles = _.get(resources, 'data', [])
 
     // Populate the role names for the current user role ids
     _.forEach(currUserRoles, currentUserRole => {
       currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
     })
 
-    const subTrack = challengeDetails.body.legacy.subTrack
+    const subTrack = challengeDetails.legacy.subTrack
 
     // Check if the User is a Copilot
     const copilot = _.filter(currUserRoles, { role: 'Copilot' })
@@ -592,21 +544,21 @@ function * checkGetAccess (authUser, submission) {
 
       // User is either a Reviewer or Screener
       if (screener.length !== 0 || reviewer.length !== 0) {
-        const screeningPhaseStatus = getPhaseStatus('Screening', challengeDetails.body)
-        const reviewPhaseStatus = getPhaseStatus('Review', challengeDetails.body)
+        const screeningPhaseStatus = getPhaseStatus('Screening', challengeDetails)
+        const reviewPhaseStatus = getPhaseStatus('Review', challengeDetails)
 
         // Neither Screening Nor Review is Opened / Closed
         if (screeningPhaseStatus === 'Scheduled' && reviewPhaseStatus === 'Scheduled') {
           throw new errors.HttpStatusError(403, 'You can access the submission only when Screening / Review is open')
         }
       } else {
-        const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
+        const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails)
 
         // Appeals Response is not closed yet
         if (appealsResponseStatus !== 'Closed' && appealsResponseStatus !== 'Invalid') {
           throw new errors.HttpStatusError(403, 'You cannot access other submissions before the end of Appeals Response phase')
         } else {
-          const userSubmission = yield fetchFromES({
+          const userSubmission = await fetchFromES({
             challengeId: submission.challengeId,
             memberId: authUser.userId
           }, camelize('Submission'))
@@ -632,40 +584,32 @@ function * checkGetAccess (authUser, submission) {
   }
 }
 
-/*
+/**
  * Function to check user access to get a review
  * @param authUser Authenticated user
  * @param submission Submission Entity
  * @returns {Promise}
  */
-function * checkReviewGetAccess (authUser, submission) {
+async function checkReviewGetAccess (authUser, submission) {
   let resources
   let challengeDetails
-  const token = yield getM2Mtoken()
-  const challengeId = yield getV5ChallengeId(submission.challengeId)
-
+  let challengeId
   try {
-    resources = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
+    challengeDetails = await getChallenge(submission.challengeId)
+    challengeId = challengeDetails.id
   } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}`)
-    logger.error(ex)
-    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
-  }
-
-  try {
-    challengeDetails = yield request.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-  } catch (ex) {
-    logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-    logger.error(ex)
     return false
   }
 
+  try {
+    resources = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
+  } catch (ex) {
+    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
+  }
+
   // Get map of role id to role name
-  const resourceRolesMap = yield getRoleIdToRoleNameMap()
+  const resourceRolesMap = await getRoleIdToRoleNameMap()
 
   // Check if role id to role name mapping is available. If not user's role cannot be determined.
   if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
@@ -674,14 +618,14 @@ function * checkReviewGetAccess (authUser, submission) {
 
   if (resources && challengeDetails) {
     // Fetch all roles of the User pertaining to the current challenge
-    const currUserRoles = _.filter(resources.body, { memberHandle: authUser.handle })
+    const currUserRoles = _.get(resources, 'data', [])
 
     // Populate the role names for the current user role ids
     _.forEach(currUserRoles, currentUserRole => {
       currentUserRole.role = resourceRolesMap[currentUserRole.roleId]
     })
 
-    const subTrack = challengeDetails.body.legacy.subTrack
+    const subTrack = challengeDetails.legacy.subTrack
 
     // Check if the User is a Copilot, Manager or Observer for that contest
     const validRoles = ['Copilot', 'Manager', 'Observer']
@@ -695,7 +639,7 @@ function * checkReviewGetAccess (authUser, submission) {
       logger.info('No access check for Marathon match')
       return true
     } else {
-      const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails.body)
+      const appealsResponseStatus = getPhaseStatus('Appeals Response', challengeDetails)
 
       // Appeals Response is not closed yet
       if (appealsResponseStatus !== 'Closed') {
@@ -714,12 +658,12 @@ function * checkReviewGetAccess (authUser, submission) {
 /**
  * Function to download file from given S3 URL
  * @param{String} fileURL S3 URL of the file to be downloaded
- * @returns {Buffer} Buffer of downloaded file
+ * @returns {Promise<Buffer>} Buffer of downloaded file
  */
-function * downloadFile (fileURL) {
+async function downloadFile (fileURL) {
   const { bucket, key } = AmazonS3URI(fileURL)
   logger.info(`downloadFile(): file is on S3 ${bucket} / ${key}`)
-  const downloadedFile = yield s3.getObject({ Bucket: bucket, Key: key }).promise()
+  const downloadedFile = await s3.getObject({ Bucket: bucket, Key: key }).promise()
   return downloadedFile.Body
 }
 
@@ -739,12 +683,13 @@ function createS3ReadStream (fileURL) {
  * is duplicated and posted to bus api again, but to a different "aggregate" topic
  * Also stores the original topic in the payload
  * @param {Object} payload Data that needs to be posted to the bus api
+ * @returns {Promise<void>}
  */
-function * postToBusApi (payload) {
+async function postToBusApi (payload) {
   const busApiClient = getBusApiClient()
   const originalTopic = payload.topic
 
-  yield busApiClient.postEvent(payload)
+  await busApiClient.postEvent(payload)
 
   // Post to aggregate topic
   payload.topic = config.get('KAFKA_AGGREGATE_TOPIC')
@@ -752,7 +697,7 @@ function * postToBusApi (payload) {
   // Store the original topic
   payload.payload.originalTopic = originalTopic
 
-  yield busApiClient.postEvent(payload)
+  await busApiClient.postEvent(payload)
 }
 
 /**
@@ -792,28 +737,32 @@ function cleanseReviews (reviews = [], authUser) {
 
 /**
  * Function to get role id to role name map
- * @returns {Object|null} <Role Id, Role Name> map
+ * @returns {Promise<Object|null>} <Role Id, Role Name> map
  */
-function * getRoleIdToRoleNameMap () {
+async function getRoleIdToRoleNameMap () {
   let resourceRoles
   let resourceRolesMap = null
-  const token = yield getM2Mtoken()
-  try {
-    resourceRoles = yield request.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-  } catch (ex) {
-    logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
-    logger.error(ex)
-    resourceRoles = null
+
+  const cacheKey = 'RoleIdToRoleNameMap'
+  let records = getFromInternalCache(cacheKey)
+  if (_.isEmpty(records)) {
+    try {
+      resourceRoles = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
+    } catch (ex) {
+      logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
+      resourceRoles = null
+    }
+    if (resourceRoles) {
+      resourceRolesMap = {}
+      _.forEach(resourceRoles.data, resourceRole => {
+        resourceRolesMap[resourceRole.id] = resourceRole.name
+      })
+    }
+    records = resourceRolesMap
+    setToInternalCache(cacheKey, records)
   }
-  if (resourceRoles) {
-    resourceRolesMap = {}
-    _.forEach(resourceRoles.body, resourceRole => {
-      resourceRolesMap[resourceRole.id] = resourceRole.name
-    })
-  }
-  return resourceRolesMap
+
+  return records
 }
 
 /**
@@ -866,20 +815,17 @@ function adjustSubmissionChallengeId (submission) {
 /**
  * Get all latest challenges
  * @param {Number} page page index
- * @returns {Array} an array of challenge
+ * @returns {Promise<Array>} an array of challenge
  */
-function * getLatestChallenges (page) {
+async function getLatestChallenges (page) {
   page = page || 1
-  const token = yield getM2Mtoken()
   const url = `${config.CHALLENGEAPI_V5_URL}?createdDateStart=${config.FETCH_CREATED_DATE_START}&page=${page}&perPage=${config.FETCH_PAGE_SIZE}&isLightweight=true`
   try {
-    const response = yield request.get(url)
-      .set('Authorization', `Bearer ${token}`)
-      .set('Content-Type', 'application/json')
-    const challenges = _.map(_.filter(_.get(response, 'body'), 'legacyId'), c => _.pick(c, 'id', 'legacyId'))
+    const response = await axiosInstance.get(url)
+    const challenges = _.map(_.filter(_.get(response, 'data'), 'legacyId'), c => _.pick(c, 'id', 'legacyId'))
     logger.debug(`Fetched ${challenges.length} challenges in this iteration. More may follow...`)
     if (_.get(response, 'headers.x-total-pages') > page) {
-      const leftChallenges = yield getLatestChallenges(page + 1)
+      const leftChallenges = await getLatestChallenges(page + 1)
       challenges.push(...leftChallenges)
     }
     return challenges
@@ -895,13 +841,25 @@ function * getLatestChallenges (page) {
  * @returns {String} Legacy scorecard ID of the given challengeId
  */
 function getLegacyScoreCardId (scoreCardId) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(scoreCardId)) {
+  if (uuidValidate(scoreCardId)) {
     logger.debug(`${scoreCardId} detected as uuid. Converting to legacy scorecard id`)
 
     return config.get('V5TOLEGACYSCORECARDMAPPING')[scoreCardId]
   }
 
   return scoreCardId
+}
+
+function getFromInternalCache (key) {
+  return internalCache.get(key)
+}
+
+function setToInternalCache (key, value) {
+  internalCache.set(key, value)
+}
+
+function flushInternalCache () {
+  internalCache.flushAll()
 }
 
 module.exports = {
@@ -911,7 +869,6 @@ module.exports = {
   fetchFromES,
   camelize,
   setPaginationHeaders,
-  getLegacyChallengeId,
   getSubmissionPhaseId,
   checkCreateAccess,
   checkGetAccess,
@@ -926,5 +883,8 @@ module.exports = {
   adjustSubmissionChallengeId,
   getLatestChallenges,
   getLegacyScoreCardId,
-  advanceChallengePhase
+  advanceChallengePhase,
+  getFromInternalCache,
+  setToInternalCache,
+  flushInternalCache
 }

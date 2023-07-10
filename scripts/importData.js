@@ -2,7 +2,6 @@
  * Import static data
  */
 
-const co = require('co')
 const logger = require('../src/common/logger')
 const dbhelper = require('../src/common/dbhelper')
 
@@ -11,7 +10,7 @@ const submissions = require('./data/Submissions.json')
 const reviews = require('./data/Reviews.json')
 const reviewSummations = require('./data/ReviewSummations.json')
 
-co(function * loadData () {
+async function loadData () {
   logger.info('Data import started!')
   const promises = []
   reviewTypes.forEach((reviewType) => {
@@ -46,10 +45,12 @@ co(function * loadData () {
     promises.push(dbhelper.insertRecord(record))
   })
 
-  yield promises
+  await Promise.all(promises)
   logger.info('Data import succeeded!')
   process.exit(0)
-}).catch((err) => {
+}
+
+loadData().catch((err) => {
   logger.logFullError(err)
   process.exit(1)
 })

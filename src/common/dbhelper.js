@@ -39,9 +39,9 @@ function getDbClient () {
 /**
  * Creates table in DynamoDB
  * @param     {object} model Table structure in JSON format
- * @return    {promise}
+ * @return    {Promise}
  */
-function * createTable (model) {
+function createTable (model) {
   const db = getDb()
   return new Promise((resolve, reject) => {
     db.createTable(model, (err, data) => {
@@ -56,9 +56,9 @@ function * createTable (model) {
 /**
  * Deletes table in DynamoDB
  * @param     {String} tableName Name of the table to be deleted
- * @return    {promise}
+ * @return    {Promise}
  */
-function * deleteTable (tableName) {
+function deleteTable (tableName) {
   const db = getDb()
   const item = {
     TableName: tableName
@@ -76,9 +76,9 @@ function * deleteTable (tableName) {
 /**
  * Insert record in DynamoDB
  * @param     {object} record Data to be inserted
- * @return    {promise}
+ * @return    {Promise}
  */
-function * insertRecord (record) {
+function insertRecord (record) {
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.put(record, (err, data) => {
@@ -93,9 +93,9 @@ function * insertRecord (record) {
 /**
  * Get single record from DynamoDB based on the filter
  * @param     {object} filter Filter to be applied on the database
- * @return    {promise}
+ * @return    {Promise}
  */
-function * getRecord (filter) {
+function getRecord (filter) {
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.get(filter, (err, data) => {
@@ -110,9 +110,9 @@ function * getRecord (filter) {
 /**
  * Update record in DynamoDB
  * @param     {object} record Data to be updated
- * @return    {promise}
+ * @return    {Promise}
  */
-function * updateRecord (record) {
+function updateRecord (record) {
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.update(record, (err, data) => {
@@ -127,9 +127,9 @@ function * updateRecord (record) {
 /**
  * Delete record in DynamoDB
  * @param     {object} filter Filter to be used for deleting records
- * @return    {promise}
+ * @return    {Promise}
  */
-function * deleteRecord (filter) {
+function deleteRecord (filter) {
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.delete(filter, (err, data) => {
@@ -144,9 +144,9 @@ function * deleteRecord (filter) {
 /**
  * Get multiple records from DynamoDB based on the parameters
  * @param     {object} params Parameters to be used for Scanning
- * @return    {promise}
+ * @return    {Promise}
  */
-function * scanRecords (params) {
+function scanRecords (params) {
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.scan(params, (err, data) => {
@@ -161,9 +161,9 @@ function * scanRecords (params) {
 /**
  * Get records from DynamoDB based on the secondary index filter
  * @param     {object} filter Secondary index filter to be applied on the database
- * @return    {promise}
+ * @return    {Promise}
  */
-function * queryRecords (filter) {
+function queryRecords (filter) {
   const dbClient = getDbClient()
   return new Promise((resolve, reject) => {
     dbClient.query(filter, (err, data) => {

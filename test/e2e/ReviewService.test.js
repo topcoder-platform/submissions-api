@@ -127,7 +127,7 @@ describe('Review Service tests', () => {
       chai.request(app)
         .post(`${config.API_VERSION}/reviews`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.extend({ typeId: reviewTypeId, submissionId: submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .send(_.extend({ typeId: reviewTypeId, submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReview.Item))
@@ -147,7 +147,7 @@ describe('Review Service tests', () => {
       chai.request(app)
         .post(`${config.API_VERSION}/reviews`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.extend({ typeId: reviewTypeId, submissionId: submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'status', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .send(_.extend({ typeId: reviewTypeId, submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'status', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReview.Item))
@@ -312,7 +312,7 @@ describe('Review Service tests', () => {
       chai.request(app)
         .put(`${config.API_VERSION}/reviews/${reviewId}`)
         .set('Authorization', `Bearer ${config.ADMIN_TOKEN}`)
-        .send(_.extend({ typeId: reviewTypeId, submissionId: submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
+        .send(_.extend({ typeId: reviewTypeId, submissionId }, _.omit(testReview.Item, ['id', 'typeId', 'submissionId', 'created', 'updated', 'createdBy', 'updatedBy'])))
         .end((err, res) => {
           res.should.have.status(200)
           res.body.should.have.all.keys(Object.keys(testReview.Item))
