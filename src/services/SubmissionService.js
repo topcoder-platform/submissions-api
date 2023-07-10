@@ -206,6 +206,14 @@ async function listSubmissions (authUser, query) {
     // Submission api now only works with v5 challenge id
     // If it is a legacy challenge id, get the associated v5 challenge id
     query.challengeId = await helper.getV5ChallengeId(query.challengeId)
+    if (_.isUndefined(query.challengeId)) {
+      return {
+        total: 0,
+        pageSize: query.perPage || config.get('PAGE_SIZE'),
+        page: query.page || 1,
+        rows: []
+      }
+    }
   }
 
   // TODO - support v5 for review scorecardid
@@ -375,7 +383,7 @@ async function createSubmission (authUser, files, entity) {
   }
 
   logger.info('Prepared submission item to insert into Dynamodb. Inserting...')
-  logger.info(JSON.stringify(record, null, 2))
+  logger.info(JSON.stringify(record))
   await dbhelper.insertRecord(record)
 
   // After save to db, adjust challengeId to busApi and response

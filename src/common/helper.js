@@ -337,12 +337,16 @@ async function advanceChallengePhase (challengeId, phase, operation) {
 /**
  * Get v5 challenge id (uuid) if legacy challenge id
  * @param {Integer} challengeId Challenge ID
- * @returns {Promise<String>} v5 uuid Challenge ID of the given challengeId
+ * @returns {Promise<String|undefined>} v5 uuid Challenge ID of the given challengeId
  */
 async function getV5ChallengeId (challengeId) {
   if (!(uuidValidate(challengeId))) {
     const challenge = await getChallenge(challengeId)
-    return challenge.id
+    if (challenge) {
+      return challenge.id
+    } else {
+      return undefined
+    }
   }
   return challengeId
 }
