@@ -355,9 +355,9 @@ async function createSubmission (authUser, files, entity) {
   let url = entity.url
   if (files && files.submission) {
     const pFileType = entity.fileType || fileType // File type parameter
-    const uFileType = (await FileType.fromBuffer(files.submission.data)).ext // File type of uploaded file
-    if (pFileType !== uFileType) {
-      logger.info('Actual file type of the file does not match the file type attribute in the request')
+    const uFileType = await FileType.fromBuffer(files.submission.data) // File type of uploaded file
+    if (_.isNil(uFileType) || pFileType !== _.get(uFileType, 'ext')) {
+      logger.info(`Actual file type of the file does not match the file type attribute in the request. Actual: ${_.get(uFileType, 'ext')}`)
       throw new errors.HttpStatusError(400, 'fileType parameter doesn\'t match the type of the uploaded file')
     }
     const file = await _uploadToS3(files.submission, `${submissionId}.${uFileType}`)
