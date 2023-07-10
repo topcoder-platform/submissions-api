@@ -17,11 +17,11 @@ axiosInstance.interceptors.request.use(async (config) => {
 
 axiosInstance.interceptors.response.use((response) => response, (error) => {
   if (error.response) {
-    logger.error(error.response.data)
-    logger.error(error.response.status)
-    logger.error(error.response.headers)
+    logger.error(JSON.stringify(error.response.data))
+    logger.error(JSON.stringify(error.response.status))
+    logger.error(JSON.stringify(error.response.headers))
   } else if (error.request) {
-    logger.error(error.request)
+    logger.error(JSON.stringify(error.request))
   } else {
     logger.error('Error', error.message)
   }
