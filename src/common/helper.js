@@ -9,13 +9,11 @@ const AmazonS3URI = require('amazon-s3-uri')
 const config = require('config')
 const elasticsearch = require('elasticsearch')
 const logger = require('./logger')
-const axios = require('axios')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
 const { validate: uuidValidate } = require('uuid')
 const NodeCache = require('node-cache')
-const m2mAuth = require('tc-core-library-js').auth.m2m
-const m2m = m2mAuth(_.pick(config, ['AUTH0_URL', 'AUTH0_AUDIENCE', 'TOKEN_CACHE_TIME', 'AUTH0_PROXY_SERVER_URL']))
+const { axiosInstance } = require('./axiosInstance')
 
 AWS.config.region = config.get('aws.AWS_REGION')
 const s3 = new AWS.S3()
@@ -295,14 +293,6 @@ function setPaginationHeaders (req, res, data) {
 }
 
 /**
- * Function to get M2M token
- * @returns {Promise<string>}
- */
-async function getM2Mtoken () {
-  return m2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET)
-}
-
-/**
  * Function to get challenge by id
  * @param {String} challengeId Challenge id
  * @returns {Promise}
@@ -311,51 +301,31 @@ async function getChallenge (challengeId) {
   if (uuidValidate(challengeId)) {
     logger.debug(`${challengeId} detected as uuid. Fetching legacy challenge id`)
     try {
-      const token = await getM2Mtoken()
-      const response = await axios.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      const response = await axiosInstance.get(`${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
       return response.data
     } catch (err) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}/${challengeId}`)
-      logger.error(err)
-      throw err
+      throw errors.HttpStatusError(err.status || 500, `Cannot get challenge with id=${challengeId}`)
     }
   } else {
     logger.debug(`${challengeId} detected as legacy challenge id. Fetching legacy challenge id`)
     try {
-      const token = await getM2Mtoken()
-      const response = await axios.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      const response = await axiosInstance.get(`${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
       return response.data[0]
     } catch (err) {
       logger.error(`Error while accessing ${config.CHALLENGEAPI_V5_URL}?legacyId=${challengeId}`)
-      logger.error(err)
-      throw err
+      throw errors.HttpStatusError(err.status || 500, `Cannot get challenge with id=${challengeId}`)
     }
   }
 }
 
 async function advanceChallengePhase (challengeId, phase, operation) {
-  const token = await getM2Mtoken()
   try {
     console.log(`[Advance-Phase]: Initiate challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}`)
     // Ideally we should be using ChallengeScheduler - however it's additional work and better handled when we have actual Review API
-    const response = await axios.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`, {
+    const response = await axiosInstance.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`, {
       phase,
       operation
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
     })
     console.log(`[Advance-Phase]: Success challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}. With response: ${JSON.stringify(response.data)}`)
     return response.data
@@ -420,18 +390,10 @@ async function checkCreateAccess (authUser, memberId, challengeDetails) {
     throw new errors.HttpStatusError(403, 'You are not allowed to submit on behalf of others')
   }
 
-  const token = await getM2Mtoken()
-
   try {
-    resources = await axios.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    resources = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
   } catch (ex) {
     logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
-    logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
@@ -522,18 +484,10 @@ async function checkGetAccess (authUser, submission) {
     throw new errors.HttpStatusError(503, `Could not fetch details of challenge with id ${submission.challengeId}`)
   }
 
-  const token = await getM2Mtoken()
-
   try {
-    resources = await axios.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    resources = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
   } catch (ex) {
     logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
-    logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
@@ -640,7 +594,6 @@ async function checkReviewGetAccess (authUser, submission) {
   let resources
   let challengeDetails
   let challengeId
-  const token = await getM2Mtoken()
   try {
     challengeDetails = await getChallenge(submission.challengeId)
     challengeId = challengeDetails.id
@@ -649,15 +602,9 @@ async function checkReviewGetAccess (authUser, submission) {
   }
 
   try {
-    resources = await axios.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    resources = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
   } catch (ex) {
     logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}&memberId=${authUser.userId}`)
-    logger.error(ex)
     throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
   }
 
@@ -799,17 +746,10 @@ async function getRoleIdToRoleNameMap () {
   const cacheKey = 'RoleIdToRoleNameMap'
   let records = getFromInternalCache(cacheKey)
   if (_.isEmpty(records)) {
-    const token = await getM2Mtoken()
     try {
-      resourceRoles = await axios.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+      resourceRoles = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
     } catch (ex) {
       logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/resource-roles`)
-      logger.error(ex)
       resourceRoles = null
     }
     if (resourceRoles) {
@@ -879,15 +819,9 @@ function adjustSubmissionChallengeId (submission) {
  */
 async function getLatestChallenges (page) {
   page = page || 1
-  const token = await getM2Mtoken()
   const url = `${config.CHALLENGEAPI_V5_URL}?createdDateStart=${config.FETCH_CREATED_DATE_START}&page=${page}&perPage=${config.FETCH_PAGE_SIZE}&isLightweight=true`
   try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    const response = await axiosInstance.get(url)
     const challenges = _.map(_.filter(_.get(response, 'data'), 'legacyId'), c => _.pick(c, 'id', 'legacyId'))
     logger.debug(`Fetched ${challenges.length} challenges in this iteration. More may follow...`)
     if (_.get(response, 'headers.x-total-pages') > page) {
