@@ -14,7 +14,7 @@ const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
 const { submissionIndex } = require('../../constants')
 const s3 = new AWS.S3()
-const logger = require('winston')
+const logger = require('../common/logger')
 
 const table = 'Submission'
 
@@ -218,7 +218,7 @@ async function listSubmissions (authUser, query) {
   }
 
   const data = await helper.fetchFromES(query, helper.camelize(table))
-  logger.info(`Data returned from ES: ${JSON.stringify(data, null, 4)}`)
+  logger.info(`Data returned from ES: ${JSON.stringify(data)}`)
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
   data.rows = _.map(data.rows, (submission) => {
