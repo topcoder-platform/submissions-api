@@ -542,7 +542,8 @@ async function _updateSubmission (authUser, submissionId, entity) {
       submissionPhaseId: updatedSub.submissionPhaseId,
       type: updatedSub.type,
       submittedDate: updatedSub.submittedDate,
-      legacyChallengeId: updatedSub.legacyChallengeId
+      legacyChallengeId: updatedSub.legacyChallengeId,
+      legacySubmissionId: updatedSub.legacySubmissionId
     }, entity)
   }
 
