@@ -120,14 +120,12 @@ async function _populateSubmissionReviews (submissionRecord, submissionId) {
   if (!submissionRecord.review || submissionRecord.review.length < 1) {
     logger.info(`submission ${submissionId} from ES has no reviews. Double checking the db`)
     const review = await _getReviewsForSubmission(submissionId)
-    logger.info(`${review}`)
     submissionRecord.review = review.Items || []
   }
 
   if (!submissionRecord.reviewSummation || submissionRecord.reviewSummation.length < 1) {
     logger.info(`submission ${submissionId} from ES has no reviewSummations. Double checking the db`)
     const reviewSummation = await _getReviewSummationsForSubmission(submissionId)
-    logger.info(`${reviewSummation}`)
     submissionRecord.reviewSummation = reviewSummation.Items || []
   }
 }
@@ -226,7 +224,6 @@ async function listSubmissions (authUser, query) {
   }
 
   const data = await helper.fetchFromES(query, helper.camelize(table))
-  logger.info(`Data returned from ES: ${JSON.stringify(data)}`)
   logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
 
   data.rows = _.map(data.rows, (submission) => {
@@ -346,7 +343,6 @@ async function createSubmission (authUser, files, entity) {
 
   logger.info('Check User access before creating the submission')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
-    logger.info(`Calling checkCreateAccess for ${JSON.stringify(authUser)}`)
     await helper.checkCreateAccess(authUser, item.memberId, challenge)
 
     if (entity.submittedDate) {

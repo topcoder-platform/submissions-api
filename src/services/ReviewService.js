@@ -51,7 +51,6 @@ async function getReview (authUser, reviewId) {
   if (response.total === 0) {
     logger.info(`Couldn't find review ${reviewId} in ES. Checking db`)
     review = await _getReview(reviewId)
-    logger.debug(`Review: ${review}`)
 
     if (!review) {
       throw new errors.HttpStatusError(
