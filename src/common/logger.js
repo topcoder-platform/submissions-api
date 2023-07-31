@@ -13,7 +13,7 @@ const logger = createLogger({
   level: config.LOG_LEVEL,
   transports: [
     new transports.Console({
-      format: format.combine(format.colorize(), format.simple())
+      format: format.printf((info) => `${info.level}: ${info.message}`)
     })
   ]
 })
@@ -92,7 +92,7 @@ logger.decorateWithLogging = (service) => {
         logger.debug(`ENTER ${name}`)
         logger.debug('input arguments')
         const args = Array.prototype.slice.call(arguments);  // eslint-disable-line
-        logger.debug(JSON.stringify(_sanitizeObject(_combineObject(params, args))))
+        logger.debug(util.inspect(_sanitizeObject(_combineObject(params, args)), { breakLength: Infinity }))
       }
       try {
         const result = await method.apply(this, arguments); // eslint-disable-line
@@ -100,7 +100,7 @@ logger.decorateWithLogging = (service) => {
           logger.debug(`EXIT ${name}`)
           logger.debug('output arguments')
           if (result !== null && result !== undefined) {
-            logger.debug(JSON.stringify(_sanitizeObject(result)))
+            logger.debug(util.inspect(result, { breakLength: Infinity, maxArrayLength: 5 }))
           }
         }
         return result
