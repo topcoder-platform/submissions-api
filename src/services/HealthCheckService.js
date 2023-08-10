@@ -13,7 +13,7 @@ async function check () {
   const esClient = helper.getEsClient()
 
   try {
-    await esClient.ping({
+    await esClient.ping({}, {
       requestTimeout: 10000
     })
   } catch (e) {
