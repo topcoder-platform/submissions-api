@@ -685,7 +685,12 @@ async function countSubmissions (challengeId) {
     size: 0,
     body: {
       query: {
-        term: { challengeId }
+        bool: {
+          must: [
+            { term: { resource: 'submission' } },
+            { term: { challengeId } }
+          ]
+        }
       },
       aggs: {
         group_by_type: {
@@ -705,7 +710,7 @@ async function countSubmissions (challengeId) {
     logger.error(`Get Submission Count Error ${JSON.stringify(err)}`)
     throw err
   }
-  const response = _.mapValues(_.keyBy(_.get(result, 'aggregations.group_by_type.buckets'), 'key'), (v) => v.doc_count)
+  const response = _.mapValues(_.keyBy(_.get(result, 'body.aggregations.group_by_type.buckets'), 'key'), (v) => v.doc_count)
   return response
 }
 

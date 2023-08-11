@@ -7,7 +7,7 @@ const _ = require('lodash')
 const AWS = require('aws-sdk')
 const AmazonS3URI = require('amazon-s3-uri')
 const config = require('config')
-const elasticsearch = require('elasticsearch')
+const elasticsearch = require('@elastic/elasticsearch')
 const logger = require('./logger')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
@@ -80,25 +80,8 @@ function getBusApiClient () {
  * @return {Object} Elastic Host Client Instance
  */
 function getEsClient () {
-  const esHost = config.get('esConfig.HOST')
   if (!esClients.client) {
-    // AWS ES configuration is different from other providers
-    if (/.*amazonaws.*/.test(esHost)) {
-      esClients.client = elasticsearch.Client({
-        apiVersion: config.get('esConfig.API_VERSION'),
-        hosts: esHost,
-        connectionClass: require('http-aws-es'), // eslint-disable-line global-require
-        amazonES: {
-          region: config.get('aws.AWS_REGION'),
-          credentials: new AWS.EnvironmentCredentials('AWS')
-        }
-      })
-    } else {
-      esClients.client = new elasticsearch.Client({
-        apiVersion: config.get('esConfig.API_VERSION'),
-        hosts: esHost
-      })
-    }
+    esClients.client = new elasticsearch.Client({ node: config.get('esConfig.HOST') })
   }
   return esClients.client
 }
@@ -227,10 +210,10 @@ async function fetchFromES (query, resource) {
   logger.debug(`The elasticsearch query is ${JSON.stringify(filter)}`)
   const docs = await esClient.search(filter)
   // Extract data from hits
-  const rows = _.map(docs.hits.hits, single => single._source)
+  const rows = _.map(docs.body.hits.hits, single => single._source)
 
   const response = {
-    total: docs.hits.total,
+    total: docs.body.hits.total,
     pageSize: filter.size,
     page: query.page || 1,
     rows
