@@ -52,7 +52,7 @@ function autoWrapExpress (obj) {
     return obj
   }
   _.each(obj, (value, key) => {
-    obj[key] = autoWrapExpress(value); //eslint-disable-line
+    obj[key] = autoWrapExpress(value)
   })
   return obj
 }
@@ -687,39 +687,31 @@ async function postToBusApi (payload) {
   await busApiClient.postEvent(payload)
 }
 
+function canSeePrivateReviews (authUser) {
+  return authUser.isMachine || _.some(['administrator', 'copilot'], role => _.includes(authUser.roles, role))
+}
+
 /**
  * Function to remove metadata details from reviews for members who shouldn't see them
  * @param  {Array} reviews The reviews to remove metadata from
  * @param  {Object} authUser The authenticated user details
  */
-function cleanseReviews (reviews = [], authUser) {
-  // Not a machine user
-  if (!authUser.scopes) {
-    logger.info('Not a machine user. Filtering reviews...')
-    const admin = _.filter(authUser.roles, role => role.toLowerCase() === 'Administrator'.toLowerCase())
-    const copilot = _.filter(authUser.roles, role => role.toLowerCase() === 'Copilot'.toLowerCase())
+function cleanseReviews (reviews = []) {
+  const cleansedReviews = []
 
-    // User is neither admin nor copilot
-    if (admin.length === 0 && copilot.length === 0) {
-      const cleansedReviews = []
-
-      _.forEach(reviews, (review) => {
-        if (review && review.metadata && review.metadata.private) {
-          _.unset(review.metadata, 'private')
-        } else {
-          // For backward compatibility, we remove metadata object entirely
-          // from reviews where metadata does not have an explicit
-          // "private" attribute
-          _.unset(review, 'metadata')
-        }
-        cleansedReviews.push(review)
-      })
-
-      return cleansedReviews.filter(r => r != null)
+  _.forEach(reviews, (review) => {
+    if (review && review.metadata && review.metadata.private) {
+      _.unset(review.metadata, 'private')
+    } else {
+      // For backward compatibility, we remove metadata object entirely
+      // from reviews where metadata does not have an explicit
+      // "private" attribute
+      _.unset(review, 'metadata')
     }
-  }
+    cleansedReviews.push(review)
+  })
 
-  return reviews.filter(r => r != null)
+  return cleansedReviews.filter(r => r != null)
 }
 
 /**
@@ -863,6 +855,7 @@ module.exports = {
   createS3ReadStream,
   downloadFile,
   postToBusApi,
+  canSeePrivateReviews,
   cleanseReviews,
   getRoleIdToRoleNameMap,
   getV5ChallengeId,

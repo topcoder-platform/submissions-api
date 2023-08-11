@@ -14,7 +14,7 @@ const httpStatus = require('http-status')
  * @param  {Object}     res       the express response instance
  * @param  {Function}   next      the next middleware in the chain
  */
-function middleware (err, req, res, next) { // eslint-disable-line no-unused-vars
+function middleware (err, req, res, next) {
   if (err.isJoi) {
     res.status(httpStatus.BAD_REQUEST).json({
       message: err.details[0].message

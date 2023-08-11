@@ -25,7 +25,7 @@ function buildServices (dir) {
       if (stats.isDirectory()) {
         buildServices(curPath)
       } else if (path.extname(file) === '.js') {
-        logger.buildService(require(curPath)); // eslint-disable-line
+        logger.buildService(require(curPath))
       }
     })
   })

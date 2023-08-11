@@ -38,31 +38,6 @@ logger.logFullError = (err, signature) => {
 }
 
 /**
- * Remove invalid properties from the object and hide long arrays
- * @param {Object} obj the object
- * @returns {Object} the new object with removed properties
- * @private
- */
-function _sanitizeObject (obj) {
-  try {
-    return JSON.parse(JSON.stringify(obj, (name, value) => {
-      // Array of field names that should not be logged
-      // add field if necessary (password, tokens etc)
-      const removeFields = []
-      if (_.contains(removeFields, name)) {
-        return '<removed>'
-      }
-      if (_.isArray(value) && value.length > 30) {
-        return `Array(${value.length})`
-      }
-      return value
-    }))
-  } catch (e) {
-    return obj
-  }
-}
-
-/**
  * Convert array with arguments to object
  * @param {Array} params the name of parameters
  * @param {Array} arr the array with values
@@ -91,11 +66,11 @@ logger.decorateWithLogging = (service) => {
       if (shouldLog) {
         logger.debug(`ENTER ${name}`)
         logger.debug('input arguments')
-        const args = Array.prototype.slice.call(arguments);  // eslint-disable-line
-        logger.debug(util.inspect(_sanitizeObject(_combineObject(params, args)), { breakLength: Infinity }))
+        const args = Array.prototype.slice.call(arguments)
+        logger.debug(util.inspect(_combineObject(params, args), { breakLength: Infinity, maxArrayLength: 5 }))
       }
       try {
-        const result = await method.apply(this, arguments); // eslint-disable-line
+        const result = await method.apply(this, arguments)
         if (shouldLog) {
           logger.debug(`EXIT ${name}`)
           logger.debug('output arguments')
@@ -125,7 +100,7 @@ logger.decorateWithValidators = function (service) {
     }
     const params = getParams(method)
     service[name] = async function () {
-      const args = Array.prototype.slice.call(arguments); // eslint-disable-line
+      const args = Array.prototype.slice.call(arguments)
       const value = _combineObject(params, args)
       const normalized = Joi.attempt(value, method.schema)
 
@@ -150,6 +125,5 @@ logger.buildService = function (service) {
   logger.decorateWithValidators(service)
   logger.decorateWithLogging(service)
 }
-/* eslint-enable no-param-reassign */
 
 module.exports = logger

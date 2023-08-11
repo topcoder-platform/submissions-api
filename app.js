@@ -65,7 +65,6 @@ function checkIfExists (source, term) {
   return false
 }
 
-/* eslint-disable no-param-reassign */
 _.each(routes, (verbs, url) => {
   _.each(verbs, (def, verb) => {
     let actions = [
@@ -74,7 +73,7 @@ _.each(routes, (verbs, url) => {
         next()
       }
     ]
-    const method = require(`./src/controllers/${def.controller}`)[ def.method ]; // eslint-disable-line
+    const method = require(`./src/controllers/${def.controller}`)[def.method]
 
     if (!method) {
       throw new Error(`${def.method} is undefined, for controller ${def.controller}`)
