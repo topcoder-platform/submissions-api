@@ -169,7 +169,9 @@ async function getSubmission (authUser, submissionId) {
     await _populateSubmissionReviews(submissionRecord, submissionId)
   }
 
-  submissionRecord.review = helper.cleanseReviews(submissionRecord.review, authUser)
+  if (!helper.canSeePrivateReviews(authUser)) {
+    submissionRecord.review = helper.cleanseReviews(submissionRecord.review)
+  }
 
   // Return the retrieved submission
   logger.info(`getSubmission: returning data for submissionId: ${submissionId}`)
@@ -224,11 +226,11 @@ async function listSubmissions (authUser, query) {
   }
 
   const data = await helper.fetchFromES(query, helper.camelize(table))
-  logger.info(`listSubmissions: returning ${data.length} submissions for query: ${JSON.stringify(query)}`)
+  logger.info(`listSubmissions: returning ${data.rows.length} submissions for query: ${JSON.stringify(query)}`)
 
   data.rows = _.map(data.rows, (submission) => {
-    if (submission.review) {
-      submission.review = helper.cleanseReviews(submission.review, authUser)
+    if (submission.review && !helper.canSeePrivateReviews(authUser)) {
+      submission.review = helper.cleanseReviews(submission.review)
     }
     helper.adjustSubmissionChallengeId(submission)
     return submission
