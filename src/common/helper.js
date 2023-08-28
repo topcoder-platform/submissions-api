@@ -331,8 +331,6 @@ async function advanceChallengePhase (challengeId, phase, operation, numAttempts
         }, 5000)
       })
     }
-
-    throw err
   }
 }
 
