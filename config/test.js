@@ -13,7 +13,8 @@ module.exports = {
     AWS_REGION: process.env.AWS_REGION || 'us-east-1', // AWS Region to be used by the application
     AWS_READ_UNITS: process.env.AWS_READ_UNITS || 5,
     AWS_WRITE_UNITS: process.env.AWS_WRITE_UNITS || 5,
-    S3_BUCKET: process.env.S3_BUCKET_TEST || 'tc-testing-submissions' // S3 Bucket to which submissions need to be uploaded
+    DMZ_BUCKET: process.env.AWS_DMZ_BUCKET_TEST || 'tc-testing-submissions', // S3 Bucket to which submissions need to be uploaded
+    QUARANTINE_BUCKET: process.env.AWS_QUARANTINE_BUCKET_TEST
   },
   BUSAPI_EVENTS_URL: 'https://api.topcoder-dev.com/v5/bus/events',
   BUSAPI_URL: 'https://api.topcoder-dev.com/v5',

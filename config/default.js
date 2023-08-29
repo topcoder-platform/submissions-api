@@ -15,8 +15,7 @@ module.exports = {
     AWS_REGION: process.env.AWS_REGION || 'us-east-1', // AWS Region to be used by the application
     AWS_READ_UNITS: process.env.AWS_READ_UNITS || 5,
     AWS_WRITE_UNITS: process.env.AWS_WRITE_UNITS || 5,
-    S3_BUCKET: process.env.S3_BUCKET || 'tc-testing-submissions', // S3 Bucket to which submissions need to be uploaded
-    DMZ_BUCKET: process.env.AWS_DMZ_BUCKET,
+    DMZ_BUCKET: process.env.AWS_DMZ_BUCKET || 'tc-testing-submissions', // S3 Bucket to which submissions need to be uploaded
     QUARANTINE_BUCKET: process.env.AWS_QUARANTINE_BUCKET,
     ARTIFACT_BUCKET: process.env.ARTIFACT_BUCKET || 'tc-testing-submissions' // S3 bucket to which artifacts need to be uploaded
   },
