@@ -27,7 +27,7 @@ const table = 'Submission'
 function _uploadToS3 (file, name) {
   return new Promise((resolve, reject) => {
     const params = {
-      Bucket: config.aws.S3_BUCKET,
+      Bucket: config.aws.DMZ_BUCKET,
       Key: name,
       Body: file.data,
       ContentType: file.mimetype,
@@ -192,6 +192,7 @@ getSubmission.schema = joi.object({
  */
 async function downloadSubmission (authUser, submissionId) {
   const record = await getSubmission(authUser, submissionId)
+  helper.validateCleanBucket(record.url)
   return { submission: record }
 }
 

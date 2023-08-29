@@ -72,7 +72,7 @@ prepare(function (done) {
       callback(null, {
         Location: `https://test.s3.com/${params.Key}`,
         Key: params.Key,
-        Bucket: config.aws.S3_BUCKET
+        Bucket: config.aws.DMZ_BUCKET
       })
     }
   })
