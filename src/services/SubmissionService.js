@@ -192,6 +192,7 @@ getSubmission.schema = joi.object({
  */
 async function downloadSubmission (authUser, submissionId) {
   const record = await getSubmission(authUser, submissionId)
+  helper.validateCleanBucket(record.url)
   return { submission: record }
 }
 
