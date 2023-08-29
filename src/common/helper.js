@@ -670,7 +670,7 @@ function createS3ReadStream (fileURL) {
  * @param {String} fileURL S3 URL of the file to be downloaded
  * @returns {undefined}
  */
-async function validateCleanBucket (fileURL) {
+function validateCleanBucket (fileURL) {
   const { bucket } = AmazonS3URI(fileURL)
   if (bucket === config.get('aws.DMZ_BUCKET')) {
     throw new errors.HttpStatusError(403, 'The submission is still in AV scan stage.')

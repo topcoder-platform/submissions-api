@@ -196,6 +196,11 @@ async function downloadSubmission (authUser, submissionId) {
   return { submission: record }
 }
 
+downloadSubmission.schema = joi.object({
+  authUser: joi.object().required(),
+  submissionId: joi.string().uuid().required()
+}).required()
+
 /**
  * Function to list submissions from Elastic Search
  * @param {Object} authUser Authenticated User
