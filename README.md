@@ -71,7 +71,7 @@ e.g.
 
 ```
 export AWS_REGION="<AWS Region>"
-export S3_BUCKET="<S3 Bucket Name>"
+export DMZ_BUCKET="<S3 Bucket Name>"
 export ARTIFACT_BUCKET="<Artifact S3 Bucket Name>"
 export ES_HOST="<ES Endpoint>"
 export AUTH0_URL="<Auth0 URL>"
@@ -135,7 +135,7 @@ npm run start
      AWS_ACCESS_KEY_ID=
      AWS_SECRET_ACCESS_KEY=
      AWS_REGION=
-     S3_BUCKET=
+     DMZ_BUCKET=
      ARTIFACT_BUCKET=
 
      # Auth0 config

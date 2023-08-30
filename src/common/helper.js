@@ -666,6 +666,21 @@ function createS3ReadStream (fileURL) {
 }
 
 /**
+ * Function to validate if submission is in clean bucket
+ * @param {String} fileURL S3 URL of the file to be downloaded
+ * @returns {undefined}
+ */
+function validateCleanBucket (fileURL) {
+  const { bucket } = AmazonS3URI(fileURL)
+  if (bucket === config.get('aws.DMZ_BUCKET')) {
+    throw new errors.HttpStatusError(403, 'The submission is still in AV scan stage.')
+  }
+  if (bucket === config.get('aws.QUARANTINE_BUCKET')) {
+    throw new errors.HttpStatusError(403, 'The submission is not allowed to be downloaded.')
+  }
+}
+
+/**
  * Wrapper function to post to bus api. Ensures that every event posted to bus api
  * is duplicated and posted to bus api again, but to a different "aggregate" topic
  * Also stores the original topic in the payload
@@ -854,6 +869,7 @@ module.exports = {
   checkReviewGetAccess,
   createS3ReadStream,
   downloadFile,
+  validateCleanBucket,
   postToBusApi,
   canSeePrivateReviews,
   cleanseReviews,
