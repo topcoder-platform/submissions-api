@@ -302,18 +302,35 @@ async function getChallenge (challengeId) {
   }
 }
 
-async function advanceChallengePhase (challengeId, phase, operation) {
+async function advanceChallengePhase (challengeId, phase, operation, numAttempts = 1) {
+  if (!challengeId || !phase || !operation) {
+    throw new Error('Invalid arguments')
+  }
+
   try {
-    console.log(`[Advance-Phase]: Initiate challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}`)
-    // Ideally we should be using ChallengeScheduler - however it's additional work and better handled when we have actual Review API
+    console.log(`[Advance-Phase]: Initiating challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}`)
+
     const response = await axiosInstance.post(`${config.CHALLENGEAPI_V5_URL}/${challengeId}/advance-phase`, {
       phase,
       operation
     })
-    console.log(`[Advance-Phase]: Success challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}. With response: ${JSON.stringify(response.data)}`)
+
+    if (response.status !== 200) {
+      throw new Error(`Received status code ${response.status}`)
+    }
+
+    console.log(`[Advance-Phase]: Successfully advanced challenge ${challengeId}. Phase: ${phase}. Operation: ${operation}. With response: ${JSON.stringify(response.data)}`)
     return response.data
   } catch (err) {
-    logger.warn(`[Advance-Phase]: Success challenge ${challengeId}. ${JSON.stringify(err)}`)
+    logger.warn(`[Advance-Phase]: Failed to advance challenge ${challengeId}. Error: ${JSON.stringify(err)}`)
+
+    if (numAttempts <= 3) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(advanceChallengePhase(challengeId, phase, operation, ++numAttempts))
+        }, 5000)
+      })
+    }
   }
 }
 

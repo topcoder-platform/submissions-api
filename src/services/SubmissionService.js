@@ -468,7 +468,7 @@ async function _updateSubmission (authUser, submissionId, entity) {
 
     challengeId = challenge.id
     legacyChallengeId = challenge.legacyId
-    hasIterativeReview = challenge.legacy != null && challenge.legacy.subTrack.indexOf('FIRST_2_FINISH') > -1
+    hasIterativeReview = challenge.legacy != null && challenge.legacy.subTrack === 'FIRST_2_FINISH' // ignoring Design F2Fs for now
 
     console.log(`Log data. Challenge ID: ${challengeId}, Legacy Challenge ID: ${legacyChallengeId}, Has Iterative Review: ${hasIterativeReview}`)
   }
