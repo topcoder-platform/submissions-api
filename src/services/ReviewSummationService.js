@@ -305,19 +305,18 @@ patchReviewSummation.schema = joi.object({
  */
 async function deleteReviewSummation (reviewSummationId) {
   const exist = await _getReviewSummation(reviewSummationId)
-  if (!exist) {
-    throw new errors.HttpStatusError(404, `Review summation with ID = ${reviewSummationId} is not found`)
-  }
 
-  // Filter used to delete the record
-  const filter = {
-    TableName: table,
-    Key: {
-      id: reviewSummationId
+  if (exist) {
+    // Filter used to delete the record
+    const filter = {
+      TableName: table,
+      Key: {
+        id: reviewSummationId
+      }
     }
-  }
 
-  await dbhelper.deleteRecord(filter)
+    await dbhelper.deleteRecord(filter)
+  }
 
   // Push Review Summation deleted event to Bus API
   // Request body for Posting to Bus API
