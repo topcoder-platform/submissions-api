@@ -134,14 +134,27 @@ async function _populateSubmissionReviews (submissionRecord, submissionId) {
  * Function to get submission based on ID from ES
  * @param {Object} authUser Authenticated User
  * @param {String} submissionId submissionId which need to be retrieved
+ * @param {Boolean} fromDB if True, submission will be fetched from DB instead of ES
  * @return {Promise<Object>} Data retrieved from database
  */
-async function getSubmission (authUser, submissionId) {
+async function getSubmission (authUser, submissionId, fromDB) {
   const response = await helper.fetchFromES({ id: submissionId }, helper.camelize(table))
   let submissionRecord = null
   let fetchedFromES = false
   logger.info(`getSubmission: fetching submissionId ${submissionId}`)
-  if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
+  if (fromDB) {
+    // only allowed for m2m
+    if (!authUser.scopes) {
+      throw new errors.HttpStatusError(403, 'You are not allowed to perform this action!')
+    }
+    logger.info(`getSubmission: fetching submissionId ${submissionId} from DB`)
+    submissionRecord = await _getSubmission(submissionId)
+    // make sure submission exists
+    if (!submissionRecord || !submissionRecord.id) {
+      logger.info(`getSubmission: submissionId not found in DB: ${submissionId}`)
+      throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
+    }
+  } else if (response.total === 0) { // CWD-- not in ES yet maybe? let's grab from the DB
     logger.info(`getSubmission: submissionId not found in ES: ${submissionId}`)
     submissionRecord = await _getSubmission(submissionId)
 
@@ -191,7 +204,7 @@ getSubmission.schema = joi.object({
  * @return {Promise<Object>} Submission retrieved
  */
 async function downloadSubmission (authUser, submissionId) {
-  const record = await getSubmission(authUser, submissionId)
+  const record = await getSubmission(authUser, submissionId, true)
   helper.validateCleanBucket(record.url)
   return { submission: record }
 }
