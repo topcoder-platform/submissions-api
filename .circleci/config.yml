@@ -41,7 +41,25 @@ jobs:
             ./buildenv.sh -e DEV -b dev-submissions-api-deployvar
             source buildenvvar
             ./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-submissions-api-appvar -i submissions-api
-
+            
+  "build-qa":
+    <<: *defaults
+    steps:
+      # Initialization.
+      - checkout
+      - setup_remote_docker
+      - run: *install_dependency
+      - run: *install_deploysuite
+      - run: *run_build
+      - deploy:
+          name: Running Masterscript for Dev deploy
+          command: |
+            ./awsconfiguration.sh QA
+            source awsenvconf
+            ./buildenv.sh -e QA -b qa-submissions-api-deployvar
+            source buildenvvar
+            ./master_deploy.sh -d ECS -e QA -t latest -s qa-global-appvar,qa-submissions-api-appvar -i submissions-api
+            
   "build-prod":
     <<: *defaults
     steps:
@@ -70,6 +88,12 @@ workflows:
           filters:
             branches:
               only: ['develop', 'PLAT-3383']
+      - "build-qa":
+          context : org-global
+          filters:
+            branches:
+              only:
+                - qa         
       - "build-prod":
           context : org-global
           filters:
