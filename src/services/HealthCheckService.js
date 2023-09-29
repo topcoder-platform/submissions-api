@@ -14,7 +14,7 @@ async function check () {
 
   try {
     await esClient.ping({}, {
-      requestTimeout: 10000
+      requestTimeout: 30000
     })
   } catch (e) {
     throw new errors.HttpStatusError(503, 'Elasticsearch instance cannot be reached')
