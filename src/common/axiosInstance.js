@@ -3,7 +3,7 @@ const { getM2Mtoken } = require('./m2mHelper')
 const logger = require('./logger')
 
 const axiosInstance = axios.create({
-  timeout: 1000,
+  timeout: 0,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -25,6 +25,7 @@ axiosInstance.interceptors.response.use((response) => response, (error) => {
   } else {
     logger.error('Error', error.message)
   }
+  throw error
 })
 
 module.exports = {
