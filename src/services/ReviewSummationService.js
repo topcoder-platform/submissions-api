@@ -117,6 +117,8 @@ async function createReviewSummation (authUser, entity) {
 
   await dbhelper.insertRecord(record)
 
+  await helper.sendHarmonyEvent('CREATE', table, item)
+
   // Push Review Summation created event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
@@ -175,6 +177,17 @@ async function _updateReviewSummation (authUser, reviewSummationId, entity) {
 
   const currDate = (new Date()).toISOString()
 
+  const item = {
+    id: reviewSummationId,
+    submissionId: entity.submissionId || exist.submissionId,
+    scoreCardId: entity.scoreCardId || exist.scoreCardId,
+    aggregateScore: entity.aggregateScore || exist.aggregateScore,
+    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created,
+    isPassing,
+    updated: currDate,
+    updatedBy: authUser.handle || authUser.sub
+  }
+
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -184,20 +197,21 @@ async function _updateReviewSummation (authUser, reviewSummationId, entity) {
     UpdateExpression: `set aggregateScore = :s, scoreCardId = :sc, submissionId = :su, 
                         isPassing = :ip, updated = :ua, updatedBy = :ub, reviewedDate = :rd`,
     ExpressionAttributeValues: {
-      ':s': entity.aggregateScore || exist.aggregateScore,
-      ':sc': entity.scoreCardId || exist.scoreCardId,
-      ':su': entity.submissionId || exist.submissionId,
-      ':ip': isPassing,
-      ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub,
-      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created
+      ':s': item.aggregateScore,
+      ':sc': item.scoreCardId,
+      ':su': item.submissionId,
+      ':ip': item.isPassing,
+      ':ua': item.updated,
+      ':ub': item.updatedBy,
+      ':rd': item.reviewedDate
     }
   }
 
   // If metadata exists, add it to the update expression
   if (entity.metadata || exist.metadata) {
+    item.metadata = _.merge({}, exist.metadata, entity.metadata)
     record.UpdateExpression = record.UpdateExpression + ', metadata = :ma'
-    record.ExpressionAttributeValues[':ma'] = _.merge({}, exist.metadata, entity.metadata)
+    record.ExpressionAttributeValues[':ma'] = item.metadata
   }
 
   // If legacy submission ID exists, add it to the update expression
@@ -209,12 +223,14 @@ async function _updateReviewSummation (authUser, reviewSummationId, entity) {
     } else {
       isFinal = entity.isFinal
     }
-
+    item.isFinal = isFinal
     record.UpdateExpression = record.UpdateExpression + ', isFinal = :ls'
     record.ExpressionAttributeValues[':ls'] = isFinal
   }
 
   await dbhelper.updateRecord(record)
+
+  await helper.sendHarmonyEvent('UPDATE', table, item)
 
   // Push Review Summation updated event to Bus API
   // Request body for Posting to Bus API
@@ -223,13 +239,12 @@ async function _updateReviewSummation (authUser, reviewSummationId, entity) {
     originator,
     timestamp: currDate, // time when submission was updated
     'mime-type': mimeType,
-    payload: _.extend({
-      resource: helper.camelize(table),
-      id: reviewSummationId,
-      updated: currDate,
-      updatedBy: authUser.handle || authUser.sub,
-      reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
-    }, entity)
+    payload: _.extend(
+      {
+        resource: helper.camelize(table)
+      },
+      item
+    )
   }
 
   // Post to Bus API using Client
@@ -237,15 +252,7 @@ async function _updateReviewSummation (authUser, reviewSummationId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(
-    exist,
-    entity,
-    {
-      updated: currDate,
-      updatedBy: authUser.handle || authUser.sub,
-      reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
-    }
-  )
+  return _.extend(exist, item)
 }
 
 /**
@@ -318,6 +325,11 @@ async function deleteReviewSummation (reviewSummationId) {
   }
 
   await dbhelper.deleteRecord(filter)
+
+  await helper.sendHarmonyEvent('DELETE', table, {
+    id: reviewSummationId,
+    submissionId: exist.submissionId
+  })
 
   // Push Review Summation deleted event to Bus API
   // Request body for Posting to Bus API

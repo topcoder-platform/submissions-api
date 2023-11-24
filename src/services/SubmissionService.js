@@ -403,6 +403,12 @@ async function createSubmission (authUser, files, entity) {
   logger.info(JSON.stringify(record))
   await dbhelper.insertRecord(record)
 
+  await helper.sendHarmonyEvent('CREATE', table, {
+    ...item,
+    isFileSubmission: files && files.submission,
+    ...((files && files.submission) ? { filename: files.submission.name } : {})
+  })
+
   // After save to db, adjust challengeId to busApi and response
   helper.adjustSubmissionChallengeId(item)
 
@@ -540,7 +546,11 @@ async function _updateSubmission (authUser, submissionId, entity) {
   logger.info('Prepared submission item to update in Dynamodb. Updating...')
 
   await dbhelper.updateRecord(record)
-  const updatedSub = await _getSubmission(submissionId)
+  const updatedSub = await _getSubmission(submissionId, false)
+
+  await helper.sendHarmonyEvent('UPDATE', table, _.pick(updatedSub,
+    ['id', 'challengeId', 'legacyChallengeId', 'legacySubmissionId', 'legacyUploadId',
+      'memberId', 'submissionPhaseId', 'submittedDate', 'type', 'url']))
 
   helper.adjustSubmissionChallengeId(updatedSub)
   // Push Submission updated event to Bus API
@@ -651,7 +661,7 @@ patchSubmission.schema = joi.object({
  * @return {Promise}
  */
 async function deleteSubmission (authUser, submissionId) {
-  const exist = await _getSubmission(submissionId)
+  const exist = await _getSubmission(submissionId, false)
   if (!exist) {
     throw new errors.HttpStatusError(404, `Submission with ID = ${submissionId} is not found`)
   }
@@ -669,6 +679,11 @@ async function deleteSubmission (authUser, submissionId) {
   }
 
   await dbhelper.deleteRecord(filter)
+
+  await helper.sendHarmonyEvent('DELETE', table, {
+    id: submissionId,
+    challengeId: exist.challengeId
+  })
 
   // Push Submission deleted event to Bus API
   // Request body for Posting to Bus API

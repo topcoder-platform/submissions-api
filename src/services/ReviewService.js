@@ -183,6 +183,8 @@ async function createReview (authUser, entity) {
 
   await dbhelper.insertRecord(record)
 
+  await helper.sendHarmonyEvent('CREATE', table, item)
+
   // Push Review created event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
@@ -283,6 +285,20 @@ async function _updateReview (authUser, reviewId, entity) {
     }
   }
 
+  const item = {
+    id: reviewId,
+    submissionId: entity.submissionId || exist.submissionId,
+    scoreCardId,
+    v5ScoreCardId,
+    score: entity.score || exist.score,
+    typeId: entity.typeId || exist.typeId,
+    reviewerId: entity.reviewerId || exist.reviewerId,
+    status: entity.status || exist.status || 'completed',
+    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created,
+    updated: currDate,
+    updatedBy: authUser.handle || authUser.sub
+  }
+
   // Record used for updating in Database
   const record = {
     TableName: table,
@@ -294,15 +310,15 @@ async function _updateReview (authUser, reviewId, entity) {
                         updated = :ua, updatedBy = :ub, reviewedDate = :rd
                         ${v5ScoreCardId ? ', v5ScoreCardId = :v5s' : ''}`,
     ExpressionAttributeValues: {
-      ':s': entity.score || exist.score,
-      ':sc': scoreCardId,
-      ':su': entity.submissionId || exist.submissionId,
-      ':t': entity.typeId || exist.typeId,
-      ':r': entity.reviewerId || exist.reviewerId,
-      ':st': entity.status || exist.status || 'completed',
-      ':ua': currDate,
-      ':ub': authUser.handle || authUser.sub,
-      ':rd': entity.reviewedDate || exist.reviewedDate || exist.created,
+      ':s': item.score,
+      ':sc': item.scoreCardId,
+      ':su': item.submissionId,
+      ':t': item.typeId,
+      ':r': item.reviewerId,
+      ':st': item.status,
+      ':ua': item.updated,
+      ':ub': item.updatedBy,
+      ':rd': item.reviewedDate,
       ...(v5ScoreCardId ? { ':v5s': v5ScoreCardId } : {})
     },
     ExpressionAttributeNames: {
@@ -312,16 +328,15 @@ async function _updateReview (authUser, reviewId, entity) {
 
   // If metadata exists, add it to the update expression
   if (entity.metadata || exist.metadata) {
+    item.metadata = _.merge({}, exist.metadata, entity.metadata)
     record.UpdateExpression =
       record.UpdateExpression + ', metadata = :ma'
-    record.ExpressionAttributeValues[':ma'] = _.merge(
-      {},
-      exist.metadata,
-      entity.metadata
-    )
+    record.ExpressionAttributeValues[':ma'] = item.metadata
   }
 
   await dbhelper.updateRecord(record)
+
+  await helper.sendHarmonyEvent('UPDATE', table, item)
 
   // Push Review updated event to Bus API
   // Request body for Posting to Bus API
@@ -332,17 +347,9 @@ async function _updateReview (authUser, reviewId, entity) {
     'mime-type': mimeType,
     payload: _.extend(
       {
-        resource: helper.camelize(table),
-        id: reviewId,
-        updated: currDate,
-        updatedBy: authUser.handle || authUser.sub,
-        reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created
+        resource: helper.camelize(table)
       },
-      entity,
-      {
-        scoreCardId,
-        v5ScoreCardId
-      }
+      item
     )
   }
 
@@ -351,13 +358,7 @@ async function _updateReview (authUser, reviewId, entity) {
 
   // Updating records in DynamoDB doesn't return any response
   // Hence returning the response which will be in compliance with Swagger
-  return _.extend(exist, entity, {
-    updated: currDate,
-    updatedBy: authUser.handle || authUser.sub,
-    reviewedDate: entity.reviewedDate || exist.reviewedDate || exist.created,
-    scoreCardId,
-    v5ScoreCardId
-  })
+  return _.extend(exist, item)
 }
 
 /**
@@ -453,6 +454,11 @@ async function deleteReview (reviewId) {
   }
 
   await dbhelper.deleteRecord(filter)
+
+  await helper.sendHarmonyEvent('DELETE', table, {
+    id: reviewId,
+    submissionId: exist.submissionId
+  })
 
   // Push Review deleted event to Bus API
   // Request body for Posting to Bus API

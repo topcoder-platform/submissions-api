@@ -89,6 +89,8 @@ async function createReviewType (entity) {
 
   await dbhelper.insertRecord(record)
 
+  await helper.sendHarmonyEvent('CREATE', table, item)
+
   // Push Review Type created event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
@@ -152,6 +154,12 @@ async function _updateReviewType (reviewTypeId, entity) {
   }
   await dbhelper.updateRecord(record)
 
+  const eventPayload = _.extend({
+    resource: helper.camelize(table),
+    id: reviewTypeId
+  }, entity)
+  await helper.sendHarmonyEvent('UPDATE', table, _.omit(eventPayload, 'resource'))
+
   // Push Review Type updated event to Bus API
   // Request body for Posting to Bus API
   const reqBody = {
@@ -159,10 +167,7 @@ async function _updateReviewType (reviewTypeId, entity) {
     originator,
     timestamp: (new Date()).toISOString(), // time when submission was updated
     'mime-type': mimeType,
-    payload: _.extend({
-      resource: helper.camelize(table),
-      id: reviewTypeId
-    }, entity)
+    payload: eventPayload
   }
 
   // Post to Bus API using Client
@@ -229,6 +234,8 @@ async function deleteReviewType (reviewTypeId) {
   }
 
   await dbhelper.deleteRecord(filter)
+
+  await helper.sendHarmonyEvent('DELETE', table, { id: reviewTypeId })
 
   // Push Review Type deleted event to Bus API
   // Request body for Posting to Bus API

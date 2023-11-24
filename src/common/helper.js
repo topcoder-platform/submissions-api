@@ -14,6 +14,7 @@ const errors = require('common-errors')
 const { validate: uuidValidate } = require('uuid')
 const NodeCache = require('node-cache')
 const { axiosInstance } = require('./axiosInstance')
+const { originator } = require('../../constants').busApiMeta
 
 AWS.config.region = config.get('aws.AWS_REGION')
 const s3 = new AWS.S3()
@@ -873,7 +874,39 @@ function flushInternalCache () {
   internalCache.flushAll()
 }
 
+const harmonyClient = new AWS.Lambda({ apiVersion: 'latest' })
+/**
+ * Send event to Harmony.
+ * @param {String} eventType The event type
+ * @param {String} payloadType The payload type
+ * @param {Object} payload The event payload
+ * @returns {Promise}
+ */
+async function sendHarmonyEvent (eventType, payloadType, payload) {
+  const event = {
+    publisher: originator,
+    timestamp: new Date().getTime(),
+    eventType,
+    payloadType,
+    payload
+  }
+  return new Promise((resolve, reject) => {
+    harmonyClient.invoke({
+      FunctionName: config.HARMONY_LAMBDA_FUNCTION,
+      InvocationType: 'Event',
+      Payload: JSON.stringify(event)
+    }, (err, data) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(data)
+      }
+    })
+  })
+}
+
 module.exports = {
+  sendHarmonyEvent,
   wrapExpress,
   autoWrapExpress,
   getEsClient,
