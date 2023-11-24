@@ -55,5 +55,7 @@ module.exports = {
     'd6d31f34-8ee5-4589-ae65-45652fcc01a6': 30000720
   },
 
+  HARMONY_LAMBDA_FUNCTION: process.env.HARMONY_LAMBDA_FUNCTION || 'arn:aws:lambda:us-east-1:811668436784:function:harmony-api-dev-processMessage',
+
   INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800
 }
