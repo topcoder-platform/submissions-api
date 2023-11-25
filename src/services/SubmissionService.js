@@ -548,9 +548,7 @@ async function _updateSubmission (authUser, submissionId, entity) {
   await dbhelper.updateRecord(record)
   const updatedSub = await _getSubmission(submissionId, false)
 
-  await helper.sendHarmonyEvent('UPDATE', table, _.pick(updatedSub,
-    ['id', 'challengeId', 'legacyChallengeId', 'legacySubmissionId', 'legacyUploadId',
-      'memberId', 'submissionPhaseId', 'submittedDate', 'type', 'url']))
+  await helper.sendHarmonyEvent('UPDATE', table, updatedSub)
 
   helper.adjustSubmissionChallengeId(updatedSub)
   // Push Submission updated event to Bus API
