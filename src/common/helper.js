@@ -368,9 +368,9 @@ function getSubmissionPhaseId (challenge) {
     if (checkPoint.length !== 0) {
       phaseId = checkPoint[0].phaseId
     } else if (submissionPh.length !== 0) {
-      phaseId = openPh[0].phaseId
-    } else if (openPh.length !== 0) {
       phaseId = submissionPh[0].phaseId
+    } else if (openPh.length !== 0) {
+      phaseId = openPh[0].phaseId
     } else if (finalFixPh.length !== 0) {
       phaseId = finalFixPh[0].phaseId
     } else if (approvalPh.length !== 0) {
