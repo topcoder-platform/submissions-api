@@ -407,7 +407,7 @@ async function createSubmission (authUser, files, entity) {
     ...item,
     isFileSubmission: files && files.submission,
     ...((files && files.submission) ? { filename: files.submission.name } : {})
-  })
+  }, _.get(challenge, 'billing.billingAccountId'))
 
   // After save to db, adjust challengeId to busApi and response
   helper.adjustSubmissionChallengeId(item)
@@ -479,8 +479,9 @@ async function _updateSubmission (authUser, submissionId, entity) {
   let legacyChallengeId = exist.legacyChallengeId
   let hasIterativeReview = false
 
+  let challenge
   if (entity.challengeId || challengeId) {
-    const challenge = await helper.getChallenge(entity.challengeId || challengeId)
+    challenge = await helper.getChallenge(entity.challengeId || challengeId)
     if (!challenge) {
       throw new errors.HttpStatusError(404, `Challenge with ID = ${entity.challengeId || challengeId} is not found`)
     }
@@ -548,7 +549,7 @@ async function _updateSubmission (authUser, submissionId, entity) {
   await dbhelper.updateRecord(record)
   const updatedSub = await _getSubmission(submissionId, false)
 
-  await helper.sendHarmonyEvent('UPDATE', table, updatedSub)
+  await helper.sendHarmonyEvent('UPDATE', table, updatedSub, _.get(challenge, 'billing.billingAccountId'))
 
   helper.adjustSubmissionChallengeId(updatedSub)
   // Push Submission updated event to Bus API
@@ -678,10 +679,11 @@ async function deleteSubmission (authUser, submissionId) {
 
   await dbhelper.deleteRecord(filter)
 
+  const challenge = await helper.getChallenge(exist.challengeId)
   await helper.sendHarmonyEvent('DELETE', table, {
     id: submissionId,
     challengeId: exist.challengeId
-  })
+  }, _.get(challenge, 'billing.billingAccountId'))
 
   // Push Submission deleted event to Bus API
   // Request body for Posting to Bus API
