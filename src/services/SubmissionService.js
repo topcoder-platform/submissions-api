@@ -251,6 +251,18 @@ async function listSubmissions (authUser, query) {
     if (submission.review && !helper.canSeePrivateReviews(authUser)) {
       submission.review = helper.cleanseReviews(submission.review)
     }
+
+    // Strip out any null reviews in the array (PROD-3146)
+    if (submission.review) {
+      const nonNullReviews = []
+
+      _.forEach(submission.review, (review) => {
+        if (review) {
+          nonNullReviews.push(review)
+        }
+      })
+      submission.review = nonNullReviews
+    }
     helper.adjustSubmissionChallengeId(submission)
     return submission
   })
