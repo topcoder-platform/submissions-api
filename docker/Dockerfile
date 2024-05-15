@@ -8,5 +8,5 @@ COPY . /submissions-api
 WORKDIR /submissions-api
 
 # Install the dependencies from package.json
-RUN yarn install
+RUN npm install
 ENTRYPOINT node app.js
