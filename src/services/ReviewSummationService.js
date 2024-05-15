@@ -1,4 +1,4 @@
-/**
+/*
  * ReviewSummation Service
  */
 

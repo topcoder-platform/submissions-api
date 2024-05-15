@@ -41,6 +41,7 @@
     "file-type": "16.5.4",
     "get-parameter-names": "^0.3.0",
     "http-status": "^1.6.2",
+    "informixdb": "^2.2.1",
     "joi": "^17.9.2",
     "lodash": "^4.17.15",
     "node-cache": "^5.1.2",

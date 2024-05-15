@@ -11,9 +11,9 @@ const dbhelper = require('../common/dbhelper')
 const helper = require('../common/helper')
 const { originator, mimeType, events } = require('../../constants').busApiMeta
 const HelperService = require('./HelperService')
-const SubmissionService = require('./SubmissionService')
 
 const table = 'Review'
+
 
 /**
  * Function to get review based on ID from DynamoDB
@@ -63,9 +63,8 @@ async function getReview (authUser, reviewId) {
   }
 
   // Fetch submission without review and review summations
-  const submission = await SubmissionService._getSubmission(
-    review.submissionId,
-    false
+  const submission = await HelperService._getSubmission(
+    review.submissionId
   )
   logger.info('Check User access before returning the review')
   if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
@@ -197,7 +196,6 @@ async function createReview (authUser, entity) {
       item
     )
   }
-
   // Post to Bus API using Client
   await helper.postToBusApi(reqBody)
 

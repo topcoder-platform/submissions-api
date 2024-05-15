@@ -20,6 +20,8 @@ const s3 = new AWS.S3()
 // ES Client mapping
 const esClients = {}
 
+const REVIEW_TYPES_KEY = 'ReviewTypes'
+
 // Bus API Client
 let busApiClient
 
@@ -37,7 +39,7 @@ function wrapExpress (fn) {
 }
 
 /**
- * Wrap all generators from object
+ * Wrap all generators fro`m` object
  * @param obj the object (controller exports)
  * @returns {Object|Array} the wrapped object
  */
@@ -96,6 +98,95 @@ function camelize (str) {
     if (+match === 0) return '' // or if (/\s+/.test(match)) for white spaces
     return index === 0 ? match.toLowerCase() : match.toUpperCase()
   })
+}
+
+/*
+ * Gets the review types from the v5 API.  Used when mapping legacy reviews to the v5 submission reviews
+  * @returns object Array of review types
+ */
+function getReviewTypes () {
+  return [
+    {
+      name: 'Screening',
+      id: 'c56a4180-65aa-42ec-a945-5fd21dec0501',
+      isActive: true
+    },
+    {
+      name: 'Checkpoint Review',
+      id: 'c56a4180-65aa-42ec-a945-5fd21dec0502',
+      isActive: true
+    },
+    {
+      name: 'Iterative Review',
+      id: '5ff14855-b96a-4aef-8eab-1642efe4550a',
+      isActive: true
+    },
+    {
+      name: 'Automated Testing Review',
+      id: '45e5e7a9-f7d0-4cb9-8a14-996e0132ecce',
+      isActive: true
+    },
+    {
+      name: 'Appeals Response',
+      id: 'c56a4180-65aa-42ec-a945-5fd21dec0504',
+      isActive: true
+    },
+    {
+      name: 'Marathon Match Review',
+      id: '52c91e85-745f-4e62-b592-9879a2dfe9fd',
+      isActive: true
+    },
+    {
+      name: 'SonarQube Review',
+      id: 'd96d5f17-5884-47b8-bfea-bddf066e451f',
+      isActive: true
+    },
+    {
+      name: 'Submission Validation',
+      id: 'a7009079-15b7-4f39-baf7-075e9c40dcc4',
+      isActive: true
+    },
+    {
+      name: 'Virus Scan',
+      id: '2929bc33-8f58-4011-8e49-9e3a10499e97',
+      isActive: true
+    },
+    {
+      name: 'Review',
+      id: 'c56a4180-65aa-42ec-a945-5fd21dec0503',
+      isActive: true
+    }
+  ]
+  // const cacheValue = getFromInternalCache(REVIEW_TYPES_KEY)
+  // if (cacheValue) {
+  //   return cacheValue
+  // } else {
+  //   let reviewTypes = null
+  //   try {
+  //     reviewTypes = await axiosInstance.get(`${config.RESOURCEAPI_V5_BASE_URL}/reviewTypes?perPage=100`)
+  //   } catch (ex) {
+  //     logger.error(`Error while accessing ${config.RESOURCEAPI_V5_BASE_URL}/reviewTypes?perPage=100`)
+  //     throw new errors.HttpStatusError(503, 'Could not get the review types for online review scorecards')
+  //   }
+  //   if (reviewTypes) {
+  //     setToInternalCache(REVIEW_TYPES_KEY, reviewTypes)
+  //   }
+  //   return reviewTypes
+  // }
+}
+
+/*
+ * Returns the review type ID for the given legacy scorecard name
+  * @returns string Review type ID GUID matching the scorecard name
+ */
+function getReviewTypeId (scorecardName) {
+  const reviewTypes = getReviewTypes()
+  for (const reviewType of reviewTypes) {
+    if (reviewType.name === scorecardName) {
+      return reviewType.id
+    }
+  }
+  return null
 }
 
 /**
@@ -902,5 +993,7 @@ module.exports = {
   advanceChallengePhase,
   getFromInternalCache,
   setToInternalCache,
-  flushInternalCache
+  flushInternalCache,
+  getReviewTypes,
+  getReviewTypeId
 }

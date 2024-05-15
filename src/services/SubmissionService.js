@@ -10,6 +10,7 @@ const joi = require('joi')
 const _ = require('lodash')
 const { v4: uuidv4 } = require('uuid')
 const dbhelper = require('../common/dbhelper')
+const informixHelper = require('../common/informixHelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
 const { submissionIndex } = require('../../constants')
@@ -248,10 +249,34 @@ async function listSubmissions (authUser, query) {
   logger.info(`listSubmissions: returning ${data.rows.length} submissions for query: ${JSON.stringify(query)}`)
 
   data.rows = _.map(data.rows, (submission) => {
-    if (submission.review && !helper.canSeePrivateReviews(authUser)) {
-      submission.review = helper.cleanseReviews(submission.review)
+    console.log(`SUBMISSION FROM ES: ${JSON.stringify(submission,null, 4)}`)
+
+    // Check to see if we've loaded in the submission reviews from OR (PS-268)
+    let hasReviewInES = false
+    if (submission.review) {
+      _.forEach(submission.review, (review) => {
+        if (review.metadata && review.metadata.source) {
+          if (review.metadata.source === 'Online Review') {
+            hasReviewInES = true
+          }
+        }
+      })
     }
 
+    // We don't have the Online Review details in ES, so go to Informix to get them and
+    // put them into ES (PS-268).  Note that the informix helper calls the review and review summation
+    // services.  We can't do that here because it would introduce a circular dependency because the
+    // review service calls back to the submission service (this file)
+    if (!hasReviewInES) {
+      informixHelper.loadOnlineReviewDetails(authUser, submission)
+    }
+
+    if (submission.review && !helper.canSeePrivateReviews(authUser)) {
+      console.log('Cleansing reviews')
+      submission.review = helper.cleanseReviews(submission.review)
+    } else {
+      console.log(`not cleansing reviews ${JSON.stringify(submission.review, null, 4)}`)
+    }
     // Strip out any null reviews in the array (PROD-3146)
     if (submission.review) {
       const nonNullReviews = []
@@ -266,6 +291,7 @@ async function listSubmissions (authUser, query) {
     helper.adjustSubmissionChallengeId(submission)
     return submission
   })
+
   return data
 }
 
