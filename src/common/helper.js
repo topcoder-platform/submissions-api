@@ -39,7 +39,7 @@ function wrapExpress (fn) {
 }
 
 /**
- * Wrap all generators fro`m` object
+ * Wrap all generators from object
  * @param obj the object (controller exports)
  * @returns {Object|Array} the wrapped object
  */
