@@ -1,5 +1,5 @@
 /**
- * Contains Informix helper methods
+ * Contains Informix helper methods for loading reviews from Informix 
  */
 const config = require('config')
 const logger = require('./logger')
@@ -7,7 +7,12 @@ const helper = require('./helper')
 const informix = require('informixdb')
 const ReviewService = require('../services/ReviewService')
 const ReviewSummationService = require('../services/ReviewSummationService')
-
+/*
+ * This function loads the online review details for a given submission from Informix. 
+ * It uses the data to create review and reviewSummation objects which are then saved
+ * back to DynamoDB through the relevant services, and to ES through Bus API messages
+ * processed by the submission-processor-es code
+ */
 async function loadOnlineReviewDetails (authUser, submission) {
   const reviewSummation = {}
   const reviewsCreated = []
@@ -57,9 +62,12 @@ async function loadOnlineReviewDetails (authUser, submission) {
     }
   }
 
+  // Add the reviews created to DynamoDB
   for (const review of reviewsCreated) {
     await ReviewService.createReview(authUser, review)
   }
+
+  // Adds the review summation to DynamoDB
   await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
 
   return submission

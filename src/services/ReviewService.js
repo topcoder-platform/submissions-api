@@ -14,7 +14,6 @@ const HelperService = require('./HelperService')
 
 const table = 'Review'
 
-
 /**
  * Function to get review based on ID from DynamoDB
  * This function will be used all by other functions to check existence of review

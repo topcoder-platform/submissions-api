@@ -270,10 +270,7 @@ async function listSubmissions (authUser, query) {
     }
 
     if (submission.review && !helper.canSeePrivateReviews(authUser)) {
-      console.log('Cleansing reviews')
       submission.review = helper.cleanseReviews(submission.review)
-    } else {
-      console.log(`not cleansing reviews ${JSON.stringify(submission.review, null, 4)}`)
     }
     // Strip out any null reviews in the array (PROD-3146)
     if (submission.review) {
@@ -290,7 +287,6 @@ async function listSubmissions (authUser, query) {
     return submission
   })
   )
-
   return data
 }
 

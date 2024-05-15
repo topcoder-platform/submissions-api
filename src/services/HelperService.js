@@ -7,7 +7,6 @@ const errors = require('common-errors')
 const ReviewTypeService = require('./ReviewTypeService')
 const dbhelper = require('../common/dbhelper')
 
-
 /**
  * Function to check references in the given entity
  * @param {Object} entity entity in which references need to be checked
