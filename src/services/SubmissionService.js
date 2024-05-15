@@ -248,9 +248,7 @@ async function listSubmissions (authUser, query) {
   const data = await helper.fetchFromES(query, helper.camelize(table))
   logger.info(`listSubmissions: returning ${data.rows.length} submissions for query: ${JSON.stringify(query)}`)
 
-  data.rows = _.map(data.rows, (submission) => {
-    console.log(`SUBMISSION FROM ES: ${JSON.stringify(submission,null, 4)}`)
-
+  data.rows = await Promise.all(_.map(data.rows, async (submission) => {
     // Check to see if we've loaded in the submission reviews from OR (PS-268)
     let hasReviewInES = false
     if (submission.review) {
@@ -268,7 +266,7 @@ async function listSubmissions (authUser, query) {
     // services.  We can't do that here because it would introduce a circular dependency because the
     // review service calls back to the submission service (this file)
     if (!hasReviewInES) {
-      informixHelper.loadOnlineReviewDetails(authUser, submission)
+      await informixHelper.loadOnlineReviewDetails(authUser, submission)
     }
 
     if (submission.review && !helper.canSeePrivateReviews(authUser)) {
@@ -291,6 +289,7 @@ async function listSubmissions (authUser, query) {
     helper.adjustSubmissionChallengeId(submission)
     return submission
   })
+  )
 
   return data
 }

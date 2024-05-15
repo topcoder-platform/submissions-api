@@ -8,7 +8,7 @@ const informix = require('informixdb')
 const ReviewService = require('../services/ReviewService')
 const ReviewSummationService = require('../services/ReviewSummationService')
 
-function loadOnlineReviewDetails (authUser, submission) {
+async function loadOnlineReviewDetails (authUser, submission) {
   const reviewSummation = {}
   const reviewsCreated = []
   // We can only load in OR details from the legacy submission ID.
@@ -33,7 +33,7 @@ function loadOnlineReviewDetails (authUser, submission) {
             inner join scorecard_type_lu on scorecard.scorecard_type_id = scorecard_type_lu.scorecard_type_id
         WHERE submission.submission_id=${submission.legacySubmissionId} and review.committed=1`
     const reviews = queryInformix(query)
-    for (const dbReview of reviews) {
+    for await (const dbReview of reviews) {
       if (!submission.review) {
         submission.review = []
       }
@@ -41,7 +41,7 @@ function loadOnlineReviewDetails (authUser, submission) {
       reviewToAdd.score = dbReview.review_score
       reviewToAdd.submissionId = submission.id
       reviewToAdd.scoreCardId = dbReview.scorecard_id
-      reviewToAdd.typeId = helper.getReviewTypeId(dbReview.scorecard_name)
+      reviewToAdd.typeId = await helper.getReviewTypeId(dbReview.scorecard_name)
       reviewToAdd.reviewedDate = new Date(dbReview.create_date).toISOString()
       reviewToAdd.reviewerId = dbReview.reviewer
       reviewToAdd.status = 'completed'
@@ -53,23 +53,15 @@ function loadOnlineReviewDetails (authUser, submission) {
       reviewSummation.submissionId = submission.id
       reviewSummation.aggregateScore = dbReview.aggregate_score
       reviewSummation.isPassing = dbReview.aggregate_score >= dbReview.min_score
-      reviewSummation.reviewedDate = dbReview.create_date
+      reviewSummation.reviewedDate = new Date(dbReview.create_date).toISOString()
     }
   }
 
   for (const review of reviewsCreated) {
-    ReviewService.createReview(authUser, review).then(res => {
-      logger.info(`Created review ${JSON.stringify(review, null, 4)} ${JSON.stringify(res, null, 4)}`)
-    }).catch(err => {
-      logger.info(`Failed to create review ${JSON.stringify(review, null, 4)}, ${JSON.stringify(err, null, 4)}`)
-    })
+    await ReviewService.createReview(authUser, review)
   }
+  await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
 
-  ReviewSummationService.createReviewSummation(authUser, reviewSummation).then(res => {
-    logger.info(`Created review summation ${JSON.stringify(reviewSummation, null, 4)} ${JSON.stringify(res, null, 4)}`)
-  }).catch(err => {
-    logger.info(`Failed to create review summation ${JSON.stringify(reviewSummation, null, 4)}, ${JSON.stringify(err, null, 4)}`)
-  })
   return submission
 }
 
