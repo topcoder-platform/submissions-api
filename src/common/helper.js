@@ -107,13 +107,11 @@ function camelize (str) {
 async function getReviewTypes () {
   const cacheValue = getFromInternalCache(REVIEW_TYPES_KEY)
   if (cacheValue) {
-    console.log(`CACHED VALUE:${JSON.stringify(cacheValue, null, 5)}`)
     return cacheValue
   } else {
     let reviewTypes = null
     reviewTypes = await fetchFromES({ perPage: 100 }, camelize('ReviewType'))
     reviewTypes = reviewTypes.rows
-    console.log(`REVIEW TYPES:${JSON.stringify(reviewTypes, null, 4)}`)
     if (reviewTypes) {
       setToInternalCache(REVIEW_TYPES_KEY, reviewTypes)
     }
