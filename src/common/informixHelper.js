@@ -16,6 +16,7 @@ const ReviewSummationService = require('../services/ReviewSummationService')
 async function loadOnlineReviewDetails (authUser, submission) {
   const reviewSummation = {}
   const reviewsCreated = []
+
   // We can only load in OR details from the legacy submission ID.
   // If we don't have that, we can't do anything
   if (submission && submission.legacySubmissionId) {
@@ -37,11 +38,14 @@ async function loadOnlineReviewDetails (authUser, submission) {
             inner join scorecard on scorecard.scorecard_id = review.scorecard_id
             inner join scorecard_type_lu on scorecard.scorecard_type_id = scorecard_type_lu.scorecard_type_id
         WHERE submission.submission_id=${submission.legacySubmissionId} and review.committed=1`
+
     const reviews = queryInformix(query)
+
     for await (const dbReview of reviews) {
       if (!submission.review) {
         submission.review = []
       }
+
       const reviewToAdd = {}
       reviewToAdd.score = dbReview.review_score
       reviewToAdd.submissionId = submission.id
@@ -51,6 +55,7 @@ async function loadOnlineReviewDetails (authUser, submission) {
       reviewToAdd.reviewerId = dbReview.reviewer
       reviewToAdd.status = 'completed'
       reviewToAdd.metadata = { source: 'Online Review' }
+
       submission.review.push(reviewToAdd)
       reviewsCreated.push(reviewToAdd)
 
@@ -82,13 +87,21 @@ function queryInformix (query) {
     ';DB_LOCALE=' + config.get('INFORMIX.DB_LOCALE') +
     ';UID=' + config.get('INFORMIX.USER') +
     ';PWD=' + config.get('INFORMIX.PASSWORD')
+
   let result = null
   logger.info(query)
-  const conn = informix.openSync(connectionString)
-  result = conn.querySync(query)
-  conn.closeSync()
+
+  try {
+    const conn = informix.openSync(connectionString)
+    result = conn.querySync(query)
+    conn.closeSync()
+  } catch (ex) {
+    logger.error(ex)
+  }
+
   return result
 }
+
 module.exports = {
   queryInformix,
   loadOnlineReviewDetails
