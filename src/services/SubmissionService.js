@@ -265,8 +265,8 @@ async function listSubmissions (authUser, query) {
     // put them into ES (PS-268).  Note that the informix helper calls the review and review summation
     // services.  We can't do that here because it would introduce a circular dependency because the
     // review service calls back to the submission service (this file)
-    // The check for submission.id is for Phoenix submissions - we won't necessarily have the ID for those.
-    if (!hasReviewInES && submission.id) {
+    // The check for submission.legacyId is for Phoenix submissions - we won't necessarily have the ID for those.
+    if (!hasReviewInES && submission.id && submission.legacySubmissionId) {
       await informixHelper.loadOnlineReviewDetails(authUser, submission)
     }
 

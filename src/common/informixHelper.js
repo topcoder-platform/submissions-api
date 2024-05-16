@@ -65,16 +65,15 @@ async function loadOnlineReviewDetails (authUser, submission) {
       reviewSummation.isPassing = dbReview.aggregate_score >= dbReview.min_score
       reviewSummation.reviewedDate = new Date(dbReview.create_date).toISOString()
     }
+
+    // Add the reviews created to DynamoDB
+    for (const review of reviewsCreated) {
+      await ReviewService.createReview(authUser, review)
+    }
+
+    // Adds the review summation to DynamoDB
+    await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
   }
-
-  // Add the reviews created to DynamoDB
-  for (const review of reviewsCreated) {
-    await ReviewService.createReview(authUser, review)
-  }
-
-  // Adds the review summation to DynamoDB
-  await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
-
   return submission
 }
 
