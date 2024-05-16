@@ -14,7 +14,7 @@ const ReviewSummationService = require('../services/ReviewSummationService')
  * processed by the submission-processor-es code
  */
 async function loadOnlineReviewDetails (authUser, submission) {
-  const reviewSummation = {}
+  let reviewSummation = null
   const reviewsCreated = []
 
   // We can only load in OR details from the legacy submission ID.
@@ -58,21 +58,27 @@ async function loadOnlineReviewDetails (authUser, submission) {
 
       submission.review.push(reviewToAdd)
       reviewsCreated.push(reviewToAdd)
-
-      reviewSummation.scoreCardId = dbReview.scorecard_id
-      reviewSummation.submissionId = submission.id
-      reviewSummation.aggregateScore = dbReview.aggregate_score
-      reviewSummation.isPassing = dbReview.aggregate_score >= dbReview.min_score
-      reviewSummation.reviewedDate = new Date(dbReview.create_date).toISOString()
+      if (reviewSummation == null) {
+        reviewSummation = {}
+        reviewSummation.scoreCardId = dbReview.scorecard_id
+        reviewSummation.submissionId = submission.id
+        reviewSummation.aggregateScore = dbReview.aggregate_score
+        reviewSummation.isPassing = dbReview.aggregate_score >= dbReview.min_score
+        reviewSummation.reviewedDate = new Date(dbReview.create_date).toISOString()
+      }
     }
 
     // Add the reviews created to DynamoDB
     for (const review of reviewsCreated) {
+      console.log(JSON.stringify(review, null, 4))
       await ReviewService.createReview(authUser, review)
     }
 
     // Adds the review summation to DynamoDB
-    await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
+    console.log(JSON.stringify(reviewSummation, null, 4))
+    if (reviewSummation) {
+      await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
+    }
   }
   return submission
 }
