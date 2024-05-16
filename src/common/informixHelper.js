@@ -8,7 +8,7 @@ const informix = require('informixdb')
 const ReviewService = require('../services/ReviewService')
 const ReviewSummationService = require('../services/ReviewSummationService')
 /*
- * This function loads the online review details for a given submission from Informix. 
+ * This function loads the online review details for a given submission from Informix.
  * It uses the data to create review and reviewSummation objects which are then saved
  * back to DynamoDB through the relevant services, and to ES through Bus API messages
  * processed by the submission-processor-es code

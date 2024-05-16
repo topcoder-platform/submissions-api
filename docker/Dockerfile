@@ -9,6 +9,5 @@ WORKDIR /submissions-api
 
 # Install the dependencies from package.json
 RUN npm install
-RUN export INFORMIXDIR=`pwd`/node_modules/informixdb/installer/onedb-odbc-driver
-RUN echo Informix Directory: $INFORMIXDIR
+RUN export INFORMIXDIR=/submissions-api/node_modules/informixdb/installer/onedb-odbc-driver
 ENTRYPOINT node app.js
