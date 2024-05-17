@@ -70,12 +70,14 @@ async function loadOnlineReviewDetails (authUser, submission) {
 
     // Add the reviews created to DynamoDB
     for (const review of reviewsCreated) {
-      console.log(JSON.stringify(review, null, 4))
-      await ReviewService.createReview(authUser, review)
+      if (review && review.typeId) {
+        logger.info(JSON.stringify(review, null, 4))
+        await ReviewService.createReview(authUser, review)
+      }
     }
 
     // Adds the review summation to DynamoDB
-    console.log(JSON.stringify(reviewSummation, null, 4))
+    logger.info(JSON.stringify(reviewSummation, null, 4))
     if (reviewSummation) {
       await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
     }
