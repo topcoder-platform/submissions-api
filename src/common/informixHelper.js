@@ -77,8 +77,8 @@ async function loadOnlineReviewDetails (authUser, submission) {
     }
 
     // Adds the review summation to DynamoDB
-    logger.info(`Creating review summation: ${JSON.stringify(reviewSummation, null, 4)}`)
     if (reviewSummation) {
+      logger.info(`Creating review summation: ${JSON.stringify(reviewSummation, null, 4)}`)
       await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
     }
   }
