@@ -125,13 +125,13 @@ async function getReviewTypes () {
  */
 async function getReviewTypeId (scorecardName) {
   const reviewTypes = await getReviewTypes()
-  logger.info(`Review types: ${JSON.stringify(reviewTypes, null, 5)}`)
-  logger.info(`Looking for: ${scorecardName}`)
   for (const reviewType of reviewTypes) {
     if (reviewType.name === scorecardName) {
+      logger.info(`Looking for: ${scorecardName}, found: ${JSON.stringify(reviewType, null, 4)}`)
       return reviewType.id
     }
   }
+  logger.info(`Looking for: ${scorecardName}, found NO MATCH`)
   return null
 }
 
