@@ -222,6 +222,11 @@ downloadSubmission.schema = joi.object({
  * @return {Promise<Object>} Data fetched from ES
  */
 async function listSubmissions (authUser, query) {
+  let loadLegacy = false
+  if (query.loadLegacy) {
+    loadLegacy = true
+    delete query.loadLegacy
+  }
   if (query.challengeId) {
     // Submission api now only works with v5 challenge id
     // If it is a legacy challenge id, get the associated v5 challenge id
@@ -266,7 +271,7 @@ async function listSubmissions (authUser, query) {
     // services.  We can't do that here because it would introduce a circular dependency because the
     // review service calls back to the submission service (this file)
     // The check for submission.legacyId is for Phoenix submissions - we won't necessarily have the ID for those.
-    if (!hasReviewInES && submission.id && submission.legacySubmissionId && query.loadLegacy) {
+    if (!hasReviewInES && submission.id && submission.legacySubmissionId && loadLegacy) {
       await informixHelper.loadOnlineReviewDetails(authUser, submission)
     }
 
