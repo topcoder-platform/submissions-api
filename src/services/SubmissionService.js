@@ -266,7 +266,7 @@ async function listSubmissions (authUser, query) {
     // services.  We can't do that here because it would introduce a circular dependency because the
     // review service calls back to the submission service (this file)
     // The check for submission.legacyId is for Phoenix submissions - we won't necessarily have the ID for those.
-    if (!hasReviewInES && submission.id && submission.legacySubmissionId) {
+    if (!hasReviewInES && submission.id && submission.legacySubmissionId && query.loadLegacy) {
       await informixHelper.loadOnlineReviewDetails(authUser, submission)
     }
 
@@ -298,6 +298,7 @@ const listSubmissionsQuerySchema = {
   challengeId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   legacySubmissionId: joi.alternatives().try(joi.id(), joi.string().uuid()),
   legacyUploadId: joi.alternatives().try(joi.id(), joi.string().uuid()),
+  loadLegacy: joi.boolean(),
   submissionPhaseId: joi.id(),
   page: joi.id(),
   perPage: joi.pageSize(),
