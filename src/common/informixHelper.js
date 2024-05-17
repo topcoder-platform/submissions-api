@@ -71,13 +71,13 @@ async function loadOnlineReviewDetails (authUser, submission) {
     // Add the reviews created to DynamoDB
     for (const review of reviewsCreated) {
       if (review && review.typeId) {
-        logger.info(JSON.stringify(review, null, 4))
+        logger.info(`Creating review: ${JSON.stringify(review, null, 4)}`)
         await ReviewService.createReview(authUser, review)
       }
     }
 
     // Adds the review summation to DynamoDB
-    logger.info(JSON.stringify(reviewSummation, null, 4))
+    logger.info(`Creating review summation: ${JSON.stringify(reviewSummation, null, 4)}`)
     if (reviewSummation) {
       await ReviewSummationService.createReviewSummation(authUser, reviewSummation)
     }
@@ -96,8 +96,6 @@ function queryInformix (query) {
     ';PWD=' + config.get('INFORMIX.PASSWORD')
 
   let result = null
-  logger.info(query)
-
   try {
     const conn = informix.openSync(connectionString)
     result = conn.querySync(query)
