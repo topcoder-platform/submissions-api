@@ -20,6 +20,8 @@ const s3 = new AWS.S3()
 // ES Client mapping
 const esClients = {}
 
+const REVIEW_TYPES_KEY = 'ReviewTypes'
+
 // Bus API Client
 let busApiClient
 
@@ -96,6 +98,39 @@ function camelize (str) {
     if (+match === 0) return '' // or if (/\s+/.test(match)) for white spaces
     return index === 0 ? match.toLowerCase() : match.toUpperCase()
   })
+}
+
+/*
+ * Gets the review types from the v5 API.  Used when mapping legacy reviews to the v5 submission reviews
+  * @returns object Array of review types
+ */
+async function getReviewTypes () {
+  const cacheValue = getFromInternalCache(REVIEW_TYPES_KEY)
+  if (cacheValue) {
+    return cacheValue
+  } else {
+    let reviewTypes = null
+    reviewTypes = await fetchFromES({ perPage: 100 }, camelize('ReviewType'))
+    reviewTypes = reviewTypes.rows
+    if (reviewTypes) {
+      setToInternalCache(REVIEW_TYPES_KEY, reviewTypes)
+    }
+    return reviewTypes
+  }
+}
+
+/*
+ * Returns the review type ID for the given legacy scorecard name
+  * @returns string Review type ID GUID matching the scorecard name
+ */
+async function getReviewTypeId (scorecardName) {
+  const reviewTypes = await getReviewTypes()
+  for (const reviewType of reviewTypes) {
+    if (reviewType.name === scorecardName) {
+      return reviewType.id
+    }
+  }
+  return null
 }
 
 /**
@@ -902,5 +937,7 @@ module.exports = {
   advanceChallengePhase,
   getFromInternalCache,
   setToInternalCache,
-  flushInternalCache
+  flushInternalCache,
+  getReviewTypes,
+  getReviewTypeId
 }

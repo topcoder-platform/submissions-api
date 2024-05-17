@@ -5,7 +5,7 @@
 const errors = require('common-errors')
 
 const ReviewTypeService = require('./ReviewTypeService')
-const SubmissionService = require('./SubmissionService')
+const dbhelper = require('../common/dbhelper')
 
 /**
  * Function to check references in the given entity
@@ -22,7 +22,7 @@ async function _checkRef (entity) {
   }
 
   if (entity.submissionId) {
-    const existSubmission = await SubmissionService._getSubmission(entity.submissionId, false)
+    const existSubmission = await _getSubmission(entity.submissionId)
 
     if (!existSubmission) {
       throw new errors.HttpStatusError(400, `Submission with ID = ${entity.submissionId} does not exist`)
@@ -30,6 +30,26 @@ async function _checkRef (entity) {
   }
 }
 
+/**
+ * Function to get submission based on ID from DynamoDB
+ * This function will be used to check existence of a submission
+ * @param {String} submissionId submissionId which need to be retrieved
+ * @return {Promise<Object>} Data retrieved from database
+ */
+async function _getSubmission (submissionId) {
+  const table = 'Submission'
+  // Construct filter to retrieve record from Database
+  const filter = {
+    TableName: table,
+    Key: {
+      id: submissionId
+    }
+  }
+  const result = await dbhelper.getRecord(filter)
+  const submission = result.Item
+  return submission
+}
 module.exports = {
-  _checkRef
+  _checkRef,
+  _getSubmission
 }

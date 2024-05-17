@@ -55,5 +55,20 @@ module.exports = {
     'd6d31f34-8ee5-4589-ae65-45652fcc01a6': 30000720
   },
 
-  INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800
+  INTERNAL_CACHE_TTL: process.env.INTERNAL_CACHE_TTL || 1800,
+  INFORMIX: {
+    SERVER: process.env.INFORMIX_SERVER || 'informixoltp_tcp', // informix server
+    DATABASE: process.env.INFORMIX_DATABASE || 'tcs_catalog', // informix database
+    HOST: process.env.INFORMIX_HOST || 'localhost', // host
+    PROTOCOL: process.env.INFORMIX_PROTOCOL || 'onsoctcp',
+    PORT: process.env.INFORMIX_PORT || '2021', // port
+    DB_LOCALE: process.env.INFORMIX_DB_LOCALE || 'en_US.57372',
+    USER: process.env.INFORMIX_USER || 'informix', // user
+    PASSWORD: process.env.INFORMIX_PASSWORD || '1nf0rm1x', // password
+    POOL_MAX_SIZE: parseInt(process.env.MAXPOOL, 10) || 60,
+    maxsize: parseInt(process.env.MAXSIZE) || 0,
+    minpool: parseInt(process.env.MINPOOL, 10) || 1,
+    idleTimeout: parseInt(process.env.IDLETIMEOUT, 10) || 3600,
+    timeout: parseInt(process.env.TIMEOUT, 10) || 30000
+  }
 }

@@ -10,6 +10,7 @@ const joi = require('joi')
 const _ = require('lodash')
 const { v4: uuidv4 } = require('uuid')
 const dbhelper = require('../common/dbhelper')
+const informixHelper = require('../common/informixHelper')
 const helper = require('../common/helper')
 const { originator, mimeType, fileType, events } = require('../../constants').busApiMeta
 const { submissionIndex } = require('../../constants')
@@ -247,11 +248,31 @@ async function listSubmissions (authUser, query) {
   const data = await helper.fetchFromES(query, helper.camelize(table))
   logger.info(`listSubmissions: returning ${data.rows.length} submissions for query: ${JSON.stringify(query)}`)
 
-  data.rows = _.map(data.rows, (submission) => {
+  data.rows = await Promise.all(_.map(data.rows, async (submission) => {
+    // Check to see if we've loaded in the submission reviews from OR (PS-268)
+    let hasReviewInES = false
+    if (submission.review) {
+      _.forEach(submission.review, (review) => {
+        if (review.metadata && review.metadata.source) {
+          if (review.metadata.source === 'Online Review') {
+            hasReviewInES = true
+          }
+        }
+      })
+    }
+
+    // We don't have the Online Review details in ES, so go to Informix to get them and
+    // put them into ES (PS-268).  Note that the informix helper calls the review and review summation
+    // services.  We can't do that here because it would introduce a circular dependency because the
+    // review service calls back to the submission service (this file)
+    // The check for submission.legacyId is for Phoenix submissions - we won't necessarily have the ID for those.
+    if (!hasReviewInES && submission.id && submission.legacySubmissionId) {
+      await informixHelper.loadOnlineReviewDetails(authUser, submission)
+    }
+
     if (submission.review && !helper.canSeePrivateReviews(authUser)) {
       submission.review = helper.cleanseReviews(submission.review)
     }
-
     // Strip out any null reviews in the array (PROD-3146)
     if (submission.review) {
       const nonNullReviews = []
@@ -266,6 +287,7 @@ async function listSubmissions (authUser, query) {
     helper.adjustSubmissionChallengeId(submission)
     return submission
   })
+  )
   return data
 }
 
