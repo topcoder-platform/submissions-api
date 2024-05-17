@@ -253,7 +253,7 @@ async function listSubmissions (authUser, query) {
     let hasReviewInES = false
     if (submission.review) {
       _.forEach(submission.review, (review) => {
-        if (review.metadata && review.metadata.source) {
+        if (review && review.metadata && review.metadata.source) {
           if (review.metadata.source === 'Online Review') {
             hasReviewInES = true
           }
