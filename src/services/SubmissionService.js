@@ -403,7 +403,7 @@ async function createSubmission (authUser, files, entity) {
   }
 
   logger.info('Check User access before creating the submission')
-  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator', 'tgadmin']).length === 0 && !authUser.scopes) {
     await helper.checkCreateAccess(authUser, item.memberId, challenge)
 
     if (entity.submittedDate) {

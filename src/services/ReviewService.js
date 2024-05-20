@@ -165,7 +165,7 @@ async function createReview (authUser, entity) {
     entity
   )
 
-  if (_.intersection(authUser.roles, ['Administrator', 'administrator']).length === 0 && !authUser.scopes) {
+  if (_.intersection(authUser.roles, ['Administrator', 'administrator', 'tgadmin']).length === 0 && !authUser.scopes) {
     if (entity.reviewedDate) {
       throw new errors.HttpStatusError(403, 'You are not allowed to set the `reviewedDate` attribute on a review')
     }
