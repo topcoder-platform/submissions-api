@@ -16,7 +16,7 @@ module.exports = {
       controller: 'SubmissionController',
       method: 'listSubmissions',
       auth: 'jwt',
-      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      access: ['Topcoder User', 'Administrator', 'Copilot', 'tgadmin'],
       scopes: ['read:submission', 'all:submission'],
       blockByIp: true
     }
@@ -26,7 +26,7 @@ module.exports = {
       controller: 'SubmissionController',
       method: 'getSubmission',
       auth: 'jwt',
-      access: ['Topcoder User', 'Administrator', 'Copilot'],
+      access: ['Topcoder User', 'Administrator', 'Copilot', 'tgadmin'],
       scopes: ['read:submission', 'all:submission'],
       blockByIp: true
     },
