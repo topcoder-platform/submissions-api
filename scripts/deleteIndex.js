@@ -1,5 +1,5 @@
 /**
- * Delete index in Elasticsearch
+ * Delete index in Opensearch
  */
 
 const config = require('config')
@@ -7,12 +7,12 @@ const logger = require('../src/common/logger')
 const helper = require('../src/common/helper')
 
 async function deleteIndex () {
-  logger.info('ES Index deletion started!')
-  const esClient = helper.getEsClient()
-  await esClient.indices.delete({
-    index: config.get('esConfig.ES_INDEX')
+  logger.info('OS Index deletion started!')
+  const osClient = helper.getOsClient()
+  await osClient.indices.delete({
+    index: config.get('osConfig.OS_INDEX')
   })
-  logger.info('ES Index deletion succeeded!')
+  logger.info('OS Index deletion succeeded!')
   process.exit(0)
 }
 

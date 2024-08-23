@@ -8,7 +8,7 @@ const logger = require('../src/common/logger')
 const dbhelper = require('../src/common/dbhelper')
 const helper = require('../src/common/helper')
 
-const esClient = helper.getEsClient()
+const osClient = helper.getOsClient()
 
 /**
  * Update Submission's challenge id to v5
@@ -46,13 +46,12 @@ async function updateRecord (submission, failedContainer) {
 
   await dbhelper.updateRecord(record)
   try {
-    const response = await esClient.update({
-      index: config.get('esConfig.ES_INDEX'),
-      type: config.get('esConfig.ES_TYPE'),
+    const response = await osClient.update({
+      index: config.get('osConfig.OS_INDEX'),
       id: submission.id,
       body: { doc: { challengeId: v5challengeId, legacyChallengeId: submission.challengeId } }
     })
-    logger.info(`updated ES for submission ${submission.id}, response: ${JSON.stringify(response)}`)
+    logger.info(`updated OS for submission ${submission.id}, response: ${JSON.stringify(response)}`)
   } catch (error) {
     logger.error(error.message)
   }

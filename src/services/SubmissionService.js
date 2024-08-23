@@ -741,32 +741,31 @@ deleteSubmission.schema = joi.object({
 async function countSubmissions (challengeId) {
   logger.debug(`countSubmissions ${challengeId}`)
   const esQuery = {
-    index: config.get('esConfig.ES_INDEX'),
-    type: config.get('esConfig.ES_TYPE'),
     size: 0,
-    body: {
-      query: {
-        bool: {
-          must: [
-            { term: { resource: 'submission' } },
-            { term: { challengeId } }
-          ]
-        }
-      },
-      aggs: {
-        group_by_type: {
-          terms: {
-            field: 'type'
-          }
+    query: {
+      bool: {
+        must: [
+          { term: { resource: 'submission' } },
+          { term: { challengeId } }
+        ]
+      }
+    },
+    aggs: {
+      group_by_type: {
+        terms: {
+          field: 'type'
         }
       }
     }
   }
 
-  const esClient = helper.getEsClient()
+  const osClient = helper.getOsClient()
   let result
   try {
-    result = await esClient.search(esQuery)
+    result = await osClient.search({
+      index: config.get('osConfig.OS_INDEX'),
+      body: esQuery
+  })
   } catch (err) {
     logger.error(`Get Submission Count Error ${JSON.stringify(err)}`)
     throw err

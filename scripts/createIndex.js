@@ -1,5 +1,5 @@
 /**
- * Create index in Elasticsearch
+ * Create index in Opensearch
  */
 
 const config = require('config')
@@ -8,9 +8,9 @@ const helper = require('../src/common/helper')
 
 async function createIndex () {
   logger.info('ES Index creation started!')
-  const esClient = helper.getEsClient()
+  const osClient = helper.getOsClient()
   const body = { mappings: {} }
-  body.mappings[config.get('esConfig.ES_TYPE')] = {
+  body.mappings[config.get('osConfig.ES_TYPE')] = {
     // keyword fields will do exact match
     // text field will be analyzed
     // fields not specified below will be 'text' by default
@@ -39,11 +39,11 @@ async function createIndex () {
       reviewSummation: { type: 'nested' }
     }
   }
-  await esClient.indices.create({
-    index: config.get('esConfig.ES_INDEX'),
+  await osClient.indices.create({
+    index: config.get('osConfig.OS_INDEX'),
     body
   })
-  logger.info('ES Index creation succeeded!')
+  logger.info('OS Index creation succeeded!')
   process.exit(0)
 }
 

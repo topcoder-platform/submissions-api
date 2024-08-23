@@ -19,9 +19,9 @@ module.exports = {
   BUSAPI_EVENTS_URL: 'https://api.topcoder-dev.com/v5/bus/events',
   BUSAPI_URL: 'https://api.topcoder-dev.com/v5',
   CHALLENGEAPI_V5_URL: 'https://api.topcoder-dev.com/v5/challenges',
-  esConfig: {
-    ES_INDEX: process.env.ES_INDEX_TEST || 'submission-test',
-    ES_TYPE: process.env.ES_TYPE_TEST || '_doc' // ES 6.x accepts only 1 Type per index and it's mandatory to define it
+  osConfig: {
+    OS_INDEX: process.env.OS_INDEX_TEST || 'submission-test',
+    OS_TYPE: process.env.OS_TYPE_TEST || '_doc' // ES 6.x accepts only 1 Type per index and it's mandatory to define it
   },
   AUTH0_URL: process.env.AUTH0_URL, // Auth0 credentials for Submission Service
   AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,

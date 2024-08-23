@@ -20,7 +20,7 @@ Dev: [![CircleCI](https://circleci.com/gh/topcoder-platform/submissions-api/tree
 
 ## Related repos
 
-- [ES Processor](https://github.com/topcoder-platform/submission-processor-es) - Updates data in ElasticSearch
+- [ES Processor](https://github.com/topcoder-platform/submission-processor-es) - Updates data in Opensearch
 
 ## Pre-requisites
 
@@ -179,8 +179,8 @@ npm run start
    ```
 
    This command will do 2 things:
-   - Import the data to the database and index it to ElasticSearch
-   - Note, to migrate the existing data from DynamoDB to ES, run the following script
+   - Import the data to the database and index it to OpenSearch
+   - Note, to migrate the existing data from DynamoDB to OS, run the following script
       ```
       npm run db-to-es
       ```
