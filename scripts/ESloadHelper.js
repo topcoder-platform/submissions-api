@@ -37,7 +37,7 @@ async function loadReviewTypes () {
       id: reviewType.id,
       body: _.extend({ resource: 'reviewType' }, reviewType)
     }
-    promises.push(osClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
@@ -53,7 +53,7 @@ async function loadSubmissions () {
       id: submission.id,
       body: _.extend({ resource: 'submission' }, submission)
     }
-    promises.push(osClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
@@ -69,7 +69,7 @@ async function loadReviews () {
       id: review.id,
       body: _.extend({ resource: 'review' }, review)
     }
-    promises.push(osClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
@@ -85,7 +85,7 @@ async function loadReviewSummations () {
       id: reviewSummation.id,
       body: _.extend({ resource: 'reviewSummation' }, reviewSummation)
     }
-    promises.push(osClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
