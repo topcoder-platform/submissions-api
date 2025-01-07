@@ -7,7 +7,7 @@ const _ = require('lodash')
 const AWS = require('aws-sdk')
 const AmazonS3URI = require('amazon-s3-uri')
 const config = require('config')
-const elasticsearch = require('@elastic/elasticsearch')
+const opensearch = require('@opensearch-project/opensearch')
 const logger = require('./logger')
 const busApi = require('tc-bus-api-wrapper')
 const errors = require('common-errors')
@@ -17,8 +17,8 @@ const { axiosInstance } = require('./axiosInstance')
 
 AWS.config.region = config.get('aws.AWS_REGION')
 const s3 = new AWS.S3()
-// ES Client mapping
-const esClients = {}
+// OS Client mapping
+const osClients = {}
 
 const REVIEW_TYPES_KEY = 'ReviewTypes'
 
@@ -79,13 +79,13 @@ function getBusApiClient () {
 
 /**
  * Get ES Client
- * @return {Object} Elastic Host Client Instance
+ * @return {Object} Open search Host Client Instance
  */
-function getEsClient () {
-  if (!esClients.client) {
-    esClients.client = new elasticsearch.Client({ node: config.get('esConfig.HOST') })
+function getOsClient () {
+  if (!osClients.client) {
+    osClients.client = new opensearch.Client({ node: config.get('osConfig.HOST') })
   }
-  return esClients.client
+  return osClients.client
 }
 
 /*
@@ -136,12 +136,12 @@ async function getReviewTypeId (scorecardName) {
 }
 
 /**
- * Parse the Query filters and prepare ES filter
+ * Parse the Query filters and prepare OS filter
  * @param  {Object} query Query filters passed in HTTP request
- * @param  {String} actResource Resource name in ES
- * @return {Object} search request body that can be passed to ES
+ * @param  {String} actResource Resource name in OS
+ * @return {Object} search request body that can be passed to OS
  */
-function prepESFilter (query, actResource) {
+function prepOSFilter (query, actResource) {
   const pageSize = query.perPage || config.get('PAGE_SIZE')
   const page = query.page || 1
   const { sortBy, orderBy } = query
@@ -195,18 +195,14 @@ function prepESFilter (query, actResource) {
   }
 
   const searchCriteria = {
-    index: config.get('esConfig.ES_INDEX'),
-    type: config.get('esConfig.ES_TYPE'),
     size: pageSize,
-    from: (page - 1) * pageSize, // Es Index starts from 0
-    body: {
-      _source: {
-        exclude: ['resource'] // Remove the resource field which is not required
-      },
-      query: {
-        bool: {
-          filter: boolQuery
-        }
+    from: (page - 1) * pageSize, // OS Index starts from 0
+    _source: {
+      exclude: ['resource'] // Remove the resource field which is not required
+    },
+    query: {
+      bool: {
+        filter: boolQuery
       }
     }
   }
@@ -227,7 +223,7 @@ function prepESFilter (query, actResource) {
   }
 
   if (esQuerySortArray.length > 0) {
-    searchCriteria.body.sort = esQuerySortArray
+    searchCriteria.sort = esQuerySortArray
   }
 
   return searchCriteria
@@ -240,12 +236,16 @@ function prepESFilter (query, actResource) {
  * @return {Promise<Object>} Data fetched from ES based on the filters
  */
 async function fetchFromES (query, resource) {
-  const esClient = getEsClient()
-  // Construct ES filter
-  const filter = prepESFilter(query, resource)
+  const osClient = getOsClient()
+  // Construct OS filter
+  const filter = prepOSFilter(query, resource)
   // Search with constructed filter
-  logger.debug(`The elasticsearch query is ${JSON.stringify(filter)}`)
-  const docs = await esClient.search(filter)
+  logger.debug(`The opensearch query is ${JSON.stringify(filter)}`)
+  const docs = await osClient.search({
+    index: config.get('osConfig.OS_INDEX'),
+    body: filter
+})
+
   // Extract data from hits
   const rows = _.map(docs.body.hits.hits, single => single._source)
 
@@ -916,7 +916,7 @@ function flushInternalCache () {
 module.exports = {
   wrapExpress,
   autoWrapExpress,
-  getEsClient,
+  getOsClient,
   fetchFromES,
   camelize,
   setPaginationHeaders,

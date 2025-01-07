@@ -1,15 +1,15 @@
 /*
- * Setting up ES for tests
+ * Setting up OS for tests
  */
 
 // During the test the env variable is set to test
 process.env.NODE_ENV = 'test'
 
 const prepare = require('mocha-prepare')
-const { deleteDatafromES } = require('../../scripts/ESloadHelper')
+const { deleteDatafromOS } = require('../../scripts/ESloadHelper')
 
 prepare(function (done) {
-  deleteDatafromES().then((data) => {
+  deleteDatafromOS().then((data) => {
     done()
   })
 })

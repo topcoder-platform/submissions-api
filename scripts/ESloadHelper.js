@@ -12,107 +12,102 @@ const submissions = require('./data/Submissions.json')
 const reviews = require('./data/Reviews.json')
 const reviewSummations = require('./data/ReviewSummations.json')
 
-const esClient = helper.getEsClient()
+const osClient = helper.getOsClient()
 
 /*
- * Delete all data from ES
+ * Delete all data from OS
  */
-function deleteDatafromES () {
-  logger.info('Clear data from ES if any')
+function deleteDatafromOS () {
+  logger.info('Clear data from OS if any')
   const filter = {
-    index: config.get('esConfig.ES_INDEX'),
-    type: config.get('esConfig.ES_TYPE'),
+    index: config.get('osConfig.OS_INDEX'),
     q: '*'
   }
-  return esClient.deleteByQuery(filter)
+  return osClient.deleteByQuery(filter)
 }
 
 /*
- * Load Review Types from JSON into ES
+ * Load Review Types from JSON into OS
  */
 async function loadReviewTypes () {
   const promises = []
   reviewTypes.forEach((reviewType) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX'),
-      type: config.get('esConfig.ES_TYPE'),
+      index: config.get('osConfig.OS_INDEX'),
       id: reviewType.id,
       body: _.extend({ resource: 'reviewType' }, reviewType)
     }
-    promises.push(esClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
 
 /*
- * Load Submissions from JSON into ES
+ * Load Submissions from JSON into OS
  */
 async function loadSubmissions () {
   const promises = []
   submissions.forEach((submission) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX'),
-      type: config.get('esConfig.ES_TYPE'),
+      index: config.get('osConfig.OS_INDEX'),
       id: submission.id,
       body: _.extend({ resource: 'submission' }, submission)
     }
-    promises.push(esClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
 
 /*
- * Load Reviews from JSON into ES
+ * Load Reviews from JSON into OS
  */
 async function loadReviews () {
   const promises = []
   reviews.forEach((review) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX'),
-      type: config.get('esConfig.ES_TYPE'),
+      index: config.get('osConfig.OS_INDEX'),
       id: review.id,
       body: _.extend({ resource: 'review' }, review)
     }
-    promises.push(esClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
 
 /*
- * Load Review Summations from JSON into ES
+ * Load Review Summations from JSON into OS
  */
 async function loadReviewSummations () {
   const promises = []
   reviewSummations.forEach((reviewSummation) => {
     const record = {
-      index: config.get('esConfig.ES_INDEX'),
-      type: config.get('esConfig.ES_TYPE'),
+      index: config.get('osConfig.OS_INDEX'),
       id: reviewSummation.id,
       body: _.extend({ resource: 'reviewSummation' }, reviewSummation)
     }
-    promises.push(esClient.create(record))
+    promises.push(osClient.index(record))
   })
   await Promise.all(promises)
 }
 
 /*
- * Load data into ES after removing existing data
+ * Load data into OS after removing existing data
  */
-async function loadES () {
-  await deleteDatafromES()
-  logger.info('ES Loading started!')
+async function loadOS () {
+  await deleteDatafromOS()
+  logger.info('OS Loading started!')
   await loadReviewTypes()
   await loadSubmissions()
   await loadReviews()
   await loadReviewSummations()
-  logger.info('ES Loading succeeded!')
+  logger.info('OS Loading succeeded!')
 }
 
 module.exports = {
-  deleteDatafromES,
+  deleteDatafromOS,
   loadReviewTypes,
   loadSubmissions,
   loadReviews,
   loadReviewSummations,
-  loadES
+  loadOS
 }

@@ -8,10 +8,10 @@ const logger = require('../src/common/logger')
 const dbhelper = require('../src/common/dbhelper')
 const helper = require('../src/common/helper')
 
-const esClient = helper.getEsClient()
+const osClient = helper.getOsClient()
 
 /*
- * Migrate records from DB to ES
+ * Migrate records from DB to OS
  * @param tableName {String} DynamoDB table name
  * @param customFunction {Function} custom function to handle record
  * @returns {Promise}
@@ -38,11 +38,10 @@ async function migrateRecords (tableName, customFunction) {
       // data
       body.push(_.extend({ resource: helper.camelize(tableName) }, item))
 
-      if (i % config.ES_BATCH_SIZE === 0) {
+      if (i % config.OS_BATCH_SIZE === 0) {
         logger.debug(`${tableName} - Processing batch # ` + batchCounter)
-        await esClient.bulk({
-          index: config.get('esConfig.ES_INDEX'),
-          type: config.get('esConfig.ES_TYPE'),
+        await osClient.bulk({
+          index: config.get('osConfig.OS_INDEX'),
           body
         })
         body = []
@@ -57,9 +56,8 @@ async function migrateRecords (tableName, customFunction) {
     } else {
       if (body.length > 0) {
         logger.debug(`${tableName} - Final batch processing...`)
-        await esClient.bulk({
-          index: config.get('esConfig.ES_INDEX'),
-          type: config.get('esConfig.ES_TYPE'),
+        await osClient.bulk({
+          index: config.get('osConfig.OS_INDEX'),
           body
         })
       }
