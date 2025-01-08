@@ -765,7 +765,7 @@ async function countSubmissions (challengeId) {
     result = await osClient.search({
       index: config.get('osConfig.OS_INDEX'),
       body: esQuery
-  })
+    })
   } catch (err) {
     logger.error(`Get Submission Count Error ${JSON.stringify(err)}`)
     throw err

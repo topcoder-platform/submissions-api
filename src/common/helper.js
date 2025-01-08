@@ -244,7 +244,7 @@ async function fetchFromES (query, resource) {
   const docs = await osClient.search({
     index: config.get('osConfig.OS_INDEX'),
     body: filter
-})
+  })
 
   // Extract data from hits
   const rows = _.map(docs.body.hits.hits, single => single._source)
