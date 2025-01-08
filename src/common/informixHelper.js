@@ -1,5 +1,5 @@
 /**
- * Contains Informix helper methods for loading reviews from Informix 
+ * Contains Informix helper methods for loading reviews from Informix
  */
 const config = require('config')
 const logger = require('./logger')
@@ -40,6 +40,10 @@ async function loadOnlineReviewDetails (authUser, submission) {
         WHERE submission.submission_id=${submission.legacySubmissionId} and review.committed=1`
 
     const reviews = queryInformix(query)
+
+    if (!reviews) {
+      return
+    }
 
     for await (const dbReview of reviews) {
       if (!submission.review) {
