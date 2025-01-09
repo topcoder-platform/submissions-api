@@ -92,7 +92,7 @@ async function loadOnlineReviewDetails (authUser, submission) {
 }
 
 function queryInformix (query) {
-  if (!dbConnection || dbConnection.connected==false) {
+  if (!dbConnection || !dbConnection.connected) {
     const connectionString = 'SERVER=' + config.get('INFORMIX.SERVER') +
       ';DATABASE=' + config.get('INFORMIX.DATABASE') +
       ';HOST=' + config.get('INFORMIX.HOST') +
@@ -101,8 +101,8 @@ function queryInformix (query) {
       ';DB_LOCALE=' + config.get('INFORMIX.DB_LOCALE') +
       ';UID=' + config.get('INFORMIX.USER') +
     ';PWD=' + config.get('INFORMIX.PASSWORD')
-     try {
-      const dbConnection = informix.openSync(connectionString)
+    try {
+      dbConnection = informix.openSync(connectionString)
     } catch (ex) {
       logger.error(`Informix connection error: ${ex}`)
     }
