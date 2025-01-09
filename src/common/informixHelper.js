@@ -104,7 +104,7 @@ function queryInformix (query) {
     try {
       dbConnection = informix.openSync(connectionString)
     } catch (ex) {
-      logger.error(`Informix connection error: ${ex}`)
+      logger.error(`Informix connection error: ${JSON.stringify(ex)}`)
       return null
     }
   }
@@ -112,7 +112,7 @@ function queryInformix (query) {
   try {
     result = dbConnection.querySync(query)
   } catch (ex) {
-    logger.error(`Informix query error: ${ex}`)
+    logger.error(`Informix query error: ${JSON.stringify(ex)}`)
   }
 
   return result
