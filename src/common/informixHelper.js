@@ -105,6 +105,7 @@ function queryInformix (query) {
       dbConnection = informix.openSync(connectionString)
     } catch (ex) {
       logger.error(`Informix connection error: ${ex}`)
+      return null
     }
   }
   let result = null
