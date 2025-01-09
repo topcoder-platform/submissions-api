@@ -7,6 +7,8 @@ const helper = require('./helper')
 const informix = require('informixdb')
 const ReviewService = require('../services/ReviewService')
 const ReviewSummationService = require('../services/ReviewSummationService')
+
+let dbConnection = null
 /*
  * This function loads the online review details for a given submission from Informix.
  * It uses the data to create review and reviewSummation objects which are then saved
@@ -90,22 +92,26 @@ async function loadOnlineReviewDetails (authUser, submission) {
 }
 
 function queryInformix (query) {
-  const connectionString = 'SERVER=' + config.get('INFORMIX.SERVER') +
-    ';DATABASE=' + config.get('INFORMIX.DATABASE') +
-    ';HOST=' + config.get('INFORMIX.HOST') +
-    ';Protocol=' + config.get('INFORMIX.PROTOCOL') +
-    ';SERVICE=' + config.get('INFORMIX.PORT') +
-    ';DB_LOCALE=' + config.get('INFORMIX.DB_LOCALE') +
-    ';UID=' + config.get('INFORMIX.USER') +
+  if (!dbConnection || !dbConnection.connected) {
+    const connectionString = 'SERVER=' + config.get('INFORMIX.SERVER') +
+      ';DATABASE=' + config.get('INFORMIX.DATABASE') +
+      ';HOST=' + config.get('INFORMIX.HOST') +
+      ';Protocol=' + config.get('INFORMIX.PROTOCOL') +
+      ';SERVICE=' + config.get('INFORMIX.PORT') +
+      ';DB_LOCALE=' + config.get('INFORMIX.DB_LOCALE') +
+      ';UID=' + config.get('INFORMIX.USER') +
     ';PWD=' + config.get('INFORMIX.PASSWORD')
-
+    try {
+      dbConnection = informix.openSync(connectionString)
+    } catch (ex) {
+      logger.error(`Informix connection error: ${ex}`)
+    }
+  }
   let result = null
   try {
-    const conn = informix.openSync(connectionString)
-    result = conn.querySync(query)
-    conn.closeSync()
+    result = dbConnection.querySync(query)
   } catch (ex) {
-    logger.error(ex)
+    logger.error(`Informix query error: ${ex}`)
   }
 
   return result
