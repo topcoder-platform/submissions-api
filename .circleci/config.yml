@@ -1,7 +1,7 @@
 version: 2
 defaults: &defaults
   docker:
-    - image: cimg/python:3.11.7-browsers
+    - image: cimg/python:3.12.1-browsers
 install_dependency: &install_dependency
     name: Installation of build and deployment dependencies.
     command: |
