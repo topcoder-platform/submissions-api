@@ -250,7 +250,7 @@ async function fetchFromES (query, resource) {
   const rows = _.map(docs.body.hits.hits, single => single._source)
 
   const response = {
-    total: docs.body.hits.total,
+    total: docs.body.hits.total.value,
     pageSize: filter.size,
     page: query.page || 1,
     rows
