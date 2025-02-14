@@ -59,7 +59,7 @@ jobs:
             source awsenvconf
             ./buildenv.sh -e PROD -b prod-submissions-api-deployvar
             source buildenvvar
-            ./master_deploy.sh -d ECS -e PROD -t latest -s prod-global-appvar,prod-submissions-api-appvar -i submissions-api
+            ./master_deploy.sh -d ECS -e PROD -t latest -s prod-global-appvar,prod-submissions-api-appvar -i submissions-api -p FARGATE
 
 workflows:
   version: 2
