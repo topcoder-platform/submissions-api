@@ -12,6 +12,7 @@ const _ = require('lodash')
 const s3 = new AWS.S3()
 const logger = require('../common/logger')
 const HelperService = require('./HelperService')
+const commonHelper = require('../common/helper')
 
 /*
  * Function to upload file to S3
@@ -68,14 +69,31 @@ downloadArtifact.schema = joi.object({
  * @param {String} submissionId Submission ID
  * @return {Promise<Object>} List of files present in S3 bucket under submissionId directory
  */
-async function listArtifacts (submissionId) {
+async function listArtifacts (authUser, submissionId) {
   // Check the validness of Submission ID
-  await HelperService._checkRef({ submissionId })
+  const submission = await HelperService._checkRef({ submissionId })
+
+  let challenge
+  try {
+    challenge = await commonHelper.getChallenge(submission.challengeId)
+  } catch (e) {
+    throw new errors.NotFoundError(`Could not load challenge: ${submission.challengeId}.\n Details: ${_.get(e, 'message')}`)
+  }
+
+  const { hasFullAccess, isSubmitter, hasNoAccess } = await commonHelper.getChallengeAccessLevel(authUser, submission.challengeId)
+
+  challenge.isMM = true
+  if (hasNoAccess || (isSubmitter && challenge.isMM && submission.memberId.toString() !== authUser.userId.toString())) {
+    throw new errors.HttpStatusError(403, 'You are not allowed to access this submission artifact.')
+  }
+
   const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId }).promise()
-  return { artifacts: _.map(artifacts.Contents, (at) => path.parse(at.Key).name) }
+  const artifactsContents = _.map(artifacts.Contents, (at) => path.parse(at.Key).name)
+  return hasFullAccess ? artifactsContents : _.filter(artifactsContents, artifactName => !artifactName.includes('internal'))
 }
 
 listArtifacts.schema = joi.object({
+  authUser: joi.object().required(),
   submissionId: joi.string().uuid().required()
 }).required()
 

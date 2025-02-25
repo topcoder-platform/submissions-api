@@ -14,6 +14,7 @@ const errors = require('common-errors')
 const { validate: uuidValidate } = require('uuid')
 const NodeCache = require('node-cache')
 const { axiosInstance } = require('./axiosInstance')
+const { UserRoles, ProjectRoles } = require('../constants')
 
 AWS.config.region = config.get('aws.AWS_REGION')
 const s3 = new AWS.S3()
@@ -313,6 +314,44 @@ function setPaginationHeaders (req, res, data) {
 }
 
 /**
+ * Get challenge resources
+ * @param {String} challengeId the challenge id
+ * @param {String} userId specific userId for which to check roles
+ */
+const getChallengeResources = async (challengeId, userId) => {
+  let resourcesResponse
+
+  // Get map of role id to role name
+  const resourceRolesMap = await getRoleIdToRoleNameMap()
+
+  // Check if role id to role name mapping is available. If not user's role cannot be determined.
+  if (resourceRolesMap == null || _.size(resourceRolesMap) === 0) {
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
+  }
+
+  const resourcesUrl = `${config.RESOURCEAPI_V5_BASE_URL}/resources?challengeId=${challengeId}${userId ? `&memberId=${userId}` : ''}`
+  try {
+    resourcesResponse = _.get(await axiosInstance.get(resourcesUrl), 'data', [])
+  } catch (ex) {
+    logger.error(`Error while accessing ${resourcesUrl}`)
+    throw new errors.HttpStatusError(503, `Could not determine the user's role in the challenge with id ${challengeId}`)
+  }
+
+  const resources = {}
+  _.each((resourcesResponse || []), (resource) => {
+    if (!resources[resource.memberId]) {
+      resources[resource.memberId] = {
+        memberId: resource.memberId,
+        memberHandle: resource.memberHandle,
+        roles: []
+      }
+    }
+    resources[resource.memberId].roles.push(resourceRolesMap[resource.roleId])
+  })
+  return resources
+}
+
+/**
  * Function to get challenge by id
  * @param {String} challengeId Challenge id
  * @returns {Promise}
@@ -504,6 +543,36 @@ async function checkCreateAccess (authUser, memberId, challengeDetails) {
     logger.debug('No enough details to validate the Permissions')
     throw new errors.HttpStatusError(503, `Not all information could be fetched about challenge with id ${challengeId}`)
   }
+}
+
+/**
+ * Check the user's access to a challenge
+ * @param {Object} authUser the user
+ * @param {Array} resources the challenge resources
+ */
+const getChallengeAccessLevel = async (authUser, challengeId) => {
+  const resources = await getChallengeResources(challengeId, authUser.userId)
+
+  // Case Insensitive Role checks
+  const hasFullAccess = authUser.roles.findIndex(item => UserRoles.Admin.toLowerCase() === item.toLowerCase()) > -1 || _.intersectionWith(_.get(resources[authUser.userId], 'roles', []), [
+    ProjectRoles.Manager,
+    ProjectRoles.Copilot,
+    ProjectRoles.Observer,
+    ProjectRoles.Client_Manager
+  ], (act, exp) => act.toLowerCase() === exp.toLowerCase()).length > 0
+
+  const isReviewer = !hasFullAccess && _.intersectionWith(_.get(resources[authUser.userId], 'roles', []), [
+    ProjectRoles.Reviewer,
+    ProjectRoles.Iterative_Reviewer
+  ], (act, exp) => act.toLowerCase() === exp.toLowerCase()).length > 0
+
+  const isSubmitter = !hasFullAccess && !isReviewer && _.intersectionWith(_.get(resources[authUser.userId], 'roles', []), [
+    ProjectRoles.Submitter
+  ], (act, exp) => act.toLowerCase() === exp.toLowerCase()).length > 0
+
+  const hasNoAccess = !hasFullAccess && !isReviewer && !isSubmitter
+
+  return { hasFullAccess, isReviewer, isSubmitter, hasNoAccess }
 }
 
 /**
@@ -922,6 +991,7 @@ module.exports = {
   setPaginationHeaders,
   getSubmissionPhaseId,
   checkCreateAccess,
+  getChallengeAccessLevel,
   checkGetAccess,
   checkReviewGetAccess,
   createS3ReadStream,

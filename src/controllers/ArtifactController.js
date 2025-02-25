@@ -21,7 +21,7 @@ async function downloadArtifact (req, res) {
  * @param res the http response
  */
 async function listArtifacts (req, res) {
-  res.json(await ArtifactService.listArtifacts(req.params.submissionId))
+  res.json(await ArtifactService.listArtifacts(req.authUser, req.params.submissionId))
 }
 
 /**
