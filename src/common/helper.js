@@ -551,6 +551,10 @@ async function checkCreateAccess (authUser, memberId, challengeDetails) {
  * @param {Array} resources the challenge resources
  */
 const getChallengeAccessLevel = async (authUser, challengeId) => {
+  if (authUser.isMachine) {
+    return { hasFullAccess: true }
+  }
+
   const resources = await getChallengeResources(challengeId, authUser.userId)
 
   // Case Insensitive Role checks
