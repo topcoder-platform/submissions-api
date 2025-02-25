@@ -61,13 +61,15 @@ async function downloadArtifact (authUser, submissionId, fileName) {
     throw new errors.HttpStatusError(403, 'Could not access artifact.')
   }
 
-  const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
+  const prefix = submissionId + '/' + fileName
+  const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: prefix }).promise()
+
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
 
-  const key = submissionId + '/' + fileName + '.zip'
-  if (!_.includes(_.map(artifacts.Contents, 'Key'), key)) {
+  const key = _.get(_.find(artifacts.Contents, { Key: `${prefix}.zip` }) || (artifacts.Contents.length === 1 ? artifacts.Contents[0] : {}), 'Key', null)
+  if (!key) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
 
@@ -130,7 +132,7 @@ async function createArtifact (files, submissionId, entity) {
   logger.info('Creating a new Artifact')
   if (files && files.artifact) {
     const uFileType = (await FileType.fromBuffer(files.artifact.data)).ext // File type of uploaded file
-    fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
+    fileName = `${submissionId}/${files.artifact.name.split('.').slice(0, -1)}.${uFileType}`
 
     // Upload the artifact to S3
     await _uploadToS3(files.artifact, fileName)
@@ -162,11 +164,6 @@ async function deleteArtifact (submissionId, fileName) {
   await s3.deleteObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: artifacts.Contents[0].Key }).promise()
   logger.info(`deleteArtifact: deleted artifact ${fileName} of Submission ID: ${submissionId}`)
 }
-
-downloadArtifact.schema = joi.object({
-  submissionId: joi.string().uuid().required(),
-  fileName: joi.string().trim().required()
-}).required()
 
 module.exports = {
   downloadArtifact,
