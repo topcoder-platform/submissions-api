@@ -40,9 +40,27 @@ async function _uploadToS3 (file, name) {
  * @param {String} fileName File name which need to be downloaded from S3
  * @return {Promise<Object>} File downloaded from S3
  */
-async function downloadArtifact (submissionId, fileName) {
+async function downloadArtifact (authUser, submissionId, fileName) {
   // Check the validness of Submission ID
-  await HelperService._checkRef({ submissionId })
+  const submission = await HelperService._checkRef({ submissionId })
+
+  let challenge
+  try {
+    challenge = await commonHelper.getChallenge(submission.challengeId)
+  } catch (e) {
+    throw new errors.NotFoundError(`Could not load challenge: ${submission.challengeId}.\n Details: ${_.get(e, 'message')}`)
+  }
+
+  const { hasFullAccess, isSubmitter, hasNoAccess } = await commonHelper.getChallengeAccessLevel(authUser, submission.challengeId)
+
+  if (hasNoAccess || (isSubmitter && challenge.isMM && submission.memberId.toString() !== authUser.userId.toString())) {
+    throw new errors.HttpStatusError(403, 'You are not allowed to download this submission artifact.')
+  }
+
+  if (fileName.includes('internal') && !hasFullAccess) {
+    throw new errors.HttpStatusError(403, 'Could not access artifact.')
+  }
+
   const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
@@ -60,6 +78,7 @@ async function downloadArtifact (submissionId, fileName) {
 }
 
 downloadArtifact.schema = joi.object({
+  authUser: joi.object().required(),
   submissionId: joi.string().uuid().required(),
   fileName: joi.string().trim().required()
 }).required()
@@ -82,7 +101,6 @@ async function listArtifacts (authUser, submissionId) {
 
   const { hasFullAccess, isSubmitter, hasNoAccess } = await commonHelper.getChallengeAccessLevel(authUser, submission.challengeId)
 
-  challenge.isMM = true
   if (hasNoAccess || (isSubmitter && challenge.isMM && submission.memberId.toString() !== authUser.userId.toString())) {
     throw new errors.HttpStatusError(403, 'You are not allowed to access this submission artifact.')
   }
