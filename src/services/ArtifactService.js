@@ -109,7 +109,7 @@ async function listArtifacts (authUser, submissionId) {
 
   const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId }).promise()
   const artifactsContents = _.map(artifacts.Contents, (at) => path.parse(at.Key).name)
-  return hasFullAccess ? artifactsContents : _.filter(artifactsContents, artifactName => !artifactName.includes('internal'))
+  return { artifacts: hasFullAccess ? artifactsContents : _.filter(artifactsContents, artifactName => !artifactName.includes('internal')) }
 }
 
 listArtifacts.schema = joi.object({
