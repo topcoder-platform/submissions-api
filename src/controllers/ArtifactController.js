@@ -10,7 +10,7 @@ const ArtifactService = require('../services/ArtifactService')
  * @param res the http response
  */
 async function downloadArtifact (req, res) {
-  const result = await ArtifactService.downloadArtifact(req.params.submissionId, req.params.file)
+  const result = await ArtifactService.downloadArtifact(req.authUser, req.params.submissionId, req.params.file)
   res.attachment(result.fileName)
   res.send(result.file)
 }
@@ -21,7 +21,7 @@ async function downloadArtifact (req, res) {
  * @param res the http response
  */
 async function listArtifacts (req, res) {
-  res.json(await ArtifactService.listArtifacts(req.params.submissionId))
+  res.json(await ArtifactService.listArtifacts(req.authUser, req.params.submissionId))
 }
 
 /**
