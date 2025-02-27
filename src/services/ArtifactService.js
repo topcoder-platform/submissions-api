@@ -44,16 +44,9 @@ async function downloadArtifact (authUser, submissionId, fileName) {
   // Check the validness of Submission ID
   const submission = await HelperService._checkRef({ submissionId })
 
-  let challenge
-  try {
-    challenge = await commonHelper.getChallenge(submission.challengeId)
-  } catch (e) {
-    throw new errors.NotFoundError(`Could not load challenge: ${submission.challengeId}.\n Details: ${_.get(e, 'message')}`)
-  }
-
   const { hasFullAccess, isSubmitter, hasNoAccess } = await commonHelper.getChallengeAccessLevel(authUser, submission.challengeId)
 
-  if (hasNoAccess || (isSubmitter && challenge.isMM && submission.memberId.toString() !== authUser.userId.toString())) {
+  if (hasNoAccess || (isSubmitter && submission.memberId.toString() !== authUser.userId.toString())) {
     throw new errors.HttpStatusError(403, 'You are not allowed to download this submission artifact.')
   }
 
@@ -94,16 +87,9 @@ async function listArtifacts (authUser, submissionId) {
   // Check the validness of Submission ID
   const submission = await HelperService._checkRef({ submissionId })
 
-  let challenge
-  try {
-    challenge = await commonHelper.getChallenge(submission.challengeId)
-  } catch (e) {
-    throw new errors.NotFoundError(`Could not load challenge: ${submission.challengeId}.\n Details: ${_.get(e, 'message')}`)
-  }
-
   const { hasFullAccess, isSubmitter, hasNoAccess } = await commonHelper.getChallengeAccessLevel(authUser, submission.challengeId)
 
-  if (hasNoAccess || (isSubmitter && challenge.isMM && submission.memberId.toString() !== authUser.userId.toString())) {
+  if (hasNoAccess || (isSubmitter && submission.memberId.toString() !== authUser.userId.toString())) {
     throw new errors.HttpStatusError(403, 'You are not allowed to access this submission artifact.')
   }
 

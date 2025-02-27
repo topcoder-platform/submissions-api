@@ -550,7 +550,7 @@ async function checkCreateAccess (authUser, memberId, challengeDetails) {
  * @param {Object} authUser the user
  * @param {Array} resources the challenge resources
  */
-const getChallengeAccessLevel = async (authUser, challengeId) => {
+async function getChallengeAccessLevel (authUser, challengeId) {
   if (authUser.isMachine) {
     return { hasFullAccess: true }
   }
