@@ -19,6 +19,8 @@ async function _checkRef (entity) {
     if (!existReviewType) {
       throw new errors.HttpStatusError(400, `Review type with ID = ${entity.typeId} does not exist`)
     }
+
+    return existReviewType
   }
 
   if (entity.submissionId) {
@@ -27,6 +29,8 @@ async function _checkRef (entity) {
     if (!existSubmission) {
       throw new errors.HttpStatusError(400, `Submission with ID = ${entity.submissionId} does not exist`)
     }
+
+    return existSubmission
   }
 }
 

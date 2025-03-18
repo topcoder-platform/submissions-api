@@ -40,7 +40,7 @@ jobs:
             source awsenvconf
             ./buildenv.sh -e DEV -b dev-submissions-api-deployvar
             source buildenvvar
-            ./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-submissions-api-appvar -i submissions-api
+            ./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-submissions-api-appvar -i submissions-api -p FARGATE
 
   "build-prod":
     <<: *defaults
@@ -69,7 +69,7 @@ workflows:
           context: org-global
           filters:
             branches:
-              only: ["develop", "PLAT-3383"]
+              only: ["develop", "PM-809_artifact-endpoint-update"]
       - "build-prod":
           context: org-global
           filters:

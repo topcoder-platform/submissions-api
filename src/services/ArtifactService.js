@@ -12,6 +12,7 @@ const _ = require('lodash')
 const s3 = new AWS.S3()
 const logger = require('../common/logger')
 const HelperService = require('./HelperService')
+const commonHelper = require('../common/helper')
 
 /*
  * Function to upload file to S3
@@ -39,16 +40,29 @@ async function _uploadToS3 (file, name) {
  * @param {String} fileName File name which need to be downloaded from S3
  * @return {Promise<Object>} File downloaded from S3
  */
-async function downloadArtifact (submissionId, fileName) {
+async function downloadArtifact (authUser, submissionId, fileName) {
   // Check the validness of Submission ID
-  await HelperService._checkRef({ submissionId })
-  const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: `${submissionId}/${fileName}` }).promise()
+  const submission = await HelperService._checkRef({ submissionId })
+
+  const { hasFullAccess, isSubmitter, hasNoAccess } = await commonHelper.getChallengeAccessLevel(authUser, submission.challengeId)
+
+  if (hasNoAccess || (isSubmitter && submission.memberId.toString() !== authUser.userId.toString())) {
+    throw new errors.HttpStatusError(403, 'You are not allowed to download this submission artifact.')
+  }
+
+  if (fileName.includes('internal') && !hasFullAccess) {
+    throw new errors.HttpStatusError(403, 'Could not access artifact.')
+  }
+
+  const prefix = submissionId + '/' + fileName
+  const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: prefix }).promise()
+
   if (artifacts.Contents.length === 0) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
 
-  const key = submissionId + '/' + fileName + '.zip'
-  if (!_.includes(_.map(artifacts.Contents, 'Key'), key)) {
+  const key = _.get(_.find(artifacts.Contents, { Key: `${prefix}.zip` }) || (artifacts.Contents.length === 1 ? artifacts.Contents[0] : {}), 'Key', null)
+  if (!key) {
     throw new errors.HttpStatusError(400, `Artifact ${fileName} doesn't exist for ${submissionId}`)
   }
 
@@ -59,6 +73,7 @@ async function downloadArtifact (submissionId, fileName) {
 }
 
 downloadArtifact.schema = joi.object({
+  authUser: joi.object().required(),
   submissionId: joi.string().uuid().required(),
   fileName: joi.string().trim().required()
 }).required()
@@ -68,14 +83,23 @@ downloadArtifact.schema = joi.object({
  * @param {String} submissionId Submission ID
  * @return {Promise<Object>} List of files present in S3 bucket under submissionId directory
  */
-async function listArtifacts (submissionId) {
+async function listArtifacts (authUser, submissionId) {
   // Check the validness of Submission ID
-  await HelperService._checkRef({ submissionId })
+  const submission = await HelperService._checkRef({ submissionId })
+
+  const { hasFullAccess, isSubmitter, hasNoAccess } = await commonHelper.getChallengeAccessLevel(authUser, submission.challengeId)
+
+  if (hasNoAccess || (isSubmitter && submission.memberId.toString() !== authUser.userId.toString())) {
+    throw new errors.HttpStatusError(403, 'You are not allowed to access this submission artifact.')
+  }
+
   const artifacts = await s3.listObjects({ Bucket: config.aws.ARTIFACT_BUCKET, Prefix: submissionId }).promise()
-  return { artifacts: _.map(artifacts.Contents, (at) => path.parse(at.Key).name) }
+  const artifactsContents = _.map(artifacts.Contents, (at) => path.parse(at.Key).name)
+  return { artifacts: hasFullAccess ? artifactsContents : _.filter(artifactsContents, artifactName => !artifactName.includes('internal')) }
 }
 
 listArtifacts.schema = joi.object({
+  authUser: joi.object().required(),
   submissionId: joi.string().uuid().required()
 }).required()
 
@@ -94,7 +118,7 @@ async function createArtifact (files, submissionId, entity) {
   logger.info('Creating a new Artifact')
   if (files && files.artifact) {
     const uFileType = (await FileType.fromBuffer(files.artifact.data)).ext // File type of uploaded file
-    fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
+    fileName = `${submissionId}/${files.artifact.name.split('.').slice(0, -1)}.${uFileType}`
 
     // Upload the artifact to S3
     await _uploadToS3(files.artifact, fileName)
@@ -126,11 +150,6 @@ async function deleteArtifact (submissionId, fileName) {
   await s3.deleteObject({ Bucket: config.aws.ARTIFACT_BUCKET, Key: artifacts.Contents[0].Key }).promise()
   logger.info(`deleteArtifact: deleted artifact ${fileName} of Submission ID: ${submissionId}`)
 }
-
-downloadArtifact.schema = joi.object({
-  submissionId: joi.string().uuid().required(),
-  fileName: joi.string().trim().required()
-}).required()
 
 module.exports = {
   downloadArtifact,
