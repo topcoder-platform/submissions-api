@@ -118,7 +118,7 @@ async function createArtifact (files, submissionId, entity) {
   logger.info('Creating a new Artifact')
   if (files && files.artifact) {
     const uFileType = (await FileType.fromBuffer(files.artifact.data)).ext // File type of uploaded file
-    fileName = `${submissionId}/${files.artifact.name.split('.').slice(0, -1)}.${uFileType}`
+    fileName = `${submissionId}/${files.artifact.name}.${uFileType}`
 
     // Upload the artifact to S3
     await _uploadToS3(files.artifact, fileName)
