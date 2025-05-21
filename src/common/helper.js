@@ -301,7 +301,13 @@ function setPaginationHeaders (req, res, data) {
       link += `, <${fullUrl}page=${nextPage}>; rel="next"`
     }
 
+    // Allow browsers access pagination data in headers
+    let accessControlExposeHeaders = res.get('Access-Control-Expose-Headers') || '';
+    accessControlExposeHeaders += accessControlExposeHeaders ? ', ' : '';
+    accessControlExposeHeaders += 'X-Page, X-Per-Page, X-Total, X-Total-Pages';
+
     res.set({
+      'Access-Control-Expose-Headers': accessControlExposeHeaders,
       'X-Page': data.page,
       'X-Per-Page': data.pageSize,
       'X-Total': data.total,
